@@ -6,6 +6,7 @@
 <title>亲密关系心理测评 | 宇宙认知盐究所</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -569,7 +570,7 @@ function showResult() {
 
 function restart() { if (confirm('确定要重新测试吗？')) location.reload(); }
 
-// PDF下载
+// PDF下载 - 使用html2canvas截图方式保留中文
 async function downloadPDF() {
   const btn = document.getElementById('dlBtn');
   const loading = document.getElementById('loading');
@@ -578,8 +579,6 @@ async function downloadPDF() {
   loading.classList.add('show');
 
   try {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
     const s = calcScores();
     const typeKey = getType(s);
     const result = RESULT_MAP[typeKey];
@@ -589,99 +588,142 @@ async function downloadPDF() {
     const highest = Object.entries(s).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     const lowest = Object.entries(s).reduce((a, b) => a[1] < b[1] ? a : b)[0];
 
-    let y = 20;
-    const pageW = 210, margin = 20, contentW = pageW - 2 * margin;
+    // 创建PDF专用容器
+    const pdfContainer = document.createElement('div');
+    pdfContainer.id = 'pdfContent';
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
 
-    // 封面
-    pdf.setFillColor(102, 126, 234);
-    pdf.rect(0, 0, 210, 80, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(28);
-    pdf.text('亲密关系心理测评报告', 105, 35, { align: 'center' });
-    pdf.setFontSize(14);
-    pdf.text('宇宙认知盐究所 · Space Salt Lab', 105, 50, { align: 'center' });
-    pdf.setFontSize(11);
-    pdf.text('测评日期：' + date, 105, 65, { align: 'center' });
+    pdfContainer.innerHTML = `
+      <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
+        <div style="font-size:16px;margin-bottom:10px;opacity:0.9;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div style="font-size:32px;font-weight:700;margin-bottom:15px;">亲密关系心理测评报告</div>
+        <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
+      </div>
 
-    y = 95;
-    pdf.setTextColor(30, 41, 59);
+      <div style="background:#f8fafc;border-radius:16px;padding:30px;margin-bottom:25px;">
+        <div style="color:#667eea;font-size:14px;margin-bottom:8px;">你的依恋类型</div>
+        <div style="font-size:28px;font-weight:700;color:#1e293b;margin-bottom:12px;">${result.name}</div>
+        <div style="color:#64748b;font-size:14px;line-height:1.8;">${result.desc}</div>
+      </div>
 
-    // 你的类型
-    pdf.setFontSize(18);
-    pdf.setTextColor(102, 126, 234);
-    pdf.text('你的依恋类型', margin, y);
-    y += 12;
-    pdf.setFontSize(22);
-    pdf.setTextColor(30, 41, 59);
-    pdf.text(result.name, margin, y);
-    y += 10;
-    pdf.setFontSize(11);
-    pdf.setTextColor(100, 116, 139);
-    const descLines = pdf.splitTextToSize(result.desc, contentW);
-    pdf.text(descLines, margin, y);
-    y += descLines.length * 6 + 15;
+      <div style="display:flex;gap:15px;margin-bottom:25px;">
+        <div style="flex:1;background:#f0fdf4;border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#22c55e;">${total}</div>
+          <div style="font-size:12px;color:#64748b;">综合得分 /192</div>
+        </div>
+        <div style="flex:1;background:#eff6ff;border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#3b82f6;">${avg}</div>
+          <div style="font-size:12px;color:#64748b;">平均维度 /48</div>
+        </div>
+        <div style="flex:1;background:#fef3c7;border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#f59e0b;">${dimInfo[highest].name}</div>
+          <div style="font-size:12px;color:#64748b;">最强维度</div>
+        </div>
+        <div style="flex:1;background:#fce7f3;border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#ec4899;">${dimInfo[lowest].name}</div>
+          <div style="font-size:12px;color:#64748b;">待提升维度</div>
+        </div>
+      </div>
 
-    // 核心指标
-    pdf.setFontSize(14);
-    pdf.setTextColor(30, 41, 59);
-    pdf.text('核心指标概览', margin, y);
-    y += 10;
-    pdf.setFontSize(11);
-    pdf.text(`综合得分: ${total}/192    平均维度: ${avg}/48    最强维度: ${dimInfo[highest].name}    待提升: ${dimInfo[lowest].name}`, margin, y);
-    y += 15;
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">四维度深度分析</div>
+        ${['agency', 'boundary', 'emotion', 'attachment'].map(d => {
+          const info = dimInfo[d], lv = getLevel(s[d]), pct = Math.round(s[d]/48*100);
+          return `
+            <div style="background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-size:16px;font-weight:600;color:#1e293b;">${info.icon} ${info.name}</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="background:${lv.color};color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;">${lv.level}</span>
+                  <span style="font-weight:700;color:#667eea;">${s[d]}/48</span>
+                </div>
+              </div>
+              <div style="background:#e2e8f0;height:8px;border-radius:4px;margin-bottom:10px;">
+                <div style="background:linear-gradient(90deg,#667eea,#764ba2);height:100%;border-radius:4px;width:${pct}%;"></div>
+              </div>
+              <div style="color:#64748b;font-size:13px;line-height:1.7;">${getDimAnalysis(d, s[d])}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
 
-    // 四维度
-    pdf.setFontSize(14);
-    pdf.text('四维度得分', margin, y);
-    y += 10;
-    ['agency', 'boundary', 'emotion', 'attachment'].forEach(d => {
-      const info = dimInfo[d], lv = getLevel(s[d]);
-      pdf.setFontSize(11);
-      pdf.setTextColor(30, 41, 59);
-      pdf.text(`${info.icon} ${info.name}: ${s[d]}/48 (${lv.level})`, margin, y);
-      y += 6;
-      pdf.setTextColor(100, 116, 139);
-      pdf.setFontSize(10);
-      const analysis = pdf.splitTextToSize(getDimAnalysis(d, s[d]), contentW);
-      pdf.text(analysis, margin, y);
-      y += analysis.length * 5 + 8;
-      if (y > 270) { pdf.addPage(); y = 20; }
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">实践行动建议</div>
+        ${result.tips.map((t, i) => `
+          <div style="display:flex;gap:12px;margin-bottom:12px;">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">${i+1}</div>
+            <div style="color:#475569;font-size:14px;line-height:1.7;padding-top:4px;">${t}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:20px;margin-bottom:25px;">
+        <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:8px;">心理特征对标</div>
+        <div style="font-size:16px;font-weight:700;color:#78350f;margin-bottom:6px;">${result.celeb}</div>
+        <div style="font-size:13px;color:#92400e;">${result.celebDesc}</div>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+        <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div>本报告仅供参考，不构成心理诊断或医学建议</div>
+      </div>
+    `;
+
+    document.body.appendChild(pdfContainer);
+
+    // 等待字体加载
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+
+    // 截图
+    const canvas = await html2canvas(pdfContainer, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
     });
 
-    // 成长建议
-    if (y > 230) { pdf.addPage(); y = 20; }
-    pdf.setFontSize(14);
-    pdf.setTextColor(30, 41, 59);
-    pdf.text('实践行动建议', margin, y);
-    y += 10;
-    result.tips.forEach((t, i) => {
-      pdf.setFontSize(10);
-      pdf.setTextColor(30, 41, 59);
-      const tipLines = pdf.splitTextToSize(`${i + 1}. ${t}`, contentW);
-      pdf.text(tipLines, margin, y);
-      y += tipLines.length * 5 + 6;
-      if (y > 270) { pdf.addPage(); y = 20; }
-    });
+    document.body.removeChild(pdfContainer);
 
-    // 名人对标
-    if (y > 250) { pdf.addPage(); y = 20; }
-    y += 5;
-    pdf.setFontSize(14);
-    pdf.setTextColor(30, 41, 59);
-    pdf.text('心理特征对标', margin, y);
-    y += 10;
-    pdf.setFontSize(11);
-    pdf.text(`${result.celeb}: ${result.celebDesc}`, margin, y);
-    y += 15;
+    // 生成PDF
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const imgW = canvas.width;
+    const imgH = canvas.height;
 
-    // 页脚
-    if (y > 250) { pdf.addPage(); y = 20; }
-    pdf.setFillColor(248, 250, 252);
-    pdf.rect(0, 270, 210, 27, 'F');
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text('宇宙认知盐究所 · Space Salt Lab', 105, 280, { align: 'center' });
-    pdf.text('本报告仅供参考，不构成心理诊断或医学建议', 105, 287, { align: 'center' });
+    const pdfW = 210; // A4宽度mm
+    const pdfH = 297; // A4高度mm
+    const ratio = imgW / imgH;
+
+    let finalW = pdfW - 20;
+    let finalH = finalW / ratio;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let yPos = 10;
+    let remainingH = imgH;
+    let srcY = 0;
+
+    // 计算每页能显示的像素高度
+    const pagePixelH = (pdfH - 20) / finalH * imgH;
+
+    while (remainingH > 0) {
+      const sliceH = Math.min(remainingH, pagePixelH);
+      const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = imgW;
+      sliceCanvas.height = sliceH;
+      const ctx = sliceCanvas.getContext('2d');
+      ctx.drawImage(canvas, 0, srcY, imgW, sliceH, 0, 0, imgW, sliceH);
+
+      const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+      const sliceRatio = imgW / sliceH;
+      const sliceFinalH = finalW / sliceRatio;
+
+      if (srcY > 0) pdf.addPage();
+      pdf.addImage(sliceData, 'JPEG', 10, 10, finalW, sliceFinalH);
+
+      srcY += sliceH;
+      remainingH -= sliceH;
+    }
 
     pdf.save(`亲密关系心理测评报告_${date}.pdf`);
   } catch (e) {
