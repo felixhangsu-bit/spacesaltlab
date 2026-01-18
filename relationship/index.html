@@ -233,15 +233,33 @@ body {
 const urlParams = new URLSearchParams(window.location.search);
 const fromPlatform = urlParams.get('from') === 'platform';
 
+// 检查单测用户是否在1小时内已验证过密码
+const singleTestAuth = localStorage.getItem('relationship_auth');
+const singleTestAuthTime = localStorage.getItem('relationship_auth_time');
+const isAuthValid = singleTestAuth === 'true' && singleTestAuthTime &&
+  (Date.now() - parseInt(singleTestAuthTime)) < 3600000; // 1小时 = 3600000毫秒
+
 if (fromPlatform) {
-  // 从platform来的用户，隐藏密码区域，显示直接开始按钮
+  // 从platform来的用户，记录来源，隐藏密码区域，显示直接开始按钮
+  sessionStorage.setItem('user_source', 'platform');
   document.getElementById('passwordSection').classList.add('hidden');
   document.getElementById('directStart').classList.remove('hidden');
+} else if (isAuthValid) {
+  // 单测用户1小时内已验证，直接显示开始按钮
+  document.getElementById('passwordSection').classList.add('hidden');
+  document.getElementById('directStart').classList.remove('hidden');
+} else {
+  // 需要输入密码
+  sessionStorage.setItem('user_source', 'single');
 }
 
 function checkPassword() {
   const pwd = document.getElementById('pwd').value;
   if (pwd === 'salt999') {
+    // 记录验证时间，1小时内有效
+    localStorage.setItem('relationship_auth', 'true');
+    localStorage.setItem('relationship_auth_time', Date.now().toString());
+    sessionStorage.setItem('user_source', 'single');
     window.location.href = 'test.html';
   } else {
     document.getElementById('err').classList.add('show');
@@ -250,6 +268,10 @@ function checkPassword() {
 }
 
 function startTest() {
+  // 如果是从platform来的，确保记录来源
+  if (fromPlatform) {
+    sessionStorage.setItem('user_source', 'platform');
+  }
   window.location.href = 'test.html';
 }
 </script>

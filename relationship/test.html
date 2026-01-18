@@ -333,7 +333,23 @@ function nextQ() {
   if (answers[idx] === null) { alert('请先选择一个选项'); return; }
   if (idx < 47) { idx++; render(); } else showResult();
 }
-function exitTest() { if (confirm('确定退出？答案将不会保存。')) window.location.href = 'index.html'; }
+function exitTest() {
+  if (confirm('确定退出？答案将不会保存。')) {
+    goToHome();
+  }
+}
+
+function goToHome() {
+  // 检查用户来源
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') {
+    // 合集用户返回到platform
+    window.location.href = '../platform.html';
+  } else {
+    // 单测用户返回到测试首页
+    window.location.href = 'index.html';
+  }
+}
 
 function calcScores() {
   const s = { agency: 0, boundary: 0, emotion: 0, attachment: 0 };
@@ -539,7 +555,7 @@ function showResult() {
         下载PDF报告
       </button>
       <button class="restart-btn" onclick="restart()">重新测试</button>
-      <button class="restart-btn" onclick="location.href='index.html'" style="margin-left:8px">返回首页</button>
+      <button class="restart-btn" onclick="goToHome()" style="margin-left:8px">返回首页</button>
     </div>
   `;
 
