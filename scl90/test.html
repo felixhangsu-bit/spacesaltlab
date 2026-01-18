@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心理状态评估 | 宇宙认知盐究所</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #a5b4fc;
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 16px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+#testPage { background: var(--bg); padding: 20px; }
+.test-container { max-width: 700px; margin: 0 auto; }
+.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+.back-btn:hover { background: white; color: var(--text); }
+.progress-wrap { text-align: right; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: var(--primary-light); background: #fafaff; }
+.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
+.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
+.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.opt-text { font-size: 15px; font-weight: 500; }
+.nav-btns { display: flex; gap: 12px; margin-top: 32px; }
+.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: var(--primary-light); }
+.nav-btn.primary { background: var(--primary); border: none; color: white; }
+.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
+.result-header { text-align: center; color: white; margin-bottom: 32px; padding-top: 20px; }
+.result-header h1 { font-size: 26px; margin-bottom: 8px; }
+.result-header p { opacity: 0.9; font-size: 14px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.section-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+.status-card { text-align: center; padding: 24px; border-radius: 16px; margin-bottom: 20px; }
+.status-card.stable { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+.status-card.attention { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+.status-card.risk { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+.status-label { font-size: 14px; margin-bottom: 8px; }
+.status-value { font-size: 28px; font-weight: 700; }
+.status-card.stable .status-value { color: #059669; }
+.status-card.attention .status-value { color: #d97706; }
+.status-card.risk .status-value { color: #dc2626; }
+
+.chart-wrap { max-width: 400px; margin: 0 auto; }
+.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+.dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.dim-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+.dim-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 4px; }
+.level-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.level-high { background: #d1fae5; color: #059669; }
+.level-medium { background: #fef3c7; color: #d97706; }
+.level-low { background: #fee2e2; color: #dc2626; }
+
+.summary-text { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
+.tip-item { display: flex; gap: 12px; padding: 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px; }
+.tip-num { width: 24px; height: 24px; background: var(--gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+.warning-section { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.warning-section h4 { color: #dc2626; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.warning-section p { font-size: 13px; color: #7f1d1d; line-height: 1.6; }
+
+.action-btns { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+.restart-btn.primary { background: var(--gradient); border: none; color: white; }
+.restart-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.3); }
+.restart-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.restart-btn.secondary:hover { border-color: var(--primary); }
+
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay.show { opacity: 1; }
+.modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-icon { font-size: 48px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 20px; margin-bottom: 12px; }
+.modal-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+.modal-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.modal-btn.primary { background: var(--gradient); border: none; color: white; }
+.modal-btn.secondary { background: #f1f5f9; border: none; color: var(--text); }
+
+.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
+.loading-overlay.show { display: flex; }
+.loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="testPage" class="page active">
+  <div class="test-container">
+    <div class="test-header">
+      <button class="back-btn" onclick="if(confirm('确定要退出吗？'))location.href='index.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回
+      </button>
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="current">1</span> / 45</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:2.2%"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="dim-tag" id="dimTag" style="background:#dbeafe;color:#3b82f6">躯体化</div>
+      <div class="q-num">第 <span id="qNum">1</span> 题</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="nav-btns">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prev()" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          上一题
+        </button>
+        <button class="nav-btn primary" id="nextBtn" onclick="next()" disabled>
+          下一题
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="page">
+  <div class="result-container" id="resultContent"></div>
+</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--text-muted)">正在生成报告...</div>
+</div>
+
+<script>
+// 45题SCL-90精简版，每个因子5题
+const questions = [
+  // 躯体化 (5题)
+  { dim: 'som', text: '最近一周，你是否感到头痛或头部不适？' },
+  { dim: 'som', text: '最近一周，你是否感到心跳加速或心慌？' },
+  { dim: 'som', text: '最近一周，你是否感到身体某些部位麻木或刺痛？' },
+  { dim: 'som', text: '最近一周，你是否感到胸闷或呼吸困难？' },
+  { dim: 'som', text: '最近一周，你是否感到肌肉酸痛或身体疲劳？' },
+  // 强迫症状 (5题)
+  { dim: 'obs', text: '最近一周，你是否反复检查已经做好的事情？' },
+  { dim: 'obs', text: '最近一周，你是否难以做出决定？' },
+  { dim: 'obs', text: '最近一周，你是否有一些无法摆脱的想法？' },
+  { dim: 'obs', text: '最近一周，你是否感到做事必须反复核对？' },
+  { dim: 'obs', text: '最近一周，你是否因为粗心大意而烦恼？' },
+  // 人际敏感 (5题)
+  { dim: 'int', text: '最近一周，你是否感到别人不理解你？' },
+  { dim: 'int', text: '最近一周，你是否感到与人相处时不自在？' },
+  { dim: 'int', text: '最近一周，你是否感到自己不如别人？' },
+  { dim: 'int', text: '最近一周，你是否过分在意别人对你的看法？' },
+  { dim: 'int', text: '最近一周，你是否感到别人对你不友善？' },
+  // 抑郁 (5题)
+  { dim: 'dep', text: '最近一周，你是否感到情绪低落或沮丧？' },
+  { dim: 'dep', text: '最近一周，你是否对事情失去兴趣？' },
+  { dim: 'dep', text: '最近一周，你是否感到前途没有希望？' },
+  { dim: 'dep', text: '最近一周，你是否感到自己没有价值？' },
+  { dim: 'dep', text: '最近一周，你是否有想哭的感觉？' },
+  // 焦虑 (5题)
+  { dim: 'anx', text: '最近一周，你是否感到紧张或心神不宁？' },
+  { dim: 'anx', text: '最近一周，你是否感到坐立不安？' },
+  { dim: 'anx', text: '最近一周，你是否感到害怕或恐惧？' },
+  { dim: 'anx', text: '最近一周，你是否容易受到惊吓？' },
+  { dim: 'anx', text: '最近一周，你是否感到莫名的担心？' },
+  // 敌对 (5题)
+  { dim: 'hos', text: '最近一周，你是否容易发脾气或感到烦躁？' },
+  { dim: 'hos', text: '最近一周，你是否有想打人或伤害他人的冲动？' },
+  { dim: 'hos', text: '最近一周，你是否经常与人争吵？' },
+  { dim: 'hos', text: '最近一周，你是否感到容易被激怒？' },
+  { dim: 'hos', text: '最近一周，你是否有想摔东西的冲动？' },
+  // 恐惧 (5题)
+  { dim: 'pho', text: '最近一周，你是否害怕到空旷的地方？' },
+  { dim: 'pho', text: '最近一周，你是否害怕乘坐公共交通？' },
+  { dim: 'pho', text: '最近一周，你是否害怕独处？' },
+  { dim: 'pho', text: '最近一周，你是否害怕人多的场合？' },
+  { dim: 'pho', text: '最近一周，你是否有特定的恐惧对象？' },
+  // 偏执 (5题)
+  { dim: 'par', text: '最近一周，你是否感到别人在议论你？' },
+  { dim: 'par', text: '最近一周，你是否感到别人想占你便宜？' },
+  { dim: 'par', text: '最近一周，你是否感到不能信任大多数人？' },
+  { dim: 'par', text: '最近一周，你是否感到别人在监视或谈论你？' },
+  { dim: 'par', text: '最近一周，你是否感到别人对你有敌意？' },
+  // 现实感稳定性 (5题)
+  { dim: 'psy', text: '最近一周，你是否感到自己的思想不受控制？' },
+  { dim: 'psy', text: '最近一周，你是否感到孤独？' },
+  { dim: 'psy', text: '最近一周，你是否感到与他人疏远？' },
+  { dim: 'psy', text: '最近一周，你是否感到自己不真实？' },
+  { dim: 'psy', text: '最近一周，你是否感到周围事物不真实？' }
+];
+
+const dimInfo = {
+  'som': { name: '躯体化', icon: '🩺', bg: '#dbeafe', color: '#3b82f6' },
+  'obs': { name: '强迫症状', icon: '🔄', bg: '#fef3c7', color: '#f59e0b' },
+  'int': { name: '人际敏感', icon: '👥', bg: '#fce7f3', color: '#ec4899' },
+  'dep': { name: '抑郁', icon: '😔', bg: '#e0e7ff', color: '#6366f1' },
+  'anx': { name: '焦虑', icon: '😰', bg: '#fee2e2', color: '#ef4444' },
+  'hos': { name: '敌对', icon: '😤', bg: '#ffedd5', color: '#f97316' },
+  'pho': { name: '恐惧', icon: '😨', bg: '#d1fae5', color: '#10b981' },
+  'par': { name: '偏执', icon: '🤔', bg: '#f3e8ff', color: '#a855f7' },
+  'psy': { name: '现实感稳定性', icon: '🌀', bg: '#cffafe', color: '#06b6d4' }
+};
+
+const optionLabels = ['没有', '很轻', '中等', '偏重', '严重'];
+
+let idx = 0;
+let answers = new Array(45).fill(null);
+const dims = questions.map(q => q.dim);
+
+function render() {
+  const q = questions[idx];
+  const info = dimInfo[q.dim];
+  document.getElementById('dimTag').textContent = info.name;
+  document.getElementById('dimTag').style.background = info.bg;
+  document.getElementById('dimTag').style.color = info.color;
+  document.getElementById('qNum').textContent = idx + 1;
+  document.getElementById('current').textContent = idx + 1;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressFill').style.width = ((idx + 1) / 45 * 100) + '%';
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  optionLabels.forEach((label, i) => {
+    const opt = document.createElement('div');
+    opt.className = 'opt' + (answers[idx] === i ? ' selected' : '');
+    opt.innerHTML = `<div class="opt-radio"></div><div class="opt-text">${label}</div>`;
+    opt.onclick = () => selectOption(i);
+    optDiv.appendChild(opt);
+  });
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = answers[idx] === null;
+  document.getElementById('nextBtn').textContent = idx === 44 ? '查看结果' : '下一题';
+}
+
+function selectOption(val) {
+  answers[idx] = val;
+  render();
+}
+
+function prev() { if (idx > 0) { idx--; render(); } }
+
+function next() {
+  if (answers[idx] === null) return;
+  if (idx < 44) { idx++; render(); }
+  else { showResult(); }
+}
+
+function getNavButtons() {
+  const source = sessionStorage.getItem('user_source');
+  if (source === 'platform') {
+    return '<button class="restart-btn secondary" onclick="location.href=\'../platform.html\'">返回测评中心</button>';
+  } else {
+    return '<button class="restart-btn secondary" onclick="showMoreTests()">更多测试</button>';
+  }
+}
+
+function showMoreTests() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-icon">🧂</div>
+      <h3>更多专业测评</h3>
+      <p>请在宇宙认知盐究所购买其他测试哦~</p>
+      <div class="modal-buttons">
+        <button class="modal-btn primary" onclick="closeModal()">知道了</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+}
+
+function calcScores() {
+  const scores = { som: 0, obs: 0, int: 0, dep: 0, anx: 0, hos: 0, pho: 0, par: 0, psy: 0 };
+  answers.forEach((v, i) => { scores[dims[i]] += v; });
+  return scores;
+}
+
+function getOverallStatus(total) {
+  if (total <= 45) return { level: '心理状态稳定', class: 'stable', color: '#059669', desc: '你当前的心理状态整体稳定，各项指标均在正常范围内。这表明你在近期的生活中能够较好地应对日常压力，情绪调节能力良好。继续保持健康的生活方式，维持规律的作息、适当的运动和社交活动，这将有助于你持续保持良好的心理状态。' };
+  if (total <= 90) return { level: '需要关注', class: 'attention', color: '#d97706', desc: '你当前的心理状态显示出一些需要关注的信号。虽然整体处于可控范围，但某些方面可能正在经历压力或困扰。建议你关注那些得分较高的维度，分析可能的压力来源，并采取积极的自我调节措施。如果这些症状持续存在或加重，建议寻求专业帮助。' };
+  return { level: '建议寻求帮助', class: 'risk', color: '#dc2626', desc: '你当前的心理状态显示出较明显的困扰信号，多个维度的得分偏高。这可能意味着你正在经历较大的心理压力或情绪困扰。我们强烈建议你认真对待这些信号，及时寻求专业心理咨询师或医生的帮助。请记住，寻求帮助是勇敢和明智的选择，专业人士可以提供有效的支持和指导。' };
+}
+
+function getDimLevel(score) {
+  if (score <= 5) return { level: '正常', class: 'level-high', color: '#059669' };
+  if (score <= 10) return { level: '轻度', class: 'level-medium', color: '#d97706' };
+  if (score <= 15) return { level: '中度', class: 'level-medium', color: '#f97316' };
+  return { level: '偏高', class: 'level-low', color: '#dc2626' };
+}
+
+function getDimAnalysis(dim, score) {
+  const analyses = {
+    som: {
+      normal: '你的躯体化水平正常，身体与心理的协调性良好。你能够区分身体的正常感受和压力反应，不会过度关注身体症状。继续保持健康的生活方式和适度运动。',
+      mild: '你出现了一些轻度的躯体化症状，如偶尔的头痛、疲劳或肌肉紧张。这可能是近期压力的身体反应。建议关注压力来源，适当放松，保证充足睡眠。',
+      moderate: '你的躯体化症状较为明显，身体不适可能影响到日常生活。建议先排除器质性疾病，同时学习压力管理技巧，如深呼吸、渐进式肌肉放松等。',
+      high: '你的躯体化水平较高，身体症状明显且频繁。这可能是长期压力或情绪问题的躯体表现。建议及时就医检查，同时考虑寻求心理咨询帮助。'
+    },
+    obs: {
+      normal: '你的强迫症状水平正常，思维和行为都很灵活。你能够做出决定并接受不完美，不会被重复性的想法或行为所困扰。',
+      mild: '你出现了一些轻度的强迫倾向，如偶尔反复检查或难以决定。这在压力下是常见的，不必过于担心。尝试接纳不确定性，减少不必要的检查行为。',
+      moderate: '你的强迫症状较为明显，可能经常被某些想法困扰或需要反复确认事情。建议学习接纳不完美，逐步减少强迫行为，必要时可寻求专业帮助。',
+      high: '你的强迫症状水平较高，这可能严重影响日常生活效率和情绪状态。强烈建议寻求专业心理帮助，认知行为疗法对强迫症状有良好效果。'
+    },
+    int: {
+      normal: '你的人际敏感度正常，能够舒适地与他人相处。你有健康的自我评价，不会过度在意他人的看法，人际关系和谐。',
+      mild: '你出现了一些轻度的人际敏感，可能偶尔会在意别人的评价或感到不自在。这是正常的，尝试建立更积极的自我认知，关注自己的优点。',
+      moderate: '你的人际敏感度较高，可能经常担心别人的看法或感到自卑。建议培养自我接纳，学习assertive沟通技巧，逐步建立自信。',
+      high: '你的人际敏感水平较高，这可能严重影响社交和自我评价。建议寻求心理咨询，探索人际敏感的根源，建立更健康的自我概念和人际模式。'
+    },
+    dep: {
+      normal: '你的情绪状态良好，能够感受生活中的快乐和意义。即使遇到困难，你也能保持相对积极的心态。继续保持与他人的连接和有意义的活动。',
+      mild: '你出现了一些轻度的抑郁情绪，如偶尔感到低落或对事物兴趣下降。这可能是暂时的反应，保持规律作息、适度运动和社交活动会有帮助。',
+      moderate: '你的抑郁症状较为明显，情绪低落和兴趣减退可能持续存在。建议积极寻求支持，与信任的人交流，考虑专业心理咨询。',
+      high: '你的抑郁水平较高，这是需要认真对待的信号。请务必寻求专业帮助，与心理咨询师或精神科医生交流。记住，抑郁是可以治疗的，寻求帮助是正确的选择。'
+    },
+    anx: {
+      normal: '你的焦虑水平正常，能够较好地应对日常压力和不确定性。你不会过度担心未来的事情，能够活在当下。',
+      mild: '你出现了一些轻度焦虑，如偶尔感到紧张或担心。这在面对压力时是正常的。学习一些放松技巧，如深呼吸或正念冥想，会有帮助。',
+      moderate: '你的焦虑症状较为明显，可能经常感到紧张不安或难以放松。建议识别焦虑触发因素，学习系统的放松方法，考虑寻求专业指导。',
+      high: '你的焦虑水平较高，这可能严重影响生活质量。建议尽快寻求专业帮助，认知行为疗法对焦虑有很好的效果。同时确保基本的自我照顾。'
+    },
+    hos: {
+      normal: '你的情绪控制良好，能够适当表达和管理愤怒情绪。你不会轻易被激怒，能够以建设性的方式处理冲突。',
+      mild: '你出现了一些轻度的敌对情绪，如偶尔感到烦躁或容易发脾气。这可能与近期压力有关。学习情绪识别和表达技巧会有帮助。',
+      moderate: '你的敌对情绪较为明显，可能经常感到愤怒或与人冲突。建议探索愤怒背后的需求，学习愤怒管理技巧，必要时寻求专业帮助。',
+      high: '你的敌对情绪水平较高，这可能影响人际关系和生活质量。强烈建议寻求专业帮助，学习健康的情绪调节方式。如有伤害自己或他人的冲动，请立即寻求帮助。'
+    },
+    pho: {
+      normal: '你的恐惧水平正常，能够面对日常生活中的各种情境。你不会被不合理的恐惧所限制，生活自由度较高。',
+      mild: '你出现了一些轻度恐惧，可能对某些情境感到不适。这是相对常见的，逐步暴露和放松练习可以帮助减轻恐惧。',
+      moderate: '你的恐惧症状较为明显，可能回避某些场所或情境。建议学习系统脱敏技术，逐步面对恐惧，必要时寻求专业指导。',
+      high: '你的恐惧水平较高，这可能严重限制日常活动。建议寻求专业心理帮助，暴露疗法对恐惧症有良好效果。不要让恐惧控制你的生活。'
+    },
+    par: {
+      normal: '你的信任感正常，能够与他人建立健康的关系。你不会过度怀疑他人的动机，人际交往轻松自在。',
+      mild: '你出现了一些轻度的偏执倾向，可能偶尔会怀疑他人的意图。这可能与过去的经历有关。尝试培养更开放的心态，给予他人信任的机会。',
+      moderate: '你的偏执症状较为明显，可能经常感到被针对或不信任他人。建议反思这些想法的合理性，尝试从不同角度看问题，考虑寻求专业帮助。',
+      high: '你的偏执水平较高，这可能严重影响人际关系和生活质量。建议尽快寻求专业心理帮助，探索偏执背后的原因，建立更健康的认知模式。'
+    },
+    psy: {
+      normal: '你的现实感稳定，能够清晰地感知自己和周围环境。你与他人保持良好的连接，不会感到疏离或不真实。',
+      mild: '你出现了一些轻度的现实感变化，可能偶尔感到孤独或与他人疏远。这在压力下是可能发生的，增加社交活动和自我关怀会有帮助。',
+      moderate: '你的现实感稳定性有所下降，可能经常感到孤独或与现实脱节。建议增强与他人的连接，建立支持系统，考虑寻求专业帮助。',
+      high: '你的现实感稳定性较低，这是需要认真对待的信号。请尽快寻求专业心理或精神科帮助，确保你得到适当的支持和治疗。'
+    }
+  };
+
+  const dimAnalysis = analyses[dim];
+  if (score <= 5) return dimAnalysis.normal;
+  if (score <= 10) return dimAnalysis.mild;
+  if (score <= 15) return dimAnalysis.moderate;
+  return dimAnalysis.high;
+}
+
+function showResult() {
+  document.getElementById('testPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const scores = calcScores();
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  const status = getOverallStatus(total);
+
+  // 找出需要关注的维度
+  const concerns = Object.entries(scores)
+    .filter(([dim, score]) => score > 10)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2);
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-header">
+      <h1>心理状态评估报告</h1>
+      <p>基于SCL-90专业量表 · 宇宙认知盐究所</p>
+    </div>
+
+    <div class="card">
+      <div class="status-card ${status.class}">
+        <div class="status-label">当前心理状态</div>
+        <div class="status-value">${status.level}</div>
+      </div>
+      <div class="summary-text">${status.desc}</div>
+      ${total > 90 ? `
+        <div class="warning-section">
+          <h4>⚠️ 重要提示</h4>
+          <p>你的评估结果显示多个维度存在较高困扰。这不是诊断，但建议你认真对待这些信号，及时寻求专业心理咨询师或精神科医生的帮助。如有自伤或伤害他人的想法，请立即拨打心理援助热线或前往医院。</p>
+        </div>
+      ` : ''}
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>心理状态雷达图</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fef3c7">📋</div>9维度详细分析</div>
+      ${Object.entries(dimInfo).map(([dim, info]) => {
+        const score = scores[dim];
+        const level = getDimLevel(score);
+        return `
+          <div class="dim-item">
+            <div class="dim-header">
+              <div class="dim-name"><div class="dim-icon" style="background:${info.bg}">${info.icon}</div>${info.name}</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="level-badge ${level.class}">${level.level}</span>
+                <span style="font-weight:600;color:var(--primary);">${score}/20</span>
+              </div>
+            </div>
+            <div class="dim-bar"><div class="dim-bar-fill" style="width:${(score/20)*100}%;background:${level.color}"></div></div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:8px;">${getDimAnalysis(dim, score)}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    ${concerns.length > 0 ? `
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fee2e2">⚠️</div>需要特别关注的维度</div>
+      <div class="summary-text">
+        根据你的评估结果，以下维度需要特别关注：
+        <ul style="margin-top:12px;padding-left:20px;">
+          ${concerns.map(([dim, score]) => `<li><strong>${dimInfo[dim].name}</strong>（得分 ${score}/20）：建议重点关注并采取相应措施</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+    ` : ''}
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>自我调整建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">保持规律的作息时间，确保充足的睡眠（7-8小时），这是心理健康的基础</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">每天进行适度的身体活动，运动可以有效缓解压力和改善情绪</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">维持健康的社交关系，与信任的人分享你的感受和困扰</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">学习放松技巧，如深呼吸、正念冥想或渐进式肌肉放松</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">如果症状持续或加重，不要犹豫，及时寻求专业心理帮助</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">📞</div>专业支持资源</div>
+      <div class="summary-text">
+        <p>如果你正在经历严重的心理困扰，以下资源可以提供帮助：</p>
+        <ul style="margin-top:12px;padding-left:20px;line-height:2;">
+          <li>全国心理援助热线：400-161-9995</li>
+          <li>北京心理危机研究与干预中心：010-82951332</li>
+          <li>生命热线：400-821-1215</li>
+          <li>或前往当地精神卫生中心、三甲医院心理科就诊</li>
+        </ul>
+      </div>
+      <div class="warning-section" style="margin-top:16px;background:#fef3c7;border-color:#fde68a;">
+        <h4 style="color:#92400e;">📋 重要声明</h4>
+        <p style="color:#78350f;">本测评结果仅供自我了解参考，不构成任何心理诊断或医学建议。如有严重心理困扰或危机状况，请及时寻求专业帮助。</p>
+      </div>
+    </div>
+
+    <div class="action-btns">
+      <button class="restart-btn primary" onclick="downloadPDF()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        下载PDF报告
+      </button>
+      ${getNavButtons()}
+    </div>
+  `;
+
+  // 绘制雷达图
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: Object.values(dimInfo).map(d => d.name),
+      datasets: [{
+        label: '得分',
+        data: Object.keys(dimInfo).map(d => scores[d]),
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: '#6366f1',
+        borderWidth: 2,
+        pointBackgroundColor: '#6366f1'
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 20,
+          ticks: { stepSize: 5 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+async function downloadPDF() {
+  const btn = event.target.closest('button');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.innerHTML = '生成中...';
+  loading.classList.add('show');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const content = document.getElementById('resultContent');
+    const canvas = await html2canvas(content, { scale: 2, useCORS: true, logging: false });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 10;
+
+    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+    heightLeft -= (pdfHeight - 20);
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 10;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+    }
+
+    const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '-');
+    pdf.save(`心理状态评估报告_${date}.pdf`);
+  } catch (e) {
+    console.error(e);
+    alert('PDF生成失败');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 下载PDF报告';
+    loading.classList.remove('show');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

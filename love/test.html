@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱情心理结构测评 | 宇宙认知盐究所</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #ec4899;
+  --primary-dark: #db2777;
+  --primary-light: #f9a8d4;
+  --gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 16px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+#testPage { background: var(--bg); padding: 20px; }
+.test-container { max-width: 700px; margin: 0 auto; }
+.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+.back-btn:hover { background: white; color: var(--text); }
+.progress-wrap { text-align: right; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: var(--primary-light); background: #fdf2f8; }
+.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); }
+.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
+.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.opt-text { font-size: 15px; font-weight: 500; }
+.nav-btns { display: flex; gap: 12px; margin-top: 32px; }
+.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: var(--primary-light); }
+.nav-btn.primary { background: var(--primary); border: none; color: white; }
+.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#resultPage { background: linear-gradient(180deg, #ec4899 0%, #8b5cf6 40%, var(--bg) 40%); }
+.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
+.result-header { text-align: center; color: white; margin-bottom: 32px; padding-top: 20px; }
+.result-header h1 { font-size: 26px; margin-bottom: 8px; }
+.result-header p { opacity: 0.9; font-size: 14px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.section-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+.type-card { text-align: center; padding: 24px; border-radius: 16px; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); margin-bottom: 20px; }
+.type-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+.type-name { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+.type-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+.chart-wrap { max-width: 350px; margin: 0 auto; }
+.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+.dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.dim-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+.dim-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 4px; }
+.level-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.level-high { background: #fee2e2; color: #dc2626; }
+.level-medium { background: #fef3c7; color: #d97706; }
+.level-low { background: #d1fae5; color: #059669; }
+
+.summary-text { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
+.tip-item { display: flex; gap: 12px; padding: 14px; background: #fdf2f8; border-radius: 10px; margin-bottom: 10px; }
+.tip-num { width: 24px; height: 24px; background: var(--gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+.partner-card { background: #f8fafc; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.partner-card h4 { font-size: 14px; margin-bottom: 12px; color: var(--text); }
+.partner-list { list-style: none; padding: 0; }
+.partner-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+.partner-list li:last-child { border-bottom: none; }
+.partner-list li::before { content: '✓'; color: #10b981; font-weight: bold; }
+
+.action-btns { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+.restart-btn.primary { background: var(--gradient); border: none; color: white; }
+.restart-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(236,72,153,0.3); }
+.restart-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.restart-btn.secondary:hover { border-color: var(--primary); }
+
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay.show { opacity: 1; }
+.modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-icon { font-size: 48px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 20px; margin-bottom: 12px; }
+.modal-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+.modal-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.modal-btn.primary { background: var(--gradient); border: none; color: white; }
+.modal-btn.secondary { background: #f1f5f9; border: none; color: var(--text); }
+
+.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
+.loading-overlay.show { display: flex; }
+.loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.celebrity-box { background: #f8fafc; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.celebrity-box h4 { font-size: 14px; margin-bottom: 12px; }
+.celebrity-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; }
+.celebrity-item .gender { font-size: 20px; }
+.celebrity-item .info { flex: 1; }
+.celebrity-item .name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.celebrity-item .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div id="testPage" class="page active">
+  <div class="test-container">
+    <div class="test-header">
+      <button class="back-btn" onclick="if(confirm('确定要退出吗？'))location.href='index.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回
+      </button>
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="current">1</span> / 42</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:2.4%"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="dim-tag" id="dimTag" style="background:#fce7f3;color:#ec4899">亲密需求</div>
+      <div class="q-num">第 <span id="qNum">1</span> 题</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="nav-btns">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prev()" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          上一题
+        </button>
+        <button class="nav-btn primary" id="nextBtn" onclick="next()" disabled>
+          下一题
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="page">
+  <div class="result-container" id="resultContent"></div>
+</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--text-muted)">正在生成报告...</div>
+</div>
+
+<script>
+const questions = [
+  // 模块A - 亲密需求 (8题)
+  { dim: 'A', text: '当你和一个人建立亲密关系后，如果情绪交流明显减少，你会很快感到这段关系不像以前那样真实。' },
+  { dim: 'A', text: '如果一段关系长期停留在表面互动，你会逐渐感到空洞或疏离。' },
+  { dim: 'A', text: '被对方理解你的真实想法和情绪，对你来说非常重要。' },
+  { dim: 'A', text: '当重要情绪无法和伴侣分享时，你会明显感到不安。' },
+  { dim: 'A', text: '你倾向通过持续情绪交流确认亲密程度。' },
+  { dim: 'A', text: '如果情绪表达被回避，你很难长期适应。' },
+  { dim: 'A', text: '能否深入交流，是你判断关系是否值得继续的重要标准。' },
+  { dim: 'A', text: '即使关系表面稳定，只要情绪连接变弱，你也会重新评估关系。' },
+  // 模块B - 关系确定需求 (8题)
+  { dim: 'B', text: '关系身份长期不明确会让你难以放松投入。' },
+  { dim: 'B', text: '缺乏清晰承诺时，你会反复思考关系是否安全。' },
+  { dim: 'B', text: '你很难在暧昧关系中保持情绪稳定。' },
+  { dim: 'B', text: '你需要明确定位来确认自己在对方心中的位置。' },
+  { dim: 'B', text: '你会下意识想尽快消除关系的不确定状态。' },
+  { dim: 'B', text: '对方保持开放关系态度会让你感到不安。' },
+  { dim: 'B', text: '你更需要清晰信号再决定是否继续投入。' },
+  { dim: 'B', text: '即使互动不错，只要缺乏确定性，你也会感到悬空。' },
+  // 模块C - 情感投入强度 (10题)
+  { dim: 'C', text: '进入关系后，你会调整时间安排来配合对方。' },
+  { dim: 'C', text: '你的情绪会明显受关系进展影响。' },
+  { dim: 'C', text: '你愿意为关系压缩个人需求。' },
+  { dim: 'C', text: '即使回馈不对等，你也会继续投入一段时间。' },
+  { dim: 'C', text: '你愿意为关系承担不确定风险。' },
+  { dim: 'C', text: '关系出问题时，你更先调整自己。' },
+  { dim: 'C', text: '你在关系中投入了对未来的期待。' },
+  { dim: 'C', text: '关系结束时，你会感觉自己付出了很多。' },
+  { dim: 'C', text: '你很难轻易从已投入较多的关系中抽身。' },
+  { dim: 'C', text: '你常承担关系中的维系角色。' },
+  // 模块D - 安全感内化程度 (8题) - 反向计分
+  { dim: 'D', text: '即使伴侣暂时无法回应，你也能稳定情绪。' },
+  { dim: 'D', text: '独处时你依然感到自我完整。' },
+  { dim: 'D', text: '你不需要通过关系确认来证明价值。' },
+  { dim: 'D', text: '关系短暂波动不会让你立刻否定自己。' },
+  { dim: 'D', text: '你能独立处理大多数情绪困扰。' },
+  { dim: 'D', text: '关系不明朗时你仍能保持生活节奏。' },
+  { dim: 'D', text: '你的价值感较少随对方态度波动。' },
+  { dim: 'D', text: '你更从自我认可中获得安全感。' },
+  // 模块E - 情绪投射风险 (8题)
+  { dim: 'E', text: '感到孤独低落时，你会更依赖这段关系。' },
+  { dim: 'E', text: '你会把理想关系状态提前投射到对方身上。' },
+  { dim: 'E', text: '你会因情绪不同而重新解读关系。' },
+  { dim: 'E', text: '你把这段关系当作重要情绪支撑。' },
+  { dim: 'E', text: '现实空缺时你会更用力抓住关系。' },
+  { dim: 'E', text: '你有时忽略现实问题，只关注情绪安慰。' },
+  { dim: 'E', text: '你对关系的期待部分来自想象。' },
+  { dim: 'E', text: '失去这段关系会让你担心难以恢复。' }
+];
+
+const dimInfo = {
+  'A': { name: '亲密需求', icon: '💕', bg: '#fce7f3', color: '#ec4899' },
+  'B': { name: '确定需求', icon: '🔒', bg: '#dbeafe', color: '#3b82f6' },
+  'C': { name: '情感投入', icon: '💝', bg: '#fef3c7', color: '#f59e0b' },
+  'D': { name: '安全内化', icon: '🛡️', bg: '#d1fae5', color: '#10b981' },
+  'E': { name: '情绪投射', icon: '🌙', bg: '#f3e8ff', color: '#a855f7' }
+};
+
+const optionLabels = ['非常不符合', '不太符合', '有些符合', '非常符合'];
+
+let idx = 0;
+let answers = new Array(42).fill(null);
+const dims = questions.map(q => q.dim);
+
+function render() {
+  const q = questions[idx];
+  const info = dimInfo[q.dim];
+  document.getElementById('dimTag').textContent = info.name;
+  document.getElementById('dimTag').style.background = info.bg;
+  document.getElementById('dimTag').style.color = info.color;
+  document.getElementById('qNum').textContent = idx + 1;
+  document.getElementById('current').textContent = idx + 1;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressFill').style.width = ((idx + 1) / 42 * 100) + '%';
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+  optionLabels.forEach((label, i) => {
+    const opt = document.createElement('div');
+    opt.className = 'opt' + (answers[idx] === i ? ' selected' : '');
+    opt.innerHTML = `<div class="opt-radio"></div><div class="opt-text">${label}</div>`;
+    opt.onclick = () => selectOption(i);
+    optDiv.appendChild(opt);
+  });
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = answers[idx] === null;
+  document.getElementById('nextBtn').textContent = idx === 41 ? '查看结果' : '下一题';
+}
+
+function selectOption(val) {
+  answers[idx] = val;
+  render();
+}
+
+function prev() { if (idx > 0) { idx--; render(); } }
+
+function next() {
+  if (answers[idx] === null) return;
+  if (idx < 41) { idx++; render(); }
+  else { showResult(); }
+}
+
+function getNavButtons() {
+  const source = sessionStorage.getItem('user_source');
+  if (source === 'platform') {
+    return '<button class="restart-btn secondary" onclick="location.href=\'../platform.html\'">返回测评中心</button>';
+  } else {
+    return '<button class="restart-btn secondary" onclick="showMoreTests()">更多测试</button>';
+  }
+}
+
+function showMoreTests() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-icon">🧂</div>
+      <h3>更多专业测评</h3>
+      <p>请在宇宙认知盐究所购买其他测试哦~</p>
+      <div class="modal-buttons">
+        <button class="modal-btn primary" onclick="closeModal()">知道了</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+}
+
+function calcScores() {
+  const scores = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+  answers.forEach((v, i) => {
+    const dim = dims[i];
+    if (dim === 'D') {
+      // D维度反向计分：高分表示安全感内化程度高
+      scores[dim] += (3 - v);
+    } else {
+      scores[dim] += v;
+    }
+  });
+  return scores;
+}
+
+function getNormalized(scores) {
+  return {
+    A: Math.round(scores.A / 24 * 100),
+    B: Math.round(scores.B / 24 * 100),
+    C: Math.round(scores.C / 30 * 100),
+    D: Math.round(scores.D / 24 * 100),
+    E: Math.round(scores.E / 24 * 100)
+  };
+}
+
+function getLoveType(norm) {
+  const highIntimacy = norm.A >= 60;
+  const highCertainty = norm.B >= 60;
+  const highInvestment = norm.C >= 60;
+  const lowSecurity = norm.D < 50;
+  const highProjection = norm.E >= 60;
+
+  if (lowSecurity && highProjection && highInvestment) {
+    return {
+      name: '情感依赖型',
+      desc: '你在关系中倾向于高投入，但安全感主要来自外部确认。当关系回应不足时，容易陷入焦虑。你需要学会建立内在的安全感基础。',
+      risk: '可能过度依赖关系来填补内心空缺，容易在关系中消耗过多能量。',
+      strength: '真诚投入，重视情感连接，愿意为关系付出。'
+    };
+  }
+  if (highIntimacy && highCertainty && !lowSecurity) {
+    return {
+      name: '稳定追求型',
+      desc: '你对关系有明确的需求和标准，重视情绪交流和关系确定性。你的内在安全感相对稳定，能够在关系中保持自我。',
+      risk: '可能对关系有较高期待，需要避免过度理想化。',
+      strength: '清晰知道自己要什么，能够建立深度连接。'
+    };
+  }
+  if (highInvestment && !highProjection && !lowSecurity) {
+    return {
+      name: '健康投入型',
+      desc: '你愿意在关系中投入，同时保持着内在的安全感和自我认同。你能够区分真实的情感需求和情绪投射。',
+      risk: '需要注意平衡付出与接收，避免单方面过度投入。',
+      strength: '成熟的关系态度，能够健康地经营亲密关系。'
+    };
+  }
+  return {
+    name: '情感探索型',
+    desc: '你在关系中呈现出多元的特质，正在探索适合自己的相处模式。继续了解自己的需求和模式，会帮助你建立更满意的关系。',
+    risk: '需要更清晰地了解自己的核心需求，避免在关系中迷失方向。',
+    strength: '保持开放和探索的态度，有成长和改变的潜力。'
+  };
+}
+
+function getDimAnalysis(dim, score) {
+  const analyses = {
+    A: {
+      high: '你对亲密关系中的情绪交流有很高的需求。你重视深度连接，需要通过持续的情感互动来确认关系的真实性。缺乏情绪交流会让你感到空虚。建议找到同样重视情感连接的伴侣，同时也学会在暂时无法交流时自我调节。',
+      medium: '你对情绪交流有一定需求，但也能够接受适度的独立空间。你能够在亲密和自主之间找到平衡。继续保持这种灵活性，同时关注自己核心的情感需求。',
+      low: '你对情绪交流的需求相对较低，能够在关系中保持较强的独立性。这可能是自足的表现，也可能需要检视是否有情感回避的倾向。'
+    },
+    B: {
+      high: '你对关系的确定性有很高的需求。暧昧和不明确的状态会让你感到焦虑和不安。你需要清晰的边界和承诺才能安心投入。建议与伴侣坦诚沟通你的需求，同时也学会在不确定中保持一定的稳定。',
+      medium: '你对关系确定性有合理的期待，能够在一定程度上容忍暂时的模糊状态。这是比较健康的状态，继续保持清晰的自我认知和沟通。',
+      low: '你对关系确定性的需求较低，能够在模糊状态中保持相对平静。这可能代表安全感较强，也可能是回避承诺的表现，值得进一步反思。'
+    },
+    C: {
+      high: '你在关系中投入程度很高，愿意为关系调整自己、承担风险。这代表你重视关系，但也需要注意不要过度牺牲自我。建议学会评估投入与回报的平衡，保护好自己的边界。',
+      medium: '你在关系中的投入程度适中，能够付出同时也关注自己的需求。这是比较健康的投入模式，继续保持这种平衡。',
+      low: '你在关系中的投入相对保守，倾向于保护自己。这可能是理性的自我保护，也可能限制了关系的深度发展。可以尝试在安全的关系中逐步增加投入。'
+    },
+    D: {
+      high: '你的安全感主要来自内在，不过度依赖关系的确认。你能够在伴侣暂时无法回应时保持稳定，这是非常健康的状态。继续培养这种内在的安全感基础。',
+      medium: '你的安全感部分来自内在，部分来自关系。在关系稳定时你感到安全，波动时可能有些不安。继续培养内在的自我认同和价值感。',
+      low: '你的安全感较多依赖外部关系的确认。当关系有波动或伴侣无法及时回应时，你可能感到焦虑。建议通过自我成长、建立多元支持系统来增强内在安全感。'
+    },
+    E: {
+      high: '你在关系中存在较高的情绪投射倾向。可能会把理想状态投射到关系上，在情绪低落时过度依赖关系。建议学会区分真实的关系状况和自己的情绪投射，建立更客观的视角。',
+      medium: '你有一定程度的情绪投射，但总体上能够保持相对客观的视角。继续培养自我觉察能力，注意在情绪波动时保持理性。',
+      low: '你的情绪投射风险较低，能够比较客观地看待关系。这有助于你做出更理性的关系决策。同时也要注意不要过度理性化，忽视真实的情感需求。'
+    }
+  };
+
+  const analysis = analyses[dim];
+  if (score >= 70) return analysis.high;
+  if (score >= 40) return analysis.medium;
+  return analysis.low;
+}
+
+function getDimLevel(score) {
+  if (score >= 70) return { level: '较高', class: 'level-high' };
+  if (score >= 40) return { level: '中等', class: 'level-medium' };
+  return { level: '较低', class: 'level-low' };
+}
+
+function showResult() {
+  document.getElementById('testPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const scores = calcScores();
+  const norm = getNormalized(scores);
+  const loveType = getLoveType(norm);
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-header">
+      <h1>爱情心理结构分析报告</h1>
+      <p>了解你在亲密关系中的投入、依赖与消耗模式</p>
+    </div>
+
+    <div class="card">
+      <div class="type-card">
+        <div class="type-label">你的爱情心理类型</div>
+        <div class="type-name">${loveType.name}</div>
+        <div class="type-desc">${loveType.desc}</div>
+      </div>
+      <div class="summary-text">
+        <p><strong>你的优势：</strong>${loveType.strength}</p>
+        <p style="margin-top:12px"><strong>需要注意：</strong>${loveType.risk}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fce7f3">📊</div>爱情心理结构雷达图</div>
+      <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+      <div class="summary-text" style="margin-top:20px;text-align:center;">
+        亲密需求 ${norm.A} · 确定需求 ${norm.B} · 情感投入 ${norm.C} · 安全内化 ${norm.D} · 情绪投射 ${norm.E}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📋</div>5维度详细解读</div>
+      ${Object.entries(dimInfo).map(([dim, info]) => {
+        const score = norm[dim];
+        const level = getDimLevel(score);
+        return `
+          <div class="dim-item">
+            <div class="dim-header">
+              <div class="dim-name"><div class="dim-icon" style="background:${info.bg}">${info.icon}</div>${info.name}</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="level-badge ${level.class}">${level.level}</span>
+                <span style="font-weight:600;color:var(--primary);">${score}</span>
+              </div>
+            </div>
+            <div class="dim-bar"><div class="dim-bar-fill" style="width:${score}%;background:${info.color}"></div></div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:8px;">${getDimAnalysis(dim, score)}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💕</div>适合你的伴侣特质</div>
+      <div class="summary-text">
+        在你目前的爱情心理结构下，你更容易在具备以下特质的伴侣关系中感到放松与安全：
+      </div>
+      <div class="partner-card">
+        <h4>理想伴侣特质</h4>
+        <ul class="partner-list">
+          <li>情绪回应清晰，不让你反复猜测</li>
+          <li>关系节奏稳定，互动可预测</li>
+          <li>边界明确，不通过冷处理制造张力</li>
+          <li>面对冲突愿意沟通，而不是回避</li>
+        </ul>
+      </div>
+      <div class="celebrity-box">
+        <h4>关系气质参考</h4>
+        <div class="celebrity-item">
+          <div class="gender">👨</div>
+          <div class="info">
+            <div class="name">休·杰克曼</div>
+            <div class="desc">他在长期关系中展现出一致、稳定、情绪承接力强的关系气质。</div>
+          </div>
+        </div>
+        <div class="celebrity-item">
+          <div class="gender">👩</div>
+          <div class="info">
+            <div class="name">艾玛·汤普森</div>
+            <div class="desc">她的亲密表达以情绪成熟、沟通清晰和低拉扯著称。</div>
+          </div>
+        </div>
+      </div>
+      <div class="summary-text" style="margin-top:16px;font-size:13px;">
+        这并不是在暗示你需要找到"这样的人"，而是帮助你理解：什么样的关系互动方式，对你来说更不消耗。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fef3c7">💡</div>关系祛魅说明</div>
+      <div class="summary-text">
+        你以为你在做的是"努力经营一段关系"，实际上你可能在通过关系，解决一个尚未完全内化的安全感问题。
+      </div>
+      <div style="margin-top:16px;padding:16px;background:#fdf2f8;border-radius:12px;">
+        <p style="font-size:14px;color:var(--text);margin-bottom:8px;font-weight:600;">核心洞察</p>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">
+          你的爱情方式本身不是问题。当你身处匹配的关系环境中，你的投入会成为滋养；只有在不匹配的关系中，它才会变成消耗。
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">🎯</div>可执行调整建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">区分"关系暂时模糊"与"关系不安全"，不要在模糊期过度消耗</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">把一部分安全感从关系中抽离出来，建立自我认同的其他支柱</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在投入前观察对方是否具备稳定回应能力，而非只看初期的热情</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">学会识别情绪投射：当你对关系的解读随情绪剧烈波动时，先稳定情绪再做判断</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">建立支持系统：不要把所有的情绪需求都放在一段关系里</div></div>
+    </div>
+
+    <div class="action-btns">
+      <button class="restart-btn primary" onclick="downloadPDF()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        下载PDF报告
+      </button>
+      ${getNavButtons()}
+    </div>
+  `;
+
+  // 绘制雷达图
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['亲密需求', '确定需求', '情感投入', '安全内化', '情绪投射'],
+      datasets: [{
+        label: '得分',
+        data: [norm.A, norm.B, norm.C, norm.D, norm.E],
+        backgroundColor: 'rgba(236, 72, 153, 0.2)',
+        borderColor: '#ec4899',
+        borderWidth: 2,
+        pointBackgroundColor: '#ec4899'
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { stepSize: 25 }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+async function downloadPDF() {
+  const btn = event.target.closest('button');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.innerHTML = '生成中...';
+  loading.classList.add('show');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const content = document.getElementById('resultContent');
+    const canvas = await html2canvas(content, { scale: 2, useCORS: true, logging: false });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 10;
+
+    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+    heightLeft -= (pdfHeight - 20);
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 10;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+    }
+
+    const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '-');
+    pdf.save(`爱情心理结构报告_${date}.pdf`);
+  } catch (e) {
+    console.error(e);
+    alert('PDF生成失败');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 下载PDF报告';
+    loading.classList.remove('show');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

@@ -393,6 +393,38 @@ body {
         <span>可用</span>
       </div>
     </div>
+
+    <!-- 心理状态评估 -->
+    <div class="test-card" onclick="goToTest('scl90')">
+      <div class="test-icon">🩺</div>
+      <h3>心理状态评估</h3>
+      <p class="desc">基于SCL-90专业量表，评估你当前的心理健康状态与需要关注的维度</p>
+      <div class="test-tags">
+        <span class="test-tag">45题</span>
+        <span class="test-tag">SCL-90</span>
+        <span class="test-tag">9因子</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot available"></span>
+        <span>可用</span>
+      </div>
+    </div>
+
+    <!-- 爱情心理结构测评 -->
+    <div class="test-card" onclick="goToTest('love')">
+      <div class="test-icon">💜</div>
+      <h3>爱情心理结构测评</h3>
+      <p class="desc">量化你在亲密关系中的投入模式、依赖程度与情感消耗结构</p>
+      <div class="test-tags">
+        <span class="test-tag">42题</span>
+        <span class="test-tag">关系模式</span>
+        <span class="test-tag">5维度</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot available"></span>
+        <span>可用</span>
+      </div>
+    </div>
   </div>
 
   <footer class="footer">
@@ -414,7 +446,9 @@ function goToTest(type) {
     'relationship': 'relationship/index.html?from=platform',
     'career': 'career/index.html?from=platform',
     'emotion': 'emotion/index.html?from=platform',
-    'resilience': 'resilience/index.html?from=platform'
+    'resilience': 'resilience/index.html?from=platform',
+    'scl90': 'scl90/index.html?from=platform',
+    'love': 'love/index.html?from=platform'
   };
   if (urls[type]) {
     window.location.href = urls[type];

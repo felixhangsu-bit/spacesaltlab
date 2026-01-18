@@ -384,33 +384,20 @@ function getHomeButtonHtml() {
 }
 
 function showMoreTests() {
-  // 显示引导购买弹窗
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.innerHTML = `
     <div class="modal-content">
       <div class="modal-icon">🧂</div>
-      <h3>解锁更多专业测评</h3>
-      <p>宇宙认知盐究所提供多种心理测评工具，帮助你全面了解自己：</p>
-      <div class="modal-tests">
-        <div class="modal-test-item">💼 职业性格测评</div>
-        <div class="modal-test-item">🧠 情绪智力测评</div>
-        <div class="modal-test-item">🌿 压力与韧性测评</div>
-      </div>
-      <p class="modal-tip">购买测评合集，解锁全部测评内容</p>
+      <h3>更多专业测评</h3>
+      <p>请在宇宙认知盐究所购买其他测试哦~</p>
       <div class="modal-buttons">
-        <button class="modal-btn primary" onclick="contactAdvisor()">联系顾问咨询</button>
-        <button class="modal-btn secondary" onclick="closeModal()">暂不需要</button>
+        <button class="modal-btn primary" onclick="closeModal()">知道了</button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
   setTimeout(() => modal.classList.add('show'), 10);
-}
-
-function contactAdvisor() {
-  alert('请添加顾问微信咨询购买合集：[顾问微信号]');
-  closeModal();
 }
 
 function closeModal() {
