@@ -344,6 +344,8 @@ function check() {
 
   if (input === PASSWORD) {
     errorMsg.classList.remove('show');
+    // 记录平台登录状态
+    sessionStorage.setItem('platform_auth', 'true');
     // 添加过渡动画
     document.body.style.opacity = '0';
     document.body.style.transition = 'opacity 0.3s ease';

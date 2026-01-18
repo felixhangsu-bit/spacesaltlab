@@ -402,6 +402,13 @@ body {
 </div>
 
 <script>
+// 验证是否从主页登录进入
+const isAuthenticated = sessionStorage.getItem('platform_auth') === 'true';
+if (!isAuthenticated) {
+  // 未经授权访问，跳转到登录页
+  window.location.href = 'index.html';
+}
+
 function goToTest(type) {
   const urls = {
     'relationship': 'relationship/index.html?from=platform',
@@ -416,6 +423,7 @@ function goToTest(type) {
 
 function logout() {
   if (confirm('确定要退出登录吗？')) {
+    sessionStorage.removeItem('platform_auth');
     window.location.href = 'index.html';
   }
 }
