@@ -402,7 +402,8 @@ body {
 <script>
 function goToTest(type) {
   if (type === 'relationship') {
-    window.location.href = 'relationship/test.html';
+    // 带上验证标记，让测试入口页知道用户已通过主密码验证
+    window.location.href = 'relationship/index.html?from=platform';
   }
 }
 
