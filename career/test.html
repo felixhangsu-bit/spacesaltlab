@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>职业性格测评 | 宇宙认知盐究所</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #a5b4fc;
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 16px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+#testPage { background: var(--bg); padding: 20px; }
+.test-container { max-width: 700px; margin: 0 auto; }
+.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+.back-btn:hover { background: white; color: var(--text); }
+.progress-wrap { text-align: right; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: var(--primary-light); background: #fafaff; }
+.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
+.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
+.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.opt-text { font-size: 15px; }
+.nav-btns { display: flex; justify-content: space-between; margin-top: 28px; }
+.nav-btn { padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: var(--primary); color: var(--primary); }
+.nav-btn.primary { background: var(--primary); border: none; color: white; }
+.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+.result-header { text-align: center; color: white; padding: 20px 0 60px; }
+.result-header h1 { font-size: 28px; margin-bottom: 8px; }
+.result-header p { opacity: 0.9; }
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.type-badge { display: inline-block; padding: 8px 20px; background: var(--gradient); color: white; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 14px; }
+.type-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.type-desc { color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+.stat-card { padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.dim-item { margin-bottom: 20px; }
+.dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.dim-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.dim-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-score { font-weight: 600; color: var(--primary); }
+.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; position: relative; }
+.dim-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.dim-bar-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--text-muted); }
+.dim-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+.career-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+.career-item { padding: 14px; background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); border-radius: 10px; font-size: 14px; text-align: center; }
+.strength-list { margin-top: 16px; }
+.strength-item { display: flex; gap: 12px; margin-bottom: 12px; padding: 14px; background: #f0fdf4; border-radius: 10px; }
+.strength-icon { font-size: 20px; }
+.weakness-item { background: #fef2f2; }
+.celeb-box { display: flex; gap: 20px; align-items: center; padding: 20px; background: #f8fafc; border-radius: 14px; margin-top: 16px; }
+.celeb-avatar { width: 70px; height: 70px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+.celeb-info h4 { font-size: 16px; margin-bottom: 4px; }
+.celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.tip-item { display: flex; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+.tip-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.download-section { text-align: center; padding: 32px; }
+.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.35); }
+.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.restart-btn:hover { border-color: var(--primary); color: var(--primary); }
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.loading.show { opacity: 1; visibility: visible; }
+.loading-box { background: white; padding: 36px; border-radius: 16px; text-align: center; }
+.spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal-content { background: white; padding: 36px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-icon { font-size: 48px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.modal-tests { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
+.modal-test-item:last-child { border-bottom: none; }
+.modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+.modal-btn { padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+.modal-btn.primary { background: var(--gradient); color: white; }
+.modal-btn.secondary { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+.more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
+@media (max-width: 640px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .career-grid { grid-template-columns: 1fr; }
+  .celeb-box { flex-direction: column; text-align: center; }
+  .question-card { padding: 28px 20px; }
+  .q-text { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div id="testPage" class="page active">
+  <div class="test-container">
+    <div class="test-header">
+      <button class="back-btn" onclick="exitTest()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        退出测试
+      </button>
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="current">1</span> / 60</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="dim-tag" id="dimTag">能量来源</div>
+      <div class="q-num">问题 <span id="qNum">1</span></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="nav-btns">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prevQ()">上一题</button>
+        <button class="nav-btn primary" id="nextBtn" onclick="nextQ()">下一题</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="page">
+  <div class="result-container">
+    <div class="result-header">
+      <h1>💼 职业性格测评报告</h1>
+      <p>宇宙认知盐究所 · Space Salt Lab</p>
+    </div>
+    <div id="resultContent"></div>
+  </div>
+</div>
+
+<div class="loading" id="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>正在生成报告...</p>
+  </div>
+</div>
+
+<script>
+// 60道MBTI测评题目
+const questions = [
+  // E-I 能量来源 (15题)
+  { dim: 'EI', text: '在社交聚会中，你通常会？', options: ['主动结识新朋友，享受热闹氛围', '倾向于和熟悉的人待在一起'] },
+  { dim: 'EI', text: '独处一段时间后，你会感到？', options: ['有点无聊，想找人聊天', '精力充沛，感觉很好'] },
+  { dim: 'EI', text: '工作中遇到问题时，你更倾向于？', options: ['立即找同事讨论解决方案', '先自己思考，必要时再请教他人'] },
+  { dim: 'EI', text: '周末理想的放松方式是？', options: ['和朋友聚会或参加活动', '在家看书、追剧或做自己的事'] },
+  { dim: 'EI', text: '在团队项目中，你更喜欢？', options: ['频繁的小组讨论和头脑风暴', '各自完成分工后再汇总'] },
+  { dim: 'EI', text: '当你有好消息时，你会？', options: ['立刻分享给很多人', '只告诉少数亲密的人'] },
+  { dim: 'EI', text: '参加大型会议或活动后，你通常？', options: ['感到兴奋和充满活力', '需要独处一段时间恢复精力'] },
+  { dim: 'EI', text: '在思考问题时，你更倾向于？', options: ['边说边想，通过讨论理清思路', '在脑海中默默思考'] },
+  { dim: 'EI', text: '你更喜欢的工作环境是？', options: ['开放式办公，随时可以交流', '独立空间，减少干扰'] },
+  { dim: 'EI', text: '认识新朋友时，你通常？', options: ['很快就能熟络起来', '需要一段时间才能敞开心扉'] },
+  { dim: 'EI', text: '你觉得自己的朋友圈？', options: ['广泛，认识很多人', '精简，但关系都很深'] },
+  { dim: 'EI', text: '在演讲或展示时，你感到？', options: ['兴奋，享受被关注的感觉', '紧张，更喜欢幕后工作'] },
+  { dim: 'EI', text: '做决定时，你更倾向于？', options: ['征求多人意见后决定', '独立思考后自己决定'] },
+  { dim: 'EI', text: '你的能量主要来自于？', options: ['与他人互动和交流', '独处和内心反思'] },
+  { dim: 'EI', text: '电话响起时，你的第一反应是？', options: ['高兴有人找，立刻接听', '希望对方发短信就好'] },
+
+  // S-N 信息获取 (15题)
+  { dim: 'SN', text: '在学习新技能时，你更喜欢？', options: ['按步骤一步步实操练习', '先理解整体概念和原理'] },
+  { dim: 'SN', text: '描述一件事情时，你倾向于？', options: ['关注具体细节和事实', '强调整体意义和可能性'] },
+  { dim: 'SN', text: '你更信任？', options: ['亲身经历和实际经验', '直觉和灵感'] },
+  { dim: 'SN', text: '阅读时，你更喜欢？', options: ['实用性强的指南类书籍', '富有想象力的小说或理论'] },
+  { dim: 'SN', text: '在工作中，你更擅长？', options: ['处理具体的、明确的任务', '发现新的可能性和创意'] },
+  { dim: 'SN', text: '你更关注？', options: ['当下正在发生的事情', '未来的可能性和趋势'] },
+  { dim: 'SN', text: '解决问题时，你更依赖？', options: ['已被验证的方法和经验', '创新的想法和直觉'] },
+  { dim: 'SN', text: '你觉得自己更？', options: ['脚踏实地，务实可靠', '富有想象力，喜欢创新'] },
+  { dim: 'SN', text: '接收信息时，你更注重？', options: ['具体的数据和事实', '背后的意义和联系'] },
+  { dim: 'SN', text: '规划旅行时，你更倾向于？', options: ['详细安排每天的行程', '只定大方向，随性发挥'] },
+  { dim: 'SN', text: '在讨论中，你更关注？', options: ['讨论的具体内容和细节', '讨论引发的新想法'] },
+  { dim: 'SN', text: '你的记忆方式更倾向于？', options: ['记住具体的事件和细节', '记住整体印象和感受'] },
+  { dim: 'SN', text: '面对说明书，你会？', options: ['从头到尾仔细阅读', '大概浏览后直接上手'] },
+  { dim: 'SN', text: '你更欣赏的品质是？', options: ['稳重、可靠、注重细节', '创新、灵活、富有远见'] },
+  { dim: 'SN', text: '在项目中，你更擅长？', options: ['执行和落实计划', '构思和规划愿景'] },
+
+  // T-F 决策方式 (15题)
+  { dim: 'TF', text: '做决定时，你更看重？', options: ['逻辑分析和客观事实', '对人的影响和价值观'] },
+  { dim: 'TF', text: '当朋友向你倾诉时，你更倾向于？', options: ['帮他们分析问题、提供建议', '倾听并给予情感支持'] },
+  { dim: 'TF', text: '在团队冲突中，你更关注？', options: ['谁的观点更有道理', '如何维护团队和谐'] },
+  { dim: 'TF', text: '给他人反馈时，你更倾向于？', options: ['直接指出问题和改进点', '先肯定优点再委婉提建议'] },
+  { dim: 'TF', text: '你认为好的决策应该是？', options: ['基于数据和逻辑的', '考虑到所有人感受的'] },
+  { dim: 'TF', text: '别人说你更？', options: ['理性、客观、有原则', '善解人意、体贴、温暖'] },
+  { dim: 'TF', text: '面对批评时，你会？', options: ['分析批评是否客观合理', '首先感到受伤或沮丧'] },
+  { dim: 'TF', text: '你更看重工作中的？', options: ['公平和效率', '团队氛围和人际关系'] },
+  { dim: 'TF', text: '在争论中，你更可能？', options: ['坚持自己认为正确的观点', '寻求妥协以维持关系'] },
+  { dim: 'TF', text: '你觉得什么更重要？', options: ['真实，即使可能伤害到人', '善意，即使需要隐瞒一些真相'] },
+  { dim: 'TF', text: '评价一个方案时，你首先考虑？', options: ['方案的逻辑性和可行性', '方案对相关人员的影响'] },
+  { dim: 'TF', text: '你更容易被什么打动？', options: ['有理有据的论证', '真挚的情感表达'] },
+  { dim: 'TF', text: '处理员工问题时，你更倾向于？', options: ['按规章制度办事', '根据具体情况灵活处理'] },
+  { dim: 'TF', text: '你认为成功主要取决于？', options: ['能力和努力', '机遇和人脉'] },
+  { dim: 'TF', text: '当逻辑和情感冲突时，你更可能？', options: ['遵循逻辑', '遵循情感'] },
+
+  // J-P 生活态度 (15题)
+  { dim: 'JP', text: '你更喜欢的工作方式是？', options: ['有明确的计划和截止日期', '灵活应变，保持开放性'] },
+  { dim: 'JP', text: '面对任务时，你通常？', options: ['尽早开始，按计划完成', '等到灵感来了或临近截止时'] },
+  { dim: 'JP', text: '你的工作区域通常是？', options: ['整洁有序，物品分类清楚', '看起来有点乱但自己能找到东西'] },
+  { dim: 'JP', text: '制定计划后，你会？', options: ['尽量按计划执行', '把计划当作参考，随时调整'] },
+  { dim: 'JP', text: '你更享受？', options: ['完成任务后的成就感', '探索过程中的新发现'] },
+  { dim: 'JP', text: '周末的计划，你通常？', options: ['提前安排好活动', '到时候看心情决定'] },
+  { dim: 'JP', text: '你对待规则的态度是？', options: ['规则应该被遵守', '规则可以灵活变通'] },
+  { dim: 'JP', text: '购物时，你更倾向于？', options: ['列好清单，买需要的东西', '随性逛逛，看到喜欢的就买'] },
+  { dim: 'JP', text: '你更喜欢的生活状态是？', options: ['稳定可预测', '充满变化和惊喜'] },
+  { dim: 'JP', text: '做决定时，你通常？', options: ['快速决定，然后执行', '保持选项开放，多收集信息'] },
+  { dim: 'JP', text: '在项目中，你更关注？', options: ['按时交付成果', '持续改进和优化'] },
+  { dim: 'JP', text: '你的日程安排通常是？', options: ['详细规划，精确到小时', '大致方向，保持弹性'] },
+  { dim: 'JP', text: '面对变化，你的反应是？', options: ['有些不适应，喜欢按原计划', '感到兴奋，乐于接受新变化'] },
+  { dim: 'JP', text: '你更讨厌？', options: ['计划被打乱', '被过多规则束缚'] },
+  { dim: 'JP', text: '完成一个项目后，你会？', options: ['满足于完成，准备下一个任务', '想想还有什么可以改进的'] }
+];
+
+// 16种MBTI类型结果
+const RESULT_MAP = {
+  'INTJ': {
+    name: '策略家 INTJ',
+    title: '独立思考的战略大师',
+    desc: '你是一个具有远见卓识的战略思考者。你善于将复杂的想法转化为可执行的长期计划，追求知识和能力的不断提升。你独立自主，有强烈的内驱力，相信通过理性分析和持续努力可以改变现状。',
+    strengths: ['战略性思维', '独立自主', '追求卓越', '善于规划'],
+    weaknesses: ['可能显得冷漠', '对他人要求较高', '不善于表达情感'],
+    careers: ['战略顾问', '科研工作者', '投资分析师', '系统架构师', '管理咨询师', '创业者'],
+    celeb: '埃隆·马斯克',
+    celebDesc: '以远见和战略思维著称，不断挑战传统，追求突破性创新'
+  },
+  'INTP': {
+    name: '逻辑学家 INTP',
+    title: '创新思维的理论探索者',
+    desc: '你是一个富有创造力的思想家，热爱探索抽象概念和理论框架。你追求逻辑的完美和知识的深度，善于发现模式和建立联系。你独立思考，不轻易接受传统观念，总是在寻找更好的解释。',
+    strengths: ['逻辑分析能力强', '创新思维', '求知欲旺盛', '客观公正'],
+    weaknesses: ['可能过于理论化', '社交互动较少', '容易忽视情感因素'],
+    careers: ['软件工程师', '数据科学家', '哲学研究者', '游戏设计师', '技术顾问', '学术研究员'],
+    celeb: '爱因斯坦',
+    celebDesc: '以革命性的思维方式重新定义物理学，追求真理不畏权威'
+  },
+  'ENTJ': {
+    name: '指挥官 ENTJ',
+    title: '天生的领导者',
+    desc: '你是一个果断自信的领导者，善于组织资源、制定战略并带领团队达成目标。你有强烈的成就动机，追求效率和结果。你敢于挑战，善于激励他人，天生具备影响力和号召力。',
+    strengths: ['领导力出众', '决策果断', '目标导向', '善于激励'],
+    weaknesses: ['可能过于强势', '缺乏耐心', '忽视他人感受'],
+    careers: ['企业CEO', '项目经理', '律师', '企业家', '政治家', '管理顾问'],
+    celeb: '史蒂夫·乔布斯',
+    celebDesc: '以强大的领导力和愿景改变了多个行业，追求极致的完美'
+  },
+  'ENTP': {
+    name: '辩论家 ENTP',
+    title: '充满活力的创新者',
+    desc: '你是一个机智灵活的思想家，热爱智力挑战和辩论。你善于从不同角度看问题，敢于挑战现状，不断寻找新的可能性。你充满创意，喜欢打破常规，用创新的方式解决问题。',
+    strengths: ['创意无限', '适应性强', '善于辩论', '思维敏捷'],
+    weaknesses: ['可能缺乏持久力', '容易分心', '有时过于争辩'],
+    careers: ['创业者', '产品经理', '营销策划', '律师', '咨询顾问', '媒体人'],
+    celeb: '马克·吐温',
+    celebDesc: '以机智幽默和犀利的社会评论著称，善于用新视角看问题'
+  },
+  'INFJ': {
+    name: '提倡者 INFJ',
+    title: '富有远见的理想主义者',
+    desc: '你是一个有深度的理想主义者，关注人类的成长和福祉。你有强烈的直觉和洞察力，能够理解他人的深层需求。你追求有意义的生活，希望通过自己的努力让世界变得更好。',
+    strengths: ['洞察力强', '富有同理心', '追求意义', '坚持原则'],
+    weaknesses: ['容易理想化', '可能过于敏感', '难以接受批评'],
+    careers: ['心理咨询师', '作家', '人力资源', '非营利组织管理', '教育工作者', '社会工作者'],
+    celeb: '马丁·路德·金',
+    celebDesc: '以远见和对人类平等的追求，推动了深刻的社会变革'
+  },
+  'INFP': {
+    name: '调停者 INFP',
+    title: '诗意的理想主义者',
+    desc: '你是一个富有想象力和同理心的人，追求真实和有意义的生活。你有丰富的内心世界，善于理解他人的情感。你重视个人价值观，希望按照自己的方式生活，同时帮助他人实现潜能。',
+    strengths: ['富有创造力', '同理心强', '忠于价值观', '适应性好'],
+    weaknesses: ['可能过于理想化', '容易自我怀疑', '难以面对冲突'],
+    careers: ['作家', '艺术家', '心理咨询师', '社工', '人文学者', 'UX设计师'],
+    celeb: '威廉·莎士比亚',
+    celebDesc: '以深刻的人性洞察和丰富的情感表达，创作了永恒的文学作品'
+  },
+  'ENFJ': {
+    name: '主人公 ENFJ',
+    title: '充满魅力的引导者',
+    desc: '你是一个有感染力的领导者，善于激励和引导他人。你关心他人的成长和发展，能够看到每个人的潜力。你有强烈的社会责任感，希望通过自己的影响力创造积极的改变。',
+    strengths: ['领导力强', '善于激励', '同理心强', '有责任感'],
+    weaknesses: ['可能过于在意他人', '容易过度付出', '难以拒绝'],
+    careers: ['教师', '培训师', '人力资源总监', '社区领袖', '心理咨询师', '公关经理'],
+    celeb: '奥普拉·温弗瑞',
+    celebDesc: '以强大的感染力和对他人的关怀，影响了数百万人的生活'
+  },
+  'ENFP': {
+    name: '竞选者 ENFP',
+    title: '热情洋溢的创新者',
+    desc: '你是一个充满热情和创意的人，总能看到生活中的可能性。你善于与人建立联系，能够激发他人的热情。你追求自由和自我表达，喜欢探索新事物，让周围的人感到振奋。',
+    strengths: ['热情感染力强', '创意丰富', '适应性强', '善于沟通'],
+    weaknesses: ['可能缺乏专注', '容易过度承诺', '不喜欢处理细节'],
+    careers: ['市场营销', '公关', '创意总监', '记者', '创业者', '演艺人员'],
+    celeb: '罗宾·威廉姆斯',
+    celebDesc: '以无限的创意和热情，为世界带来欢笑和感动'
+  },
+  'ISTJ': {
+    name: '物流师 ISTJ',
+    title: '可靠务实的守护者',
+    desc: '你是一个认真负责的实践者，注重事实和细节。你做事有条理，遵守承诺，是团队中最可靠的成员。你尊重传统和规则，相信通过脚踏实地的努力可以达成目标。',
+    strengths: ['责任心强', '注重细节', '可靠守信', '组织能力强'],
+    weaknesses: ['可能过于固执', '不善于变通', '不易表达情感'],
+    careers: ['会计师', '项目管理', '法务', '军人', '公务员', '质量控制'],
+    celeb: '沃伦·巴菲特',
+    celebDesc: '以稳健务实的投资风格和对细节的关注，成为最成功的投资者'
+  },
+  'ISFJ': {
+    name: '守卫者 ISFJ',
+    title: '温暖可靠的守护者',
+    desc: '你是一个温暖体贴的守护者，默默地关心和支持他人。你有强烈的责任感，总是把他人的需求放在首位。你注重和谐的人际关系，善于记住他人的喜好和需要。',
+    strengths: ['体贴入微', '责任心强', '善于支持他人', '耐心细致'],
+    weaknesses: ['可能过于自我牺牲', '难以拒绝', '不善于表达需求'],
+    careers: ['护士', '教师', '行政助理', '客户服务', '人力资源', '社工'],
+    celeb: '特蕾莎修女',
+    celebDesc: '以无私的奉献和对他人的关爱，感动了整个世界'
+  },
+  'ESTJ': {
+    name: '总经理 ESTJ',
+    title: '高效务实的组织者',
+    desc: '你是一个果断高效的组织者，善于管理和执行。你重视秩序和效率，有清晰的是非标准。你是天生的管理者，能够建立有效的系统并确保每个人都在正确的轨道上。',
+    strengths: ['组织能力强', '决策果断', '效率导向', '直接坦率'],
+    weaknesses: ['可能过于强势', '不够灵活', '忽视情感因素'],
+    careers: ['企业管理者', '军官', '法官', '财务经理', '项目总监', '行政管理'],
+    celeb: '杰克·韦尔奇',
+    celebDesc: '以高效的管理和果断的决策，将GE打造成全球最有价值的公司'
+  },
+  'ESFJ': {
+    name: '执政官 ESFJ',
+    title: '热心周到的协调者',
+    desc: '你是一个热心肠的社交达人，善于照顾他人的需求。你重视和谐的人际关系，愿意为团队付出。你是天生的组织者，能够让每个人都感到被关心和重视。',
+    strengths: ['善于关心他人', '组织协调能力强', '忠诚可靠', '社交能力强'],
+    weaknesses: ['过于在意他人看法', '难以接受批评', '可能过度干涉'],
+    careers: ['活动策划', '销售经理', '护士长', '教师', '社区工作者', '客户关系经理'],
+    celeb: '泰勒·斯威夫特',
+    celebDesc: '以真诚的互动和对粉丝的关心，建立了深厚的情感连接'
+  },
+  'ISTP': {
+    name: '鉴赏家 ISTP',
+    title: '冷静灵活的实践者',
+    desc: '你是一个冷静务实的行动派，善于分析和解决实际问题。你有敏锐的观察力和动手能力，喜欢探索事物的运作原理。你独立自主，喜欢按自己的节奏行事。',
+    strengths: ['动手能力强', '冷静理性', '适应性强', '解决问题能力强'],
+    weaknesses: ['可能显得冷漠', '不喜欢长期承诺', '不善于表达情感'],
+    careers: ['工程师', '飞行员', '机械师', '数据分析师', '急诊医生', '探险家'],
+    celeb: '迈克尔·乔丹',
+    celebDesc: '以冷静的头脑和精湛的技术，在关键时刻展现出色的表现'
+  },
+  'ISFP': {
+    name: '探险家 ISFP',
+    title: '温和灵活的艺术家',
+    desc: '你是一个温和敏感的艺术家，有丰富的审美和感受力。你活在当下，珍惜每一个体验。你不喜欢冲突，追求和谐与自由，用自己的方式表达对美好事物的热爱。',
+    strengths: ['审美能力强', '灵活适应', '善于倾听', '真实自然'],
+    weaknesses: ['可能回避冲突', '难以做长期规划', '容易受情绪影响'],
+    careers: ['设计师', '摄影师', '兽医', '厨师', '理疗师', '园艺师'],
+    celeb: '迈克尔·杰克逊',
+    celebDesc: '以独特的艺术感知和表演天赋，创造了流行音乐的新纪元'
+  },
+  'ESTP': {
+    name: '企业家 ESTP',
+    title: '精力充沛的行动派',
+    desc: '你是一个充满活力的行动派，善于把握机会和解决即时问题。你喜欢刺激和挑战，能够在压力下保持冷静。你直接坦率，喜欢实际行动而非空谈理论。',
+    strengths: ['行动力强', '善于应变', '社交能力强', '务实高效'],
+    weaknesses: ['可能冲动行事', '不喜欢理论和计划', '容易无聊'],
+    careers: ['销售', '企业家', '运动员', '急救人员', '谈判专家', '经纪人'],
+    celeb: '唐纳德·特朗普',
+    celebDesc: '以果断的行动力和把握机会的能力，在商业和政治领域取得成功'
+  },
+  'ESFP': {
+    name: '表演者 ESFP',
+    title: '热情开朗的娱乐家',
+    desc: '你是一个热情开朗的表演者，善于给周围人带来欢乐。你活在当下，享受生活中的每一刻。你有极强的感染力，能够让每个聚会都变得生动有趣。',
+    strengths: ['乐观开朗', '社交能力强', '适应性强', '善于娱乐'],
+    weaknesses: ['可能缺乏专注', '不喜欢理论', '回避负面情绪'],
+    careers: ['演员', '主持人', '活动策划', '销售', '旅游顾问', '健身教练'],
+    celeb: '玛丽莲·梦露',
+    celebDesc: '以无与伦比的魅力和娱乐天赋，成为永恒的文化符号'
+  }
+};
+
+// 维度信息
+const dimInfo = {
+  'EI': { name: '能量来源', icon: '⚡', leftLabel: '外向 E', rightLabel: '内向 I', bg: '#dbeafe', color: '#3b82f6' },
+  'SN': { name: '信息获取', icon: '👁️', leftLabel: '感觉 S', rightLabel: '直觉 N', bg: '#d1fae5', color: '#10b981' },
+  'TF': { name: '决策方式', icon: '⚖️', leftLabel: '思考 T', rightLabel: '情感 F', bg: '#fef3c7', color: '#f59e0b' },
+  'JP': { name: '生活态度', icon: '🎯', leftLabel: '判断 J', rightLabel: '感知 P', bg: '#fce7f3', color: '#ec4899' }
+};
+
+let idx = 0;
+let answers = new Array(60).fill(null);
+const dims = questions.map(q => q.dim);
+
+function render() {
+  const q = questions[idx];
+  const info = dimInfo[q.dim];
+  document.getElementById('current').textContent = idx + 1;
+  document.getElementById('qNum').textContent = idx + 1;
+  document.getElementById('progressFill').style.width = ((idx + 1) / 60 * 100) + '%';
+  document.getElementById('dimTag').textContent = info.name;
+  document.getElementById('dimTag').style.background = info.bg;
+  document.getElementById('dimTag').style.color = info.color;
+  document.getElementById('qText').textContent = q.text;
+
+  let optHtml = '';
+  q.options.forEach((opt, i) => {
+    const selected = answers[idx] === i ? 'selected' : '';
+    optHtml += `<div class="opt ${selected}" onclick="select(${i})"><div class="opt-radio"></div><div class="opt-text">${opt}</div></div>`;
+  });
+  document.getElementById('options').innerHTML = optHtml;
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').textContent = idx === 59 ? '查看结果' : '下一题';
+}
+
+function select(v) { answers[idx] = v; render(); if (idx < 59) setTimeout(() => nextQ(), 250); }
+function prevQ() { if (idx > 0) { idx--; render(); } }
+function nextQ() {
+  if (answers[idx] === null) { alert('请先选择一个选项'); return; }
+  if (idx < 59) { idx++; render(); } else showResult();
+}
+
+function exitTest() {
+  if (confirm('确定退出？答案将不会保存。')) { goToHome(); }
+}
+
+function goToHome() {
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') {
+    window.location.href = '../platform.html';
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
+function getHomeButtonHtml() {
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') {
+    return '<button class="restart-btn" onclick="goToHome()" style="margin-left:8px">返回测试中心</button>';
+  } else {
+    return '<button class="restart-btn more-tests-btn" onclick="showMoreTests()" style="margin-left:8px">更多测试</button>';
+  }
+}
+
+function showMoreTests() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-icon">🧂</div>
+      <h3>解锁更多专业测评</h3>
+      <p>宇宙认知盐究所提供多种心理测评工具：</p>
+      <div class="modal-tests">
+        <div class="modal-test-item">💕 亲密关系心理测评</div>
+        <div class="modal-test-item">🧠 情绪智力测评</div>
+        <div class="modal-test-item">🌿 压力与韧性测评</div>
+      </div>
+      <p class="modal-tip">购买测评合集，解锁全部测评内容</p>
+      <div class="modal-buttons">
+        <button class="modal-btn primary" onclick="contactAdvisor()">联系顾问咨询</button>
+        <button class="modal-btn secondary" onclick="closeModal()">暂不需要</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function contactAdvisor() {
+  alert('请添加顾问微信咨询购买合集');
+  closeModal();
+}
+
+function closeModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+}
+
+function calcScores() {
+  const scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
+  answers.forEach((v, i) => {
+    if (v === 1) scores[dims[i]]++;
+  });
+  return scores;
+}
+
+function getType(scores) {
+  let type = '';
+  type += scores.EI < 8 ? 'E' : 'I';
+  type += scores.SN < 8 ? 'S' : 'N';
+  type += scores.TF < 8 ? 'T' : 'F';
+  type += scores.JP < 8 ? 'J' : 'P';
+  return type;
+}
+
+function showResult() {
+  document.getElementById('testPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const scores = calcScores();
+  const typeKey = getType(scores);
+  const result = RESULT_MAP[typeKey];
+
+  const html = `
+    <div class="card">
+      <div class="type-badge">你的MBTI类型</div>
+      <div class="type-name">${result.name}</div>
+      <div style="font-size:16px;color:var(--primary);margin-bottom:12px;">${result.title}</div>
+      <div class="type-desc">${result.desc}</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>四维度分析</div>
+      ${Object.keys(dimInfo).map(d => {
+        const info = dimInfo[d];
+        const score = scores[d];
+        const pct = (score / 15) * 100;
+        const leftPct = 100 - pct;
+        return `
+          <div class="dim-item">
+            <div class="dim-header">
+              <div class="dim-name"><div class="dim-icon" style="background:${info.bg}">${info.icon}</div>${info.name}</div>
+              <div class="dim-score">${Math.round(leftPct)}% : ${Math.round(pct)}%</div>
+            </div>
+            <div class="dim-bar">
+              <div class="dim-bar-center"></div>
+              <div class="dim-bar-fill" style="width:${leftPct}%;background:${info.color}"></div>
+            </div>
+            <div class="dim-labels"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💪</div>优势与成长空间</div>
+      <div style="margin-bottom:16px;font-weight:500;color:#059669;">核心优势</div>
+      <div class="strength-list">
+        ${result.strengths.map(s => `<div class="strength-item"><div class="strength-icon">✓</div><div>${s}</div></div>`).join('')}
+      </div>
+      <div style="margin:20px 0 16px;font-weight:500;color:#dc2626;">成长空间</div>
+      <div class="strength-list">
+        ${result.weaknesses.map(w => `<div class="strength-item weakness-item"><div class="strength-icon">!</div><div>${w}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fef3c7">💼</div>适合的职业方向</div>
+      <div class="career-grid">
+        ${result.careers.map(c => `<div class="career-item">${c}</div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fce7f3">⭐</div>同类型名人</div>
+      <div class="celeb-box">
+        <div class="celeb-avatar">🌟</div>
+        <div class="celeb-info">
+          <h4>${result.celeb}</h4>
+          <p>${result.celebDesc}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">💡</div>职业发展建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">选择能够发挥你核心优势的工作环境，避免长期从事与性格相悖的工作</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">了解并接纳自己的性格特点，同时有意识地发展非优势领域的能力</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在团队中，主动承担与性格匹配的角色，同时学会欣赏其他类型同事的贡献</div></div>
+    </div>
+
+    <div class="card download-section">
+      <button class="download-btn" onclick="downloadPDF()" id="dlBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        下载PDF报告
+      </button>
+      <button class="restart-btn" onclick="restart()">重新测试</button>
+      ${getHomeButtonHtml()}
+    </div>
+  `;
+
+  document.getElementById('resultContent').innerHTML = html;
+}
+
+function restart() { if (confirm('确定要重新测试吗？')) location.reload(); }
+
+async function downloadPDF() {
+  const btn = document.getElementById('dlBtn');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.innerHTML = '生成中...';
+  loading.classList.add('show');
+
+  try {
+    const scores = calcScores();
+    const typeKey = getType(scores);
+    const result = RESULT_MAP[typeKey];
+    const date = new Date().toLocaleDateString('zh-CN');
+
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
+
+    pdfContainer.innerHTML = `
+      <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
+        <div style="font-size:16px;margin-bottom:10px;opacity:0.9;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div style="font-size:32px;font-weight:700;margin-bottom:15px;">职业性格测评报告</div>
+        <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:16px;padding:30px;margin-bottom:25px;">
+        <div style="color:#667eea;font-size:14px;margin-bottom:8px;">你的MBTI类型</div>
+        <div style="font-size:28px;font-weight:700;color:#1e293b;margin-bottom:8px;">${result.name}</div>
+        <div style="font-size:16px;color:#667eea;margin-bottom:12px;">${result.title}</div>
+        <div style="color:#64748b;font-size:14px;line-height:1.8;">${result.desc}</div>
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">四维度分析</div>
+        ${Object.keys(dimInfo).map(d => {
+          const info = dimInfo[d];
+          const score = scores[d];
+          const pct = Math.round((score / 15) * 100);
+          const leftPct = 100 - pct;
+          return `<div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>${info.name}</span><span>${leftPct}% : ${pct}%</span></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
+        }).join('')}
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">适合的职业方向</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">${result.careers.map(c => `<div style="padding:10px 16px;background:#ede9fe;border-radius:8px;font-size:14px;">${c}</div>`).join('')}</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+        <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div>本报告仅供参考，不构成心理诊断或职业建议</div>
+      </div>
+    `;
+
+    document.body.appendChild(pdfContainer);
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+
+    const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    document.body.removeChild(pdfContainer);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfW = 210, pdfH = 297;
+    const imgW = canvas.width, imgH = canvas.height;
+    const ratio = imgW / imgH;
+    let finalW = pdfW - 20;
+    let finalH = finalW / ratio;
+
+    if (finalH <= pdfH - 20) {
+      pdf.addImage(imgData, 'JPEG', 10, 10, finalW, finalH);
+    } else {
+      let remainingH = imgH, srcY = 0;
+      const pagePixelH = (pdfH - 20) / finalH * imgH;
+      while (remainingH > 0) {
+        const sliceH = Math.min(remainingH, pagePixelH);
+        const sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = imgW;
+        sliceCanvas.height = sliceH;
+        sliceCanvas.getContext('2d').drawImage(canvas, 0, srcY, imgW, sliceH, 0, 0, imgW, sliceH);
+        const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+        if (srcY > 0) pdf.addPage();
+        pdf.addImage(sliceData, 'JPEG', 10, 10, finalW, finalW / (imgW / sliceH));
+        srcY += sliceH;
+        remainingH -= sliceH;
+      }
+    }
+
+    pdf.save(`职业性格测评报告_${typeKey}_${date}.pdf`);
+  } catch (e) {
+    console.error(e);
+    alert('PDF生成失败，请稍后重试');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 下载PDF报告';
+    loading.classList.remove('show');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

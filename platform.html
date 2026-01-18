@@ -346,49 +346,51 @@ body {
       </div>
     </div>
 
-    <!-- 职业性格测评 - 即将上线 -->
-    <div class="test-card disabled">
+    <!-- 职业性格测评 -->
+    <div class="test-card" onclick="goToTest('career')">
       <div class="test-icon">💼</div>
       <h3>职业性格测评</h3>
-      <p class="desc">发现你的职业性格特质，找到最适合你的职业发展方向</p>
+      <p class="desc">基于MBTI与霍兰德理论，发现你的职业性格特质与发展方向</p>
       <div class="test-tags">
         <span class="test-tag">60题</span>
         <span class="test-tag">MBTI</span>
-        <span class="test-tag">霍兰德</span>
+        <span class="test-tag">16种类型</span>
       </div>
       <div class="test-status">
-        <span class="status-dot coming"></span>
-        <span>即将上线</span>
+        <span class="status-dot available"></span>
+        <span>可用</span>
       </div>
     </div>
 
-    <!-- 情绪管理测评 - 即将上线 -->
-    <div class="test-card disabled">
+    <!-- 情绪智力测评 -->
+    <div class="test-card" onclick="goToTest('emotion')">
       <div class="test-icon">🧠</div>
       <h3>情绪智力测评</h3>
-      <p class="desc">评估你的情绪识别、理解和管理能力，提升情商水平</p>
+      <p class="desc">基于Mayer-Salovey模型，评估你的情绪识别、理解和管理能力</p>
       <div class="test-tags">
         <span class="test-tag">40题</span>
         <span class="test-tag">EQ评估</span>
+        <span class="test-tag">4维度</span>
       </div>
       <div class="test-status">
-        <span class="status-dot coming"></span>
-        <span>即将上线</span>
+        <span class="status-dot available"></span>
+        <span>可用</span>
       </div>
     </div>
 
-    <!-- 压力与韧性测评 - 即将上线 -->
-    <div class="test-card disabled">
+    <!-- 压力与韧性测评 -->
+    <div class="test-card" onclick="goToTest('resilience')">
       <div class="test-icon">🌿</div>
       <h3>压力与韧性测评</h3>
-      <p class="desc">了解你的压力应对模式和心理韧性水平</p>
+      <p class="desc">基于心理韧性理论，了解你的压力应对模式和心理韧性水平</p>
       <div class="test-tags">
         <span class="test-tag">35题</span>
         <span class="test-tag">韧性指数</span>
+        <span class="test-tag">5维度</span>
       </div>
       <div class="test-status">
-        <span class="status-dot coming"></span>
-        <span>即将上线</span>
+        <span class="status-dot available"></span>
+        <span>可用</span>
       </div>
     </div>
   </div>
@@ -401,9 +403,14 @@ body {
 
 <script>
 function goToTest(type) {
-  if (type === 'relationship') {
-    // 带上验证标记，让测试入口页知道用户已通过主密码验证
-    window.location.href = 'relationship/index.html?from=platform';
+  const urls = {
+    'relationship': 'relationship/index.html?from=platform',
+    'career': 'career/index.html?from=platform',
+    'emotion': 'emotion/index.html?from=platform',
+    'resilience': 'resilience/index.html?from=platform'
+  };
+  if (urls[type]) {
+    window.location.href = urls[type];
   }
 }
 

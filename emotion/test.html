@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪智力测评 | 宇宙认知盐究所</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #a5b4fc; --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; --shadow: 0 4px 20px rgba(0,0,0,0.08); --radius: 16px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+#testPage { background: var(--bg); padding: 20px; }
+.test-container { max-width: 700px; margin: 0 auto; }
+.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+.back-btn:hover { background: white; color: var(--text); }
+.progress-wrap { text-align: right; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: var(--primary-light); background: #fafaff; }
+.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
+.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
+.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.opt-text { font-size: 15px; }
+.nav-btns { display: flex; justify-content: space-between; margin-top: 28px; }
+.nav-btn { padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: var(--primary); color: var(--primary); }
+.nav-btn.primary { background: var(--primary); border: none; color: white; }
+.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+.result-header { text-align: center; color: white; padding: 20px 0 60px; }
+.result-header h1 { font-size: 28px; margin-bottom: 8px; }
+.result-header p { opacity: 0.9; }
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.eq-score { font-size: 64px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
+.eq-level { text-align: center; padding: 8px 24px; background: var(--gradient); color: white; border-radius: 20px; display: inline-block; margin: 16px auto; font-weight: 600; }
+.eq-desc { text-align: center; color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+.stat-card { padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.dim-item { margin-bottom: 20px; }
+.dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.dim-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.dim-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-score { font-weight: 600; color: var(--primary); }
+.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.dim-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.level-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.level-high { background: #d1fae5; color: #059669; }
+.level-medium { background: #fef3c7; color: #d97706; }
+.level-low { background: #fee2e2; color: #dc2626; }
+.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+.tip-item { display: flex; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+.tip-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.download-section { text-align: center; padding: 32px; }
+.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.35); }
+.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.restart-btn:hover { border-color: var(--primary); color: var(--primary); }
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.loading.show { opacity: 1; visibility: visible; }
+.loading-box { background: white; padding: 36px; border-radius: 16px; text-align: center; }
+.spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal-content { background: white; padding: 36px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-icon { font-size: 48px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.modal-tests { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
+.modal-test-item:last-child { border-bottom: none; }
+.modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+.modal-btn { padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+.modal-btn.primary { background: var(--gradient); color: white; }
+.modal-btn.secondary { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+.more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
+.chart-container { max-width: 350px; margin: 20px auto; }
+@media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .question-card { padding: 28px 20px; } .q-text { font-size: 18px; } }
+</style>
+</head>
+<body>
+<div id="testPage" class="page active">
+  <div class="test-container">
+    <div class="test-header">
+      <button class="back-btn" onclick="exitTest()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>退出测试</button>
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="current">1</span> / 40</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="dim-tag" id="dimTag">情绪感知</div>
+      <div class="q-num">问题 <span id="qNum">1</span></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="nav-btns">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prevQ()">上一题</button>
+        <button class="nav-btn primary" id="nextBtn" onclick="nextQ()">下一题</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="page">
+  <div class="result-container">
+    <div class="result-header"><h1>🧠 情绪智力测评报告</h1><p>宇宙认知盐究所 · Space Salt Lab</p></div>
+    <div id="resultContent"></div>
+  </div>
+</div>
+
+<div class="loading" id="loading"><div class="loading-box"><div class="spinner"></div><p>正在生成报告...</p></div></div>
+
+<script>
+// 40道情绪智力测评题目（基于Mayer-Salovey模型）
+const questions = [
+  // 情绪感知 Perceiving (10题)
+  { dim: 'perceive', text: '与人交谈时，我能够通过对方的面部表情判断他们的真实感受', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我能够准确识别自己当前的情绪状态', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我能从他人的语气中察觉到他们隐藏的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '看到一幅艺术作品时，我能感受到其中蕴含的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我能通过他人的肢体语言判断他们的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '当我感到不舒服时，我能准确说出是什么情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我能察觉到环境中的情绪氛围变化', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '听音乐时，我能感受到音乐所表达的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我能分辨出真诚的微笑和礼貌性的微笑', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '我很容易被他人的情绪所感染', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+
+  // 情绪运用 Facilitating (10题)
+  { dim: 'facilitate', text: '我会利用积极的心情来激发创造力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '当需要做重要决定时，我会考虑自己的感受', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '我能利用情绪来帮助自己集中注意力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '心情好的时候，我的问题解决能力会更强', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '我会根据任务性质调整自己的情绪状态', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '情绪会影响我看待问题的角度', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '我能将负面情绪转化为工作的动力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '在需要同理心的情况下，我能调动相应的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '我会利用情绪来增强记忆力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '我能通过想象来激发特定的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+
+  // 情绪理解 Understanding (10题)
+  { dim: 'understand', text: '我了解不同情绪之间的关系和变化规律', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我能理解为什么某些情况会引发特定的情绪反应', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我能预测某个事件可能引起的情绪反应', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我理解复杂情绪（如又爱又恨）是如何产生的', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我能区分类似但不同的情绪（如愤怒和失望）', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我了解情绪会如何随时间变化', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我能理解他人情绪背后的深层原因', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我知道哪些因素会加剧或缓解特定情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我能用准确的词汇描述细微的情绪差异', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '我理解文化背景如何影响情绪表达', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+
+  // 情绪管理 Managing (10题)
+  { dim: 'manage', text: '当感到愤怒时，我能够让自己冷静下来', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能有效地安慰处于负面情绪中的朋友', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '面对压力时，我能保持情绪稳定', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能调节自己的情绪以适应不同场合', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '当感到焦虑时，我有有效的方法让自己放松', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能帮助他人从负面情绪中走出来', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '遇到挫折后，我能较快恢复情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能控制自己不在情绪激动时做决定', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能在团队中营造积极的情绪氛围', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'manage', text: '我能将负面情绪转化为建设性的行动', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] }
+];
+
+const dimInfo = {
+  'perceive': { name: '情绪感知', icon: '👁️', bg: '#dbeafe', color: '#3b82f6' },
+  'facilitate': { name: '情绪运用', icon: '⚡', bg: '#d1fae5', color: '#10b981' },
+  'understand': { name: '情绪理解', icon: '💡', bg: '#fef3c7', color: '#f59e0b' },
+  'manage': { name: '情绪管理', icon: '🎯', bg: '#fce7f3', color: '#ec4899' }
+};
+
+const EQ_LEVELS = [
+  { min: 160, level: '卓越', desc: '你拥有非常出色的情绪智力，能够敏锐地感知、理解和管理自己及他人的情绪。你在人际关系和情绪调节方面有着卓越的能力。' },
+  { min: 130, level: '优秀', desc: '你的情绪智力水平较高，在大多数情况下能够有效地识别和处理情绪。你有良好的同理心和情绪调节能力。' },
+  { min: 100, level: '良好', desc: '你具备基本的情绪智力，能够处理大多数日常情绪情境。通过有意识的练习，你可以进一步提升情绪管理能力。' },
+  { min: 70, level: '一般', desc: '你的情绪智力有提升空间。建议多关注自己和他人的情绪变化，学习情绪管理技巧，这将有助于改善人际关系。' },
+  { min: 0, level: '待发展', desc: '你的情绪智力还处于发展阶段。不用担心，情绪智力是可以通过学习和练习来提升的。建议从认识自己的情绪开始。' }
+];
+
+let idx = 0;
+let answers = new Array(40).fill(null);
+const dims = questions.map(q => q.dim);
+
+function render() {
+  const q = questions[idx];
+  const info = dimInfo[q.dim];
+  document.getElementById('current').textContent = idx + 1;
+  document.getElementById('qNum').textContent = idx + 1;
+  document.getElementById('progressFill').style.width = ((idx + 1) / 40 * 100) + '%';
+  document.getElementById('dimTag').textContent = info.name;
+  document.getElementById('dimTag').style.background = info.bg;
+  document.getElementById('dimTag').style.color = info.color;
+  document.getElementById('qText').textContent = q.text;
+
+  let optHtml = '';
+  q.options.forEach((opt, i) => {
+    const selected = answers[idx] === i ? 'selected' : '';
+    optHtml += `<div class="opt ${selected}" onclick="select(${i})"><div class="opt-radio"></div><div class="opt-text">${opt}</div></div>`;
+  });
+  document.getElementById('options').innerHTML = optHtml;
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').textContent = idx === 39 ? '查看结果' : '下一题';
+}
+
+function select(v) { answers[idx] = v; render(); if (idx < 39) setTimeout(() => nextQ(), 250); }
+function prevQ() { if (idx > 0) { idx--; render(); } }
+function nextQ() {
+  if (answers[idx] === null) { alert('请先选择一个选项'); return; }
+  if (idx < 39) { idx++; render(); } else showResult();
+}
+
+function exitTest() { if (confirm('确定退出？答案将不会保存。')) { goToHome(); } }
+function goToHome() {
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') { window.location.href = '../platform.html'; }
+  else { window.location.href = 'index.html'; }
+}
+function getHomeButtonHtml() {
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') { return '<button class="restart-btn" onclick="goToHome()" style="margin-left:8px">返回测试中心</button>'; }
+  else { return '<button class="restart-btn more-tests-btn" onclick="showMoreTests()" style="margin-left:8px">更多测试</button>'; }
+}
+function showMoreTests() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `<div class="modal-content"><div class="modal-icon">🧂</div><h3>解锁更多专业测评</h3><p>宇宙认知盐究所提供多种心理测评工具：</p><div class="modal-tests"><div class="modal-test-item">💕 亲密关系心理测评</div><div class="modal-test-item">💼 职业性格测评</div><div class="modal-test-item">🌿 压力与韧性测评</div></div><p class="modal-tip">购买测评合集，解锁全部测评内容</p><div class="modal-buttons"><button class="modal-btn primary" onclick="contactAdvisor()">联系顾问咨询</button><button class="modal-btn secondary" onclick="closeModal()">暂不需要</button></div></div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+function contactAdvisor() { alert('请添加顾问微信咨询购买合集'); closeModal(); }
+function closeModal() { const modal = document.querySelector('.modal-overlay'); if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); } }
+
+function calcScores() {
+  const scores = { perceive: 0, facilitate: 0, understand: 0, manage: 0 };
+  answers.forEach((v, i) => { scores[dims[i]] += (4 - v); }); // 0=非常符合=4分, 4=完全不符合=0分
+  return scores;
+}
+
+function getLevel(score, max) {
+  const pct = score / max;
+  if (pct >= 0.8) return { level: '优秀', color: '#059669', class: 'level-high' };
+  if (pct >= 0.6) return { level: '良好', color: '#d97706', class: 'level-medium' };
+  return { level: '待提升', color: '#dc2626', class: 'level-low' };
+}
+
+function getEQLevel(total) {
+  for (const l of EQ_LEVELS) { if (total >= l.min) return l; }
+  return EQ_LEVELS[EQ_LEVELS.length - 1];
+}
+
+function getDimAnalysis(dim, score) {
+  const analyses = {
+    perceive: {
+      high: '你具有敏锐的情绪感知能力，能够准确识别自己和他人的情绪状态，这是情绪智力的重要基础。',
+      medium: '你的情绪感知能力处于中等水平，建议多留意自己和他人的情绪变化，提升对细微情绪信号的敏感度。',
+      low: '你的情绪感知能力有较大提升空间，建议通过冥想、情绪日记等方式增强对情绪的觉察。'
+    },
+    facilitate: {
+      high: '你善于利用情绪来促进思考和行动，能够将情绪转化为工作和生活的助力。',
+      medium: '你基本能够利用情绪辅助思考，但还可以更有意识地运用积极情绪来提升效率和创造力。',
+      low: '你在利用情绪促进思考方面还需加强，建议学习如何将情绪作为资源而非障碍。'
+    },
+    understand: {
+      high: '你对情绪有深入的理解，能够分析情绪产生的原因和变化规律，这有助于更好地处理复杂的情感情境。',
+      medium: '你对情绪有基本的理解，建议深入学习情绪心理学知识，提升对情绪复杂性的认识。',
+      low: '你对情绪的理解还比较表面，建议通过阅读和反思来加深对情绪规律的认识。'
+    },
+    manage: {
+      high: '你具有出色的情绪管理能力，能够有效调节自己和影响他人的情绪状态，保持情绪稳定。',
+      medium: '你的情绪管理能力中等，大多数时候能够控制情绪，但在压力下可能会有困难。建议学习更多调节技巧。',
+      low: '你的情绪管理能力需要提升，建议学习深呼吸、正念等情绪调节技术，并在日常生活中练习。'
+    }
+  };
+  const pct = score / 40;
+  if (pct >= 0.7) return analyses[dim].high;
+  if (pct >= 0.5) return analyses[dim].medium;
+  return analyses[dim].low;
+}
+
+function showResult() {
+  document.getElementById('testPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const scores = calcScores();
+  const total = scores.perceive + scores.facilitate + scores.understand + scores.manage;
+  const eqLevel = getEQLevel(total);
+
+  const html = `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">你的情绪智力分数</div>
+      <div class="eq-score">${total}</div>
+      <div class="eq-level">${eqLevel.level}</div>
+      <div class="eq-desc">${eqLevel.desc}</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-value">${scores.perceive}</div><div class="stat-label">情绪感知</div></div>
+        <div class="stat-card"><div class="stat-value">${scores.facilitate}</div><div class="stat-label">情绪运用</div></div>
+        <div class="stat-card"><div class="stat-value">${scores.understand}</div><div class="stat-label">情绪理解</div></div>
+        <div class="stat-card"><div class="stat-value">${scores.manage}</div><div class="stat-label">情绪管理</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>四维度详细分析</div>
+      <div class="chart-container"><canvas id="radarChart"></canvas></div>
+      ${Object.keys(dimInfo).map(d => {
+        const info = dimInfo[d];
+        const score = scores[d];
+        const lv = getLevel(score, 40);
+        return `
+          <div class="dim-item">
+            <div class="dim-header">
+              <div class="dim-name"><div class="dim-icon" style="background:${info.bg}">${info.icon}</div>${info.name}</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="level-badge ${lv.class}">${lv.level}</span>
+                <span class="dim-score">${score}/40</span>
+              </div>
+            </div>
+            <div class="dim-bar"><div class="dim-bar-fill" style="width:${(score/40)*100}%;background:${info.color}"></div></div>
+            <div class="dim-analysis">${getDimAnalysis(d, score)}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>提升建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">每天花5分钟写情绪日记，记录当天经历的主要情绪及其触发因素</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">练习正念冥想，增强对当下情绪状态的觉察能力</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在感到强烈情绪时，尝试"暂停-呼吸-选择"的三步法</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">阅读情绪智力相关书籍，如《情商》《非暴力沟通》等</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">主动寻求反馈，了解自己的情绪表达对他人的影响</div></div>
+    </div>
+
+    <div class="card download-section">
+      <button class="download-btn" onclick="downloadPDF()" id="dlBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>下载PDF报告</button>
+      <button class="restart-btn" onclick="restart()">重新测试</button>
+      ${getHomeButtonHtml()}
+    </div>
+  `;
+
+  document.getElementById('resultContent').innerHTML = html;
+
+  setTimeout(() => {
+    new Chart(document.getElementById('radarChart'), {
+      type: 'radar',
+      data: {
+        labels: ['情绪感知', '情绪运用', '情绪理解', '情绪管理'],
+        datasets: [{ data: [scores.perceive, scores.facilitate, scores.understand, scores.manage], backgroundColor: 'rgba(102, 126, 234, 0.2)', borderColor: 'rgba(102, 126, 234, 1)', borderWidth: 2, pointBackgroundColor: 'rgba(102, 126, 234, 1)' }]
+      },
+      options: { scales: { r: { beginAtZero: true, max: 40, ticks: { stepSize: 10 } } }, plugins: { legend: { display: false } } }
+    });
+  }, 100);
+}
+
+function restart() { if (confirm('确定要重新测试吗？')) location.reload(); }
+
+async function downloadPDF() {
+  const btn = document.getElementById('dlBtn');
+  const loading = document.getElementById('loading');
+  btn.disabled = true; btn.innerHTML = '生成中...'; loading.classList.add('show');
+  try {
+    const scores = calcScores();
+    const total = scores.perceive + scores.facilitate + scores.understand + scores.manage;
+    const eqLevel = getEQLevel(total);
+    const date = new Date().toLocaleDateString('zh-CN');
+
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
+    pdfContainer.innerHTML = `
+      <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
+        <div style="font-size:16px;margin-bottom:10px;opacity:0.9;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div style="font-size:32px;font-weight:700;margin-bottom:15px;">情绪智力测评报告</div>
+        <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
+      </div>
+      <div style="text-align:center;margin-bottom:25px;">
+        <div style="font-size:14px;color:#64748b;margin-bottom:8px;">你的情绪智力分数</div>
+        <div style="font-size:56px;font-weight:700;color:#667eea;">${total}</div>
+        <div style="display:inline-block;padding:8px 24px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-weight:600;">${eqLevel.level}</div>
+        <div style="color:#64748b;font-size:14px;line-height:1.8;margin-top:16px;max-width:600px;margin-left:auto;margin-right:auto;">${eqLevel.desc}</div>
+      </div>
+      <div style="display:flex;gap:15px;margin-bottom:25px;">
+        ${Object.keys(dimInfo).map(d => `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:20px;text-align:center;"><div style="font-size:28px;font-weight:700;color:#667eea;">${scores[d]}</div><div style="font-size:12px;color:#64748b;">${dimInfo[d].name}</div></div>`).join('')}
+      </div>
+      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+        <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
+        <div>本报告仅供参考，不构成心理诊断</div>
+      </div>
+    `;
+    document.body.appendChild(pdfContainer);
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+    const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    document.body.removeChild(pdfContainer);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfW = 210, finalW = pdfW - 20;
+    const ratio = canvas.width / canvas.height;
+    const finalH = finalW / ratio;
+    pdf.addImage(imgData, 'JPEG', 10, 10, finalW, finalH);
+    pdf.save(`情绪智力测评报告_${total}分_${date}.pdf`);
+  } catch (e) { console.error(e); alert('PDF生成失败'); }
+  finally { btn.disabled = false; btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 下载PDF报告'; loading.classList.remove('show'); }
+}
+
+render();
+</script>
+</body>
+</html>
