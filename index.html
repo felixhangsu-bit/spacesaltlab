@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙认知盐究所 | Space Salt Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #a5b4fc;
+  --bg: #0f0f1a;
+  --bg-card: rgba(255,255,255,0.03);
+  --text: #ffffff;
+  --text-muted: rgba(255,255,255,0.6);
+  --border: rgba(255,255,255,0.1);
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 星空背景 */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.7), transparent);
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* 渐变光晕 */
+.glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.glow-1 {
+  top: -200px;
+  right: -100px;
+  background: #667eea;
+}
+
+.glow-2 {
+  bottom: -200px;
+  left: -100px;
+  background: #764ba2;
+}
+
+/* 主容器 */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo */
+.logo-section {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.logo {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 28px;
+  background: var(--gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+}
+
+.logo::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--gradient);
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(20px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.brand-name {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+}
+
+/* 登录卡片 */
+.login-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 32px;
+}
+
+.login-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.login-card .desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.input-group {
+  margin-bottom: 24px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.input-group input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--gradient);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.login-btn:hover::before {
+  opacity: 1;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.error-msg {
+  color: #f87171;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 16px;
+  display: none;
+}
+
+.error-msg.show {
+  display: block;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* 提示信息 */
+.hint {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #fbbf24;
+  text-align: center;
+}
+
+/* 页脚 */
+.footer {
+  text-align: center;
+  margin-top: 48px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--primary-light);
+  text-decoration: none;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .container {
+    padding: 40px 20px;
+  }
+
+  .logo {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
+
+  .brand-name {
+    font-size: 26px;
+  }
+
+  .login-card {
+    padding: 32px 24px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="container">
+  <div class="logo-section">
+    <div class="logo">🧂</div>
+    <h1 class="brand-name">宇宙认知盐究所</h1>
+    <p class="brand-subtitle">SPACE SALT LAB</p>
+  </div>
+
+  <div class="login-card">
+    <h2>心理测评平台</h2>
+    <p class="desc">专业的心理认知探索工具</p>
+
+    <div class="input-group">
+      <label>平台访问密码</label>
+      <input type="password" id="pwd" placeholder="请输入访问密码" onkeypress="if(event.keyCode===13)check()">
+    </div>
+
+    <button class="login-btn" onclick="check()">进入平台</button>
+
+    <p class="error-msg" id="err">密码不正确，请重新输入</p>
+
+    <div class="hint">
+      <strong>测试提示：</strong>演示密码为 <code>salt2026</code>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>© 2025 宇宙认知盐究所 · Space Salt Lab</p>
+    <p style="margin-top:8px">探索心理认知的无限宇宙</p>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "salt2026";
+
+function check() {
+  const input = document.getElementById("pwd").value;
+  const errorMsg = document.getElementById("err");
+
+  if (input === PASSWORD) {
+    errorMsg.classList.remove('show');
+    // 添加过渡动画
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      window.location.href = "platform.html";
+    }, 300);
+  } else {
+    errorMsg.classList.add('show');
+    document.getElementById("pwd").value = '';
+    document.getElementById("pwd").focus();
+  }
+}
+
+// 聚焦输入框
+document.getElementById("pwd").focus();
+</script>
+
+</body>
+</html>

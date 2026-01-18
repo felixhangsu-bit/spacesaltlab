@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测评中心 | 宇宙认知盐究所</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #a5b4fc;
+  --bg: #0f0f1a;
+  --bg-card: rgba(255,255,255,0.03);
+  --text: #ffffff;
+  --text-muted: rgba(255,255,255,0.6);
+  --border: rgba(255,255,255,0.1);
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 星空背景 */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.7), transparent);
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.glow-1 {
+  top: -200px;
+  right: -100px;
+  background: #667eea;
+}
+
+.glow-2 {
+  bottom: -200px;
+  left: -100px;
+  background: #764ba2;
+}
+
+/* 主容器 */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* 头部 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  background: var(--gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.header-title h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.header-title p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.logout-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+
+/* 欢迎区 */
+.welcome {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.welcome h2 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome p {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+/* 测评卡片网格 */
+.test-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.test-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.test-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.test-card:hover::before {
+  opacity: 0.05;
+}
+
+.test-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+}
+
+.test-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.test-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--gradient);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.test-card h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.test-card .desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.test-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.test-tag {
+  padding: 6px 12px;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--primary-light);
+}
+
+.test-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.available {
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.coming {
+  background: #f59e0b;
+}
+
+.test-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-card.disabled:hover {
+  transform: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+/* 页脚 */
+.footer {
+  text-align: center;
+  margin-top: 60px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 响应式 */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .header-left {
+    flex-direction: column;
+  }
+
+  .welcome h2 {
+    font-size: 24px;
+  }
+
+  .test-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="container">
+  <header class="header">
+    <div class="header-left">
+      <div class="header-logo">🧂</div>
+      <div class="header-title">
+        <h1>宇宙认知盐究所</h1>
+        <p>Space Salt Lab</p>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">退出登录</button>
+  </header>
+
+  <div class="welcome">
+    <h2>选择你的心理测评</h2>
+    <p>探索内在认知，理解真实自我</p>
+  </div>
+
+  <div class="test-grid">
+    <!-- 亲密关系测评 -->
+    <div class="test-card" onclick="goToTest('relationship')">
+      <div class="test-icon">💕</div>
+      <h3>亲密关系心理测评</h3>
+      <p class="desc">基于依恋理论的专业测评，帮助你理解自己在亲密关系中的情感模式与依恋倾向</p>
+      <div class="test-tags">
+        <span class="test-tag">48题</span>
+        <span class="test-tag">4维度</span>
+        <span class="test-tag">12种类型</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot available"></span>
+        <span>可用</span>
+      </div>
+    </div>
+
+    <!-- 职业性格测评 - 即将上线 -->
+    <div class="test-card disabled">
+      <div class="test-icon">💼</div>
+      <h3>职业性格测评</h3>
+      <p class="desc">发现你的职业性格特质，找到最适合你的职业发展方向</p>
+      <div class="test-tags">
+        <span class="test-tag">60题</span>
+        <span class="test-tag">MBTI</span>
+        <span class="test-tag">霍兰德</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot coming"></span>
+        <span>即将上线</span>
+      </div>
+    </div>
+
+    <!-- 情绪管理测评 - 即将上线 -->
+    <div class="test-card disabled">
+      <div class="test-icon">🧠</div>
+      <h3>情绪智力测评</h3>
+      <p class="desc">评估你的情绪识别、理解和管理能力，提升情商水平</p>
+      <div class="test-tags">
+        <span class="test-tag">40题</span>
+        <span class="test-tag">EQ评估</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot coming"></span>
+        <span>即将上线</span>
+      </div>
+    </div>
+
+    <!-- 压力与韧性测评 - 即将上线 -->
+    <div class="test-card disabled">
+      <div class="test-icon">🌿</div>
+      <h3>压力与韧性测评</h3>
+      <p class="desc">了解你的压力应对模式和心理韧性水平</p>
+      <div class="test-tags">
+        <span class="test-tag">35题</span>
+        <span class="test-tag">韧性指数</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot coming"></span>
+        <span>即将上线</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2025 宇宙认知盐究所 · Space Salt Lab</p>
+    <p style="margin-top:8px">所有测评结果仅供参考，不构成心理诊断或医学建议</p>
+  </footer>
+</div>
+
+<script>
+function goToTest(type) {
+  if (type === 'relationship') {
+    window.location.href = 'relationship/test.html';
+  }
+}
+
+function logout() {
+  if (confirm('确定要退出登录吗？')) {
+    window.location.href = 'index.html';
+  }
+}
+</script>
+
+</body>
+</html>
