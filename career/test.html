@@ -628,18 +628,45 @@ async function downloadPDF() {
         <div style="color:#64748b;font-size:14px;line-height:1.8;">${result.desc}</div>
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">四维度分析</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">📊 四维度分析</div>
         ${Object.keys(dimInfo).map(d => {
           const info = dimInfo[d];
           const score = scores[d];
           const pct = Math.round((score / 15) * 100);
           const leftPct = 100 - pct;
-          return `<div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>${info.name}</span><span>${leftPct}% : ${pct}%</span></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
+          return `<div style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;"><span>${info.name}</span><span style="color:#667eea;">${leftPct}% : ${pct}%</span></div><div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${leftPct}%;background:${info.color};border-radius:4px;"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-top:4px;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
         }).join('')}
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">适合的职业方向</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💪 核心优势</div>
+        ${result.strengths.map(s => `<div style="padding:12px;background:#f0fdf4;border-radius:8px;margin-bottom:8px;font-size:14px;color:#166534;"><span style="margin-right:8px;">✓</span>${s}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">🌱 成长空间</div>
+        ${result.weaknesses.map(w => `<div style="padding:12px;background:#fef2f2;border-radius:8px;margin-bottom:8px;font-size:14px;color:#991b1b;"><span style="margin-right:8px;">!</span>${w}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💼 适合的职业方向</div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">${result.careers.map(c => `<div style="padding:10px 16px;background:#ede9fe;border-radius:8px;font-size:14px;">${c}</div>`).join('')}</div>
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">⭐ 同类型名人</div>
+        <div style="padding:20px;background:#f8fafc;border-radius:12px;">
+          <div style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:8px;">${result.celeb}</div>
+          <div style="font-size:14px;color:#64748b;line-height:1.7;">${result.celebDesc}</div>
+        </div>
+      </div>
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💡 职业发展建议</div>
+        <div style="padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#64748b;line-height:1.6;">选择能够发挥你核心优势的工作环境，避免长期从事与性格相悖的工作</div>
+        </div>
+        <div style="padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#64748b;line-height:1.6;">了解并接纳自己的性格特点，同时有意识地发展非优势领域的能力</div>
+        </div>
+        <div style="padding:14px;background:#f8fafc;border-radius:8px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#64748b;line-height:1.6;">在团队中，主动承担与性格匹配的角色，同时学会欣赏其他类型同事的贡献</div>
+        </div>
       </div>
       <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
@@ -649,9 +676,15 @@ async function downloadPDF() {
 
     document.body.appendChild(pdfContainer);
     await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 500));
 
-    const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    const canvas = await html2canvas(pdfContainer, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      height: pdfContainer.scrollHeight,
+      windowHeight: pdfContainer.scrollHeight
+    });
     document.body.removeChild(pdfContainer);
 
     const { jsPDF } = window.jspdf;

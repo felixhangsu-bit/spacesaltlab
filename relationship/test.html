@@ -254,16 +254,16 @@ const questions = [
   "即使伴侣不同意，我也能坚持自己认为重要的事",
   "我在关系中很少为了迎合对方而改变自己的核心价值观",
   "我能够独立做出重要决定，而不过度依赖伴侣的认可",
-  "我清楚知道自己在关系中想要什么",
+  "我对自己在关系中的角色有清晰的认知",
   "当伴侣的期望与我的目标冲突时，我能找到平衡",
   "我不会因为害怕失去关系而放弃自己的梦想",
   "我在关系中保持着自己的兴趣爱好和社交圈",
   "我能够在关系中表达不同意见而不感到内疚",
-  "我认为保持自我完整性比维持关系和谐更重要",
+  "我在关系中能够平衡妥协与原则之间的张力",
   "我很少因为伴侣的看法而怀疑自己的判断",
   "我在关系中能够保持情感上的独立性",
   "我能够对伴侣说'不'而不感到过度愧疚",
-  "我清楚地知道自己在关系中能接受和不能接受的行为",
+  "我能够识别哪些关系行为符合我的价值观，哪些不符合",
   "当边界被侵犯时，我能够及时表达不满",
   "我不会为了取悦伴侣而牺牲自己的基本需求",
   "我能够在给予和接受之间保持平衡",
@@ -271,7 +271,7 @@ const questions = [
   "我尊重伴侣的隐私，也期望对方尊重我的隐私",
   "我能够区分自己的情绪和伴侣的情绪",
   "我不会因为伴侣的问题而过度承担责任",
-  "我在关系中有自己的个人空间和时间",
+  "我能够在亲密关系中保留属于自己的爱好和兴趣",
   "我能够拒绝不合理的要求而不感到害怕",
   "我不会为了关系而过度牺牲自己的身心健康",
   "当与伴侣发生冲突时，我能够保持相对冷静",
@@ -291,7 +291,7 @@ const questions = [
   "当伴侣需要独处时，我不会感到被抛弃",
   "我能够舒适地依赖伴侣，也让伴侣依赖我",
   "我不会因为短暂的分离而过度焦虑",
-  "我相信自己值得被爱和被善待",
+  "我能够在关系遇到挫折时仍保持对自己的肯定",
   "我不会过度监控伴侣的行为或行踪",
   "当关系出现问题时，我不会立即想到最坏的结果",
   "我能够在亲密和独立之间找到舒适的平衡",
@@ -430,11 +430,11 @@ function getType(s) {
 }
 
 function getLevel(score) {
-  if (score >= 42) return { level: "优秀", cls: "level-high", pct: "前15%" };
-  if (score >= 36) return { level: "良好", cls: "level-high", pct: "前35%" };
-  if (score >= 30) return { level: "中等", cls: "level-medium", pct: "中间40%" };
-  if (score >= 24) return { level: "偏低", cls: "level-low", pct: "后35%" };
-  return { level: "待提升", cls: "level-low", pct: "后15%" };
+  if (score >= 42) return { level: "优秀", cls: "level-high", pct: "前15%", color: "#059669" };
+  if (score >= 36) return { level: "良好", cls: "level-high", pct: "前35%", color: "#10b981" };
+  if (score >= 30) return { level: "发展中", cls: "level-medium", pct: "中间40%", color: "#d97706" };
+  if (score >= 24) return { level: "成长期", cls: "level-medium", pct: "后35%", color: "#f59e0b" };
+  return { level: "探索期", cls: "level-medium", pct: "后15%", color: "#6366f1" };
 }
 
 function getDimAnalysis(dim, score) {
@@ -660,6 +660,9 @@ async function downloadPDF() {
     const date = new Date().toLocaleDateString('zh-CN');
     const highest = Object.entries(s).reduce((a, b) => a[1] > b[1] ? a : b)[0];
     const lowest = Object.entries(s).reduce((a, b) => a[1] < b[1] ? a : b)[0];
+    const patterns = getPatterns(s);
+    const risks = getRisks(s);
+    const growth = getGrowthPath(s);
 
     // 创建PDF专用容器
     const pdfContainer = document.createElement('div');
@@ -694,7 +697,7 @@ async function downloadPDF() {
         </div>
         <div style="flex:1;background:#fce7f3;border-radius:12px;padding:20px;text-align:center;">
           <div style="font-size:18px;font-weight:700;color:#ec4899;">${dimInfo[lowest].name}</div>
-          <div style="font-size:12px;color:#64748b;">待提升维度</div>
+          <div style="font-size:12px;color:#64748b;">成长方向</div>
         </div>
       </div>
 
@@ -730,15 +733,90 @@ async function downloadPDF() {
         `).join('')}
       </div>
 
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">关系互动模式</div>
+        ${patterns.map(p => `
+          <div style="background:linear-gradient(135deg,#ede9fe 0%,#e0e7ff 100%);border-radius:12px;padding:20px;margin-bottom:12px;">
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${p.icon}</div>
+              <div>
+                <div style="font-size:15px;font-weight:600;color:#1e293b;margin-bottom:6px;">${p.title}</div>
+                <div style="font-size:13px;color:#64748b;line-height:1.7;">${p.desc}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${risks.length > 0 ? `
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">需要关注的信号</div>
+        <div style="background:linear-gradient(135deg,#fef2f2 0%,#fff7ed 100%);border-radius:12px;padding:20px;border:1px solid #fecaca;">
+          ${risks.map(r => `
+            <div style="display:flex;gap:10px;margin-bottom:12px;">
+              <div style="width:8px;height:8px;background:#f59e0b;border-radius:50%;margin-top:6px;flex-shrink:0;"></div>
+              <div style="font-size:13px;color:#78350f;line-height:1.7;">${r}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">个性化成长路径</div>
+        ${growth.map((g, i) => `
+          <div style="display:flex;gap:14px;margin-bottom:16px;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:14px;">${i+1}</div>
+            <div style="flex:1;">
+              <div style="font-size:12px;color:#667eea;font-weight:600;margin-bottom:4px;">${g.phase}</div>
+              <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">${g.title}</div>
+              <div style="font-size:13px;color:#64748b;line-height:1.7;">${g.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">关系经营建议</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">💬</div>
+            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">沟通方式</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.emotion >= 36 ? '你适合直接、坦诚的沟通方式。在情绪稳定时主动表达需求。' : '建议在沟通前先进行自我觉察，避免情绪化表达。使用「我」陈述而非指责。'}</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">⏰</div>
+            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">相处节奏</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.boundary >= 36 ? '你需要足够的个人空间和独处时间。与伴侣建立「在一起的独处」模式。' : '尝试在亲密和独立之间找到平衡，不要害怕要求属于自己的时间。'}</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">🎯</div>
+            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">冲突处理</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.emotion >= 36 && s.agency >= 36 ? '你能够建设性地处理冲突。保持这种能力，同时注意倾听伴侣的感受。' : '冲突时给自己冷静期，避免在情绪高涨时做决定或说伤人的话。'}</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">🌟</div>
+            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">信任建立</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.attachment >= 36 ? '你有建立信任的基础能力。继续保持开放和一致性，让伴侣感到安全。' : '信任需要时间和一致性。从小的承诺开始，逐步建立对关系的信心。'}</div>
+          </div>
+        </div>
+      </div>
+
       <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:20px;margin-bottom:25px;">
         <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:8px;">心理特征对标</div>
         <div style="font-size:16px;font-weight:700;color:#78350f;margin-bottom:6px;">${result.celeb}</div>
-        <div style="font-size:13px;color:#92400e;">${result.celebDesc}</div>
+        <div style="font-size:13px;color:#92400e;line-height:1.6;">${result.celebDesc}</div>
+        <div style="font-size:11px;color:#a16207;margin-top:8px;">名人对标仅用于心理结构特征的直观理解，不代表你的人格、命运或生活轨迹。</div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:28px;margin-bottom:25px;color:#fff;text-align:center;">
+        <div style="font-size:18px;font-weight:600;margin-bottom:14px;">写给你的话</div>
+        <div style="font-size:14px;line-height:1.8;opacity:0.95;">亲密关系是我们认识自己、成长自己的一面镜子。无论你目前处于什么样的依恋模式，这都不是固定不变的标签，而是一个起点。每一种模式都有其存在的原因和价值，也都有成长的空间。重要的不是成为「完美」的伴侣，而是在关系中保持觉察、真诚和成长的意愿。你值得拥有健康、滋养的亲密关系。</div>
       </div>
 
       <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
-        <div>本报告仅供参考，不构成心理诊断或医学建议</div>
+        <div>本报告仅供参考，不构成心理诊断或医学建议。如果您正在经历严重的情绪困扰或关系问题，建议寻求专业心理咨询师的帮助。</div>
       </div>
     `;
 
@@ -746,14 +824,16 @@ async function downloadPDF() {
 
     // 等待字体加载
     await document.fonts.ready;
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 500));
 
     // 截图
     const canvas = await html2canvas(pdfContainer, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
-      logging: false
+      logging: false,
+      height: pdfContainer.scrollHeight,
+      windowHeight: pdfContainer.scrollHeight
     });
 
     document.body.removeChild(pdfContainer);

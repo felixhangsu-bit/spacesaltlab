@@ -174,7 +174,7 @@ const questions = [
   { dim: 'obs', text: '最近一周，你是否反复检查已经做好的事情？' },
   { dim: 'obs', text: '最近一周，你是否难以做出决定？' },
   { dim: 'obs', text: '最近一周，你是否有一些无法摆脱的想法？' },
-  { dim: 'obs', text: '最近一周，你是否感到做事必须反复核对？' },
+  { dim: 'obs', text: '最近一周，你是否感到做事必须按特定顺序或方式进行？' },
   { dim: 'obs', text: '最近一周，你是否因为粗心大意而烦恼？' },
   // 人际敏感 (5题)
   { dim: 'int', text: '最近一周，你是否感到别人不理解你？' },
@@ -215,7 +215,7 @@ const questions = [
   // 现实感稳定性 (5题)
   { dim: 'psy', text: '最近一周，你是否感到自己的思想不受控制？' },
   { dim: 'psy', text: '最近一周，你是否感到孤独？' },
-  { dim: 'psy', text: '最近一周，你是否感到与他人疏远？' },
+  { dim: 'psy', text: '最近一周，你是否感到内心空虚或迷茫？' },
   { dim: 'psy', text: '最近一周，你是否感到自己不真实？' },
   { dim: 'psy', text: '最近一周，你是否感到周围事物不真实？' }
 ];
@@ -321,10 +321,10 @@ function getOverallStatus(total) {
 }
 
 function getDimLevel(score) {
-  if (score <= 5) return { level: '正常', class: 'level-high', color: '#059669' };
-  if (score <= 10) return { level: '轻度', class: 'level-medium', color: '#d97706' };
-  if (score <= 15) return { level: '中度', class: 'level-medium', color: '#f97316' };
-  return { level: '偏高', class: 'level-low', color: '#dc2626' };
+  if (score <= 5) return { level: '良好', class: 'level-high', color: '#059669' };
+  if (score <= 10) return { level: '需留意', class: 'level-medium', color: '#d97706' };
+  if (score <= 15) return { level: '需关注', class: 'level-medium', color: '#f97316' };
+  return { level: '需重视', class: 'level-low', color: '#dc2626' };
 }
 
 function getDimAnalysis(dim, score) {
@@ -537,7 +537,18 @@ async function downloadPDF() {
   try {
     const { jsPDF } = window.jspdf;
     const content = document.getElementById('resultContent');
-    const canvas = await html2canvas(content, { scale: 2, useCORS: true, logging: false });
+
+    // 等待图表完全渲染
+    await new Promise(r => setTimeout(r, 500));
+
+    const canvas = await html2canvas(content, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#f8fafc',
+      height: content.scrollHeight,
+      windowHeight: content.scrollHeight
+    });
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
     const pdf = new jsPDF('p', 'mm', 'a4');

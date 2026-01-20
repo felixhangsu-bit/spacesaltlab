@@ -171,7 +171,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 const questions = [
   // 模块A - 亲密需求 (8题)
   { dim: 'A', text: '当你和一个人建立亲密关系后，如果情绪交流明显减少，你会很快感到这段关系不像以前那样真实。' },
-  { dim: 'A', text: '如果一段关系长期停留在表面互动，你会逐渐感到空洞或疏离。' },
+  { dim: 'A', text: '你更享受双方能够谈论内心世界的关系，而非仅停留在日常话题。' },
   { dim: 'A', text: '被对方理解你的真实想法和情绪，对你来说非常重要。' },
   { dim: 'A', text: '当重要情绪无法和伴侣分享时，你会明显感到不安。' },
   { dim: 'A', text: '你倾向通过持续情绪交流确认亲密程度。' },
@@ -183,7 +183,7 @@ const questions = [
   { dim: 'B', text: '缺乏清晰承诺时，你会反复思考关系是否安全。' },
   { dim: 'B', text: '你很难在暧昧关系中保持情绪稳定。' },
   { dim: 'B', text: '你需要明确定位来确认自己在对方心中的位置。' },
-  { dim: 'B', text: '你会下意识想尽快消除关系的不确定状态。' },
+  { dim: 'B', text: '你倾向于在确立关系后才真正放开心去投入。' },
   { dim: 'B', text: '对方保持开放关系态度会让你感到不安。' },
   { dim: 'B', text: '你更需要清晰信号再决定是否继续投入。' },
   { dim: 'B', text: '即使互动不错，只要缺乏确定性，你也会感到悬空。' },
@@ -196,7 +196,7 @@ const questions = [
   { dim: 'C', text: '关系出问题时，你更先调整自己。' },
   { dim: 'C', text: '你在关系中投入了对未来的期待。' },
   { dim: 'C', text: '关系结束时，你会感觉自己付出了很多。' },
-  { dim: 'C', text: '你很难轻易从已投入较多的关系中抽身。' },
+  { dim: 'C', text: '你倾向于用行动（而非言语）来表达对关系的重视。' },
   { dim: 'C', text: '你常承担关系中的维系角色。' },
   // 模块D - 安全感内化程度 (8题) - 反向计分
   { dim: 'D', text: '即使伴侣暂时无法回应，你也能稳定情绪。' },
@@ -214,7 +214,7 @@ const questions = [
   { dim: 'E', text: '你把这段关系当作重要情绪支撑。' },
   { dim: 'E', text: '现实空缺时你会更用力抓住关系。' },
   { dim: 'E', text: '你有时忽略现实问题，只关注情绪安慰。' },
-  { dim: 'E', text: '你对关系的期待部分来自想象。' },
+  { dim: 'E', text: '你容易在关系初期就开始想象未来的可能性。' },
   { dim: 'E', text: '失去这段关系会让你担心难以恢复。' }
 ];
 
@@ -401,9 +401,9 @@ function getDimAnalysis(dim, score) {
 }
 
 function getDimLevel(score) {
-  if (score >= 70) return { level: '较高', class: 'level-high' };
-  if (score >= 40) return { level: '中等', class: 'level-medium' };
-  return { level: '较低', class: 'level-low' };
+  if (score >= 70) return { level: '显著', class: 'level-high' };
+  if (score >= 40) return { level: '适中', class: 'level-medium' };
+  return { level: '平和', class: 'level-low' };
 }
 
 function showResult() {
@@ -566,7 +566,18 @@ async function downloadPDF() {
   try {
     const { jsPDF } = window.jspdf;
     const content = document.getElementById('resultContent');
-    const canvas = await html2canvas(content, { scale: 2, useCORS: true, logging: false });
+
+    // 等待图表渲染完成
+    await new Promise(r => setTimeout(r, 500));
+
+    const canvas = await html2canvas(content, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#f8fafc',
+      height: content.scrollHeight,
+      windowHeight: content.scrollHeight
+    });
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
     const pdf = new jsPDF('p', 'mm', 'a4');
