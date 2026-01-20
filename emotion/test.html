@@ -100,10 +100,55 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
 .chart-container { max-width: 350px; margin: 20px auto; }
 @media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .question-card { padding: 28px 20px; } .q-text { font-size: 18px; } }
+
+/* 年龄输入页面样式 */
+.age-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+.age-card { background: white; border-radius: 24px; padding: 48px 40px; max-width: 450px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.age-icon { font-size: 64px; margin-bottom: 20px; }
+.age-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.age-desc { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin-bottom: 32px; }
+.age-input-wrap { margin-bottom: 32px; }
+.age-input { width: 100%; padding: 16px 20px; font-size: 18px; border: 2px solid var(--border); border-radius: 12px; text-align: center; outline: none; transition: all 0.2s; }
+.age-input:focus { border-color: var(--primary); }
+.age-input::placeholder { color: #cbd5e1; }
+.age-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.age-start-btn { width: 100%; padding: 16px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.age-start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.35); }
+.age-start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* 心理年龄卡片样式 */
+.psych-age-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
+.psych-age-card { padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; text-align: center; border: 1px solid var(--border); }
+.psych-age-icon { font-size: 32px; margin-bottom: 8px; }
+.psych-age-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+.psych-age-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+.psych-age-suffix { font-size: 14px; color: var(--text-muted); }
+.psych-age-desc { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+.psych-age-main { padding: 32px; background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); border-radius: 20px; text-align: center; margin-bottom: 20px; }
+.psych-age-main-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+.psych-age-main-value { font-size: 56px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.psych-age-main-type { font-size: 18px; font-weight: 600; color: var(--primary); margin-top: 8px; }
+.psych-age-main-desc { font-size: 14px; color: var(--text-muted); margin-top: 12px; line-height: 1.7; }
 </style>
 </head>
 <body>
-<div id="testPage" class="page active">
+
+<div id="agePage" class="page active">
+  <div class="age-page">
+    <div class="age-card">
+      <div class="age-icon">🧠</div>
+      <div class="age-title">情绪智力测评</div>
+      <div class="age-desc">在开始测评之前，请先输入您的实际年龄。<br>这将帮助我们为您生成更精准的心理年龄分析报告。</div>
+      <div class="age-input-wrap">
+        <input type="number" class="age-input" id="userAge" placeholder="请输入您的年龄" min="12" max="100" onkeypress="if(event.key==='Enter')startTest()">
+        <div class="age-hint">请输入12-100之间的数字</div>
+      </div>
+      <button class="age-start-btn" id="startTestBtn" onclick="startTest()">开始测评</button>
+    </div>
+  </div>
+</div>
+
+<div id="testPage" class="page">
   <div class="test-container">
     <div class="test-header">
       <button class="back-btn" onclick="exitTest()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>退出测试</button>
@@ -135,6 +180,137 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 <div class="loading" id="loading"><div class="loading-box"><div class="spinner"></div><p>正在生成报告...</p></div></div>
 
 <script>
+let userAge = 0;
+
+function startTest() {
+  const ageInput = document.getElementById('userAge');
+  const age = parseInt(ageInput.value);
+
+  if (!age || age < 12 || age > 100) {
+    alert('请输入有效的年龄（12-100岁）');
+    ageInput.focus();
+    return;
+  }
+
+  userAge = age;
+  document.getElementById('agePage').classList.remove('active');
+  document.getElementById('testPage').classList.add('active');
+}
+
+// 计算多场景心理年龄
+function getPsychologicalAges(scores, realAge) {
+  const total = scores.perceive + scores.facilitate + scores.understand + scores.manage;
+  const maxScore = 160;
+
+  // 基础心理年龄计算（根据总体情绪智力）
+  const baseRatio = total / maxScore;
+
+  // 不同场景的心理年龄计算
+  const scenes = {
+    // 职场心理年龄：主要看情绪管理和情绪运用
+    workplace: {
+      icon: '💼',
+      label: '职场心理年龄',
+      score: (scores.manage * 0.5 + scores.facilitate * 0.3 + scores.understand * 0.2) / 40,
+      desc: ''
+    },
+    // 家庭心理年龄：主要看情绪感知和情绪管理
+    family: {
+      icon: '🏠',
+      label: '家庭心理年龄',
+      score: (scores.perceive * 0.4 + scores.manage * 0.4 + scores.understand * 0.2) / 40,
+      desc: ''
+    },
+    // 感情心理年龄：主要看情绪感知和情绪理解
+    romance: {
+      icon: '💕',
+      label: '感情心理年龄',
+      score: (scores.perceive * 0.4 + scores.understand * 0.35 + scores.facilitate * 0.25) / 40,
+      desc: ''
+    },
+    // 挫折心理年龄：主要看情绪管理和情绪运用
+    adversity: {
+      icon: '🌊',
+      label: '挫折应对年龄',
+      score: (scores.manage * 0.5 + scores.facilitate * 0.3 + scores.understand * 0.2) / 40,
+      desc: ''
+    }
+  };
+
+  // 根据得分比例计算心理年龄
+  Object.keys(scenes).forEach(key => {
+    const ratio = scenes[key].score;
+    let psychAge;
+
+    if (ratio >= 0.85) {
+      // 非常成熟，心理年龄高于实际年龄
+      psychAge = Math.round(realAge + (ratio - 0.7) * 20);
+    } else if (ratio >= 0.7) {
+      // 成熟，心理年龄略高于实际年龄
+      psychAge = Math.round(realAge + (ratio - 0.7) * 15);
+    } else if (ratio >= 0.55) {
+      // 符合年龄
+      psychAge = Math.round(realAge - (0.7 - ratio) * 8);
+    } else if (ratio >= 0.4) {
+      // 略显稚嫩
+      psychAge = Math.round(realAge - (0.7 - ratio) * 12);
+    } else {
+      // 需要成长
+      psychAge = Math.round(realAge - (0.7 - ratio) * 15);
+    }
+
+    // 确保心理年龄在合理范围内
+    psychAge = Math.max(12, Math.min(80, psychAge));
+    scenes[key].age = psychAge;
+
+    // 生成描述
+    const diff = psychAge - realAge;
+    if (diff >= 8) {
+      scenes[key].desc = '远超同龄人的成熟度';
+    } else if (diff >= 3) {
+      scenes[key].desc = '展现出超越年龄的智慧';
+    } else if (diff >= -2) {
+      scenes[key].desc = '与实际年龄相符';
+    } else if (diff >= -6) {
+      scenes[key].desc = '有成长空间';
+    } else {
+      scenes[key].desc = '需要更多历练';
+    }
+  });
+
+  // 计算综合心理年龄
+  const avgPsychAge = Math.round((scenes.workplace.age + scenes.family.age + scenes.romance.age + scenes.adversity.age) / 4);
+
+  // 综合心理年龄类型判定
+  let mainType, mainDesc;
+  const diff = avgPsychAge - realAge;
+
+  if (diff >= 10) {
+    mainType = '智慧长者型';
+    mainDesc = '你的情绪智力远超同龄人，在各种场景下都展现出卓越的情绪觉察和管理能力。你是朋友和同事眼中的"老灵魂"，总能给出成熟稳重的建议，是大家信赖的情感支柱。';
+  } else if (diff >= 5) {
+    mainType = '成熟稳重型';
+    mainDesc = '你的情绪成熟度明显高于同龄人，在面对复杂的人际关系和情绪情境时，你通常能保持冷静和理性。你善于理解他人、调节情绪，这让你在工作和生活中都更加游刃有余。';
+  } else if (diff >= 0) {
+    mainType = '同龄优秀型';
+    mainDesc = '你的情绪智力与实际年龄相符，并且在某些方面展现出优于同龄人的特质。你懂得识别和管理自己的情绪，在人际交往中表现得体。继续保持，你正在稳步成长。';
+  } else if (diff >= -5) {
+    mainType = '成长进行型';
+    mainDesc = '你正在情绪智力的成长道路上前行。虽然在某些情境下可能会感到困惑或难以控制情绪，但这正是学习和成长的机会。每一次情绪体验都是提升的契机，相信你会越来越好。';
+  } else {
+    mainType = '潜力无限型';
+    mainDesc = '你的情绪智力还有广阔的发展空间，这意味着你有着巨大的成长潜力！目前你可能在情绪觉察和管理方面遇到一些挑战，但请记住：情绪智力是可以通过学习和练习来提升的。每个人都有自己的成长节奏，你正站在成长的起点上。';
+  }
+
+  return {
+    realAge,
+    avgPsychAge,
+    mainType,
+    mainDesc,
+    scenes
+  };
+}
+
 // 40道情绪智力测评题目（基于Mayer-Salovey模型）
 const questions = [
   // 情绪感知 Perceiving (10题)
@@ -307,6 +483,7 @@ function showResult() {
   const scores = calcScores();
   const total = scores.perceive + scores.facilitate + scores.understand + scores.manage;
   const eqLevel = getEQLevel(total);
+  const psychAges = getPsychologicalAges(scores, userAge);
 
   const html = `
     <div class="card" style="text-align:center;">
@@ -319,6 +496,35 @@ function showResult() {
         <div class="stat-card"><div class="stat-value">${scores.facilitate}</div><div class="stat-label">情绪运用</div></div>
         <div class="stat-card"><div class="stat-value">${scores.understand}</div><div class="stat-label">情绪理解</div></div>
         <div class="stat-card"><div class="stat-value">${scores.manage}</div><div class="stat-label">情绪管理</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fce7f3">🎂</div>你的心理年龄分析</div>
+      <div class="psych-age-main">
+        <div class="psych-age-main-label">实际年龄 ${psychAges.realAge} 岁 · 综合心理年龄</div>
+        <div class="psych-age-main-value">${psychAges.avgPsychAge}<span style="font-size:24px;"> 岁</span></div>
+        <div class="psych-age-main-type">🌟 ${psychAges.mainType}</div>
+        <div class="psych-age-main-desc">${psychAges.mainDesc}</div>
+      </div>
+
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px;color:var(--text);">不同场景下的心理年龄</div>
+      <div class="psych-age-grid">
+        ${Object.values(psychAges.scenes).map(scene => `
+          <div class="psych-age-card">
+            <div class="psych-age-icon">${scene.icon}</div>
+            <div class="psych-age-label">${scene.label}</div>
+            <div class="psych-age-value">${scene.age}<span class="psych-age-suffix"> 岁</span></div>
+            <div class="psych-age-desc">${scene.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:20px;padding:16px;background:linear-gradient(135deg,#fef3c7 0%,#fce7f3 100%);border-radius:12px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">💡 心理年龄解读</div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">
+          心理年龄反映的是你在情绪处理上的成熟程度。在职场上，你的心理年龄是 <strong>${psychAges.scenes.workplace.age}岁</strong>，说明你在工作中${psychAges.scenes.workplace.age >= psychAges.realAge ? '展现出超越年龄的成熟稳重' : '还有成长空间'}；在家庭关系中，你的心理年龄是 <strong>${psychAges.scenes.family.age}岁</strong>，${psychAges.scenes.family.age >= psychAges.realAge ? '你是家人眼中值得信赖的存在' : '你正在学习如何更好地处理家庭情感'}；在感情方面，你的心理年龄是 <strong>${psychAges.scenes.romance.age}岁</strong>，${psychAges.scenes.romance.age >= psychAges.realAge ? '你在情感关系中展现出智慧和深度' : '你正在探索如何更成熟地经营亲密关系'}；面对挫折时，你的心理年龄是 <strong>${psychAges.scenes.adversity.age}岁</strong>，${psychAges.scenes.adversity.age >= psychAges.realAge ? '你有着超越年龄的韧性和复原力' : '你正在积累应对困难的智慧和经验'}。
+        </div>
       </div>
     </div>
 

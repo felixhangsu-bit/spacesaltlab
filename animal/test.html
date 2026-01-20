@@ -124,9 +124,34 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .loading-spinner { width: 48px; height: 48px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* 天赋点系统 */
+.talent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+.talent-item { background: #f8fafc; border-radius: 12px; padding: 16px; }
+.talent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.talent-icon { font-size: 20px; }
+.talent-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.talent-score { margin-left: auto; font-size: 20px; font-weight: 700; }
+.talent-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.talent-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease-out; }
+.talent-desc { font-size: 12px; color: var(--text-muted); }
+
+.talent-highlight { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 20px; margin-top: 20px; }
+.talent-highlight-title { font-size: 15px; font-weight: 600; color: #92400e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.talent-highlight-content { font-size: 14px; color: #78350f; line-height: 1.7; }
+.talent-top-item { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+.talent-top-item:last-child { margin-bottom: 0; }
+.talent-badge { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.talent-top-name { font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 4px; }
+.talent-top-desc { font-size: 13px; color: #78350f; line-height: 1.5; }
+
+.talent-growth { background: #f0fdf4; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.talent-growth-title { font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.talent-growth-content { font-size: 13px; color: #15803d; line-height: 1.6; }
+
 @media (max-width: 640px) {
   .animal-main { flex-direction: column; text-align: center; }
   .action-buttons { flex-direction: column; }
+  .talent-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -413,6 +438,91 @@ function getEnergyDrain(situationAnimals) {
   return drainMap[conflictAnimal] || "每个人都有自己的能量消耗模式，建议观察什么情境让你最疲惫，并主动调整。";
 }
 
+// 天赋点系统 - 根据动物人格计算不同能力维度的天赋值
+function getTalentPoints(mainAnimal, subAnimal, situationAnimals) {
+  // 定义每种动物在各天赋维度的基础分
+  const animalTalents = {
+    cat: { independence: 95, empathy: 45, leadership: 55, creativity: 80, resilience: 70, social: 35 },
+    dog: { independence: 40, empathy: 85, leadership: 60, creativity: 55, resilience: 75, social: 90 },
+    wolf: { independence: 85, empathy: 50, leadership: 95, creativity: 60, resilience: 90, social: 55 },
+    fox: { independence: 75, empathy: 60, leadership: 65, creativity: 95, resilience: 80, social: 70 },
+    deer: { independence: 50, empathy: 95, leadership: 40, creativity: 70, resilience: 55, social: 65 },
+    bear: { independence: 70, empathy: 75, leadership: 85, creativity: 50, resilience: 95, social: 60 },
+    owl: { independence: 90, empathy: 55, leadership: 70, creativity: 85, resilience: 65, social: 40 },
+    dolphin: { independence: 45, empathy: 95, leadership: 55, creativity: 75, resilience: 60, social: 95 }
+  };
+
+  // 天赋维度定义
+  const talentDefs = {
+    independence: { name: '独立自主', icon: '🦅', color: '#8b5cf6', desc: '自我决策与独处的能力' },
+    empathy: { name: '共情理解', icon: '💗', color: '#ec4899', desc: '感知他人情绪的能力' },
+    leadership: { name: '领导魄力', icon: '👑', color: '#f59e0b', desc: '引领团队与决策的能力' },
+    creativity: { name: '创意灵感', icon: '✨', color: '#06b6d4', desc: '思维创新与变通的能力' },
+    resilience: { name: '抗压韧性', icon: '🛡️', color: '#10b981', desc: '面对压力的恢复能力' },
+    social: { name: '社交魅力', icon: '🤝', color: '#6366f1', desc: '建立连接的亲和能力' }
+  };
+
+  // 计算综合天赋点 (主动物60% + 次级动物25% + 情境加成15%)
+  const mainTalents = animalTalents[mainAnimal];
+  const subTalents = animalTalents[subAnimal];
+
+  // 情境动物加成
+  const situationBonus = {};
+  Object.keys(talentDefs).forEach(t => situationBonus[t] = 0);
+  Object.values(situationAnimals).forEach(animal => {
+    const talents = animalTalents[animal];
+    Object.keys(talents).forEach(t => situationBonus[t] += talents[t] * 0.0375); // 15%/4情境
+  });
+
+  // 最终天赋点计算
+  const finalTalents = {};
+  Object.keys(talentDefs).forEach(t => {
+    let score = mainTalents[t] * 0.6 + subTalents[t] * 0.25 + situationBonus[t];
+    score = Math.min(99, Math.max(20, Math.round(score))); // 限制在20-99范围
+    finalTalents[t] = { score, ...talentDefs[t] };
+  });
+
+  // 按分数排序，找出最强和最弱天赋
+  const sorted = Object.entries(finalTalents).sort((a, b) => b[1].score - a[1].score);
+  const topTalents = sorted.slice(0, 2);
+  const growthTalent = sorted[sorted.length - 1];
+
+  // 生成天赋解读
+  const interpretations = {
+    independence: {
+      high: '你拥有强大的内在力量，能够在孤独中自得其乐，不依赖他人的认可也能坚定前行',
+      low: '你更享受与他人协作，独自承担可能让你感到孤单，寻找志同道合的伙伴会让你更有力量'
+    },
+    empathy: {
+      high: '你是天生的情感探测器，能敏锐感知他人的喜怒哀乐，这是难得的温柔天赋',
+      low: '你更擅长理性分析，感性理解可以通过后天练习提升，这不会削弱你的独特价值'
+    },
+    leadership: {
+      high: '你天生具备引领他人的气场，在关键时刻能够站出来做决策，是团队的主心骨',
+      low: '你更适合支持型角色，在幕后发挥影响力同样能创造巨大价值'
+    },
+    creativity: {
+      high: '你的大脑里住着无数个创意小精灵，总能从不同角度看问题，打破常规是你的拿手好戏',
+      low: '你更擅长执行和落地，稳扎稳打的风格让你成为可靠的实践者'
+    },
+    resilience: {
+      high: '你的心理韧性惊人，困难只会让你更强大，是典型的"打不倒"人格',
+      low: '你的内心较为敏感，这让你更能感知生活的美好，记得在压力下给自己更多关怀'
+    },
+    social: {
+      high: '你天生自带社交光环，与人交往对你来说轻松自在，人脉是你的宝贵资源',
+      low: '你更享受深度而非广度的社交，真正懂你的几个知己胜过千万泛泛之交'
+    }
+  };
+
+  return {
+    talents: finalTalents,
+    topTalents,
+    growthTalent,
+    interpretations
+  };
+}
+
 function goToHome() { window.location.href = '../platform.html'; }
 
 function getHomeButtonHtml() {
@@ -448,6 +558,7 @@ function showResult() {
   const situationAnimals = getSituationAnimal(bySituation);
   const switchPattern = analyzeSwitchPattern(situationAnimals);
   const energyDrain = getEnergyDrain(situationAnimals);
+  const talentData = getTalentPoints(topAnimals[0], topAnimals[1], situationAnimals);
 
   document.getElementById('resultContent').innerHTML = `
     <div class="result-header">
@@ -510,6 +621,47 @@ function showResult() {
     </div>
 
     <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">🎯</div>你的天赋点分布</div>
+      <div class="talent-grid">
+        ${Object.entries(talentData.talents).map(([key, t]) => `
+          <div class="talent-item">
+            <div class="talent-header">
+              <span class="talent-icon">${t.icon}</span>
+              <span class="talent-name">${t.name}</span>
+              <span class="talent-score" style="color:${t.color}">${t.score}</span>
+            </div>
+            <div class="talent-bar">
+              <div class="talent-fill" style="width:${t.score}%;background:${t.color}"></div>
+            </div>
+            <div class="talent-desc">${t.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="talent-highlight">
+        <div class="talent-highlight-title">✨ 你的王牌天赋</div>
+        <div class="talent-highlight-content">
+          ${talentData.topTalents.map(([key, t]) => `
+            <div class="talent-top-item">
+              <div class="talent-badge" style="background:${t.color}20">${t.icon}</div>
+              <div>
+                <div class="talent-top-name">${t.name} (${t.score}分)</div>
+                <div class="talent-top-desc">${talentData.interpretations[key].high}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="talent-growth">
+        <div class="talent-growth-title">🌱 成长空间</div>
+        <div class="talent-growth-content">
+          <strong>${talentData.growthTalent[1].name}</strong> (${talentData.growthTalent[1].score}分) · ${talentData.interpretations[talentData.growthTalent[0]].low}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>人格切换更柔性的建议</div>
       <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">觉察你的自动反应：下次进入某个情境时，观察自己是如何自动切换的</div></div>
       <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">给切换留出缓冲：不要在不同情境间快速切换，给自己几分钟过渡时间</div></div>
@@ -555,6 +707,7 @@ async function downloadPDF() {
     const situationAnimals = getSituationAnimal(bySituation);
     const switchPattern = analyzeSwitchPattern(situationAnimals);
     const energyDrain = getEnergyDrain(situationAnimals);
+    const talentData = getTalentPoints(topAnimals[0], topAnimals[1], situationAnimals);
     const date = new Date().toLocaleDateString('zh-CN');
 
     const pdfContainer = document.createElement('div');
@@ -609,6 +762,45 @@ async function downloadPDF() {
       <div style="background:#fef2f2;border-radius:12px;padding:20px;margin-bottom:25px;">
         <div style="font-size:14px;font-weight:600;color:#dc2626;margin-bottom:8px;">⚡ 能量消耗分析</div>
         <div style="font-size:13px;color:#7f1d1d;line-height:1.7;">${energyDrain}</div>
+      </div>
+
+      <div style="margin-bottom:25px;">
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">🎯 你的天赋点分布</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">
+          ${Object.entries(talentData.talents).map(([key, t]) => `
+            <div style="background:#f8fafc;border-radius:10px;padding:14px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span style="font-size:18px;">${t.icon}</span>
+                <span style="font-size:13px;font-weight:600;color:#1e293b;">${t.name}</span>
+                <span style="margin-left:auto;font-size:18px;font-weight:700;color:${t.color};">${t.score}</span>
+              </div>
+              <div style="height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-bottom:6px;">
+                <div style="height:100%;width:${t.score}%;background:${t.color};border-radius:3px;"></div>
+              </div>
+              <div style="font-size:11px;color:#64748b;">${t.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-radius:12px;padding:16px;margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:10px;">✨ 你的王牌天赋</div>
+          ${talentData.topTalents.map(([key, t]) => `
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+              <div style="width:32px;height:32px;background:${t.color}20;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${t.icon}</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:2px;">${t.name} (${t.score}分)</div>
+                <div style="font-size:12px;color:#78350f;line-height:1.5;">${talentData.interpretations[key].high}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="background:#f0fdf4;border-radius:12px;padding:16px;">
+          <div style="font-size:13px;font-weight:600;color:#166534;margin-bottom:6px;">🌱 成长空间</div>
+          <div style="font-size:12px;color:#15803d;line-height:1.6;">
+            <strong>${talentData.growthTalent[1].name}</strong> (${talentData.growthTalent[1].score}分) · ${talentData.interpretations[talentData.growthTalent[0]].low}
+          </div>
+        </div>
       </div>
 
       <div style="margin-bottom:25px;">

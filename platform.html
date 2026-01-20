@@ -158,6 +158,41 @@ body {
   color: var(--text-muted);
 }
 
+/* 分类区块 */
+.category-section {
+  margin-bottom: 48px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.category-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.category-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 /* 测评卡片网格 */
 .test-grid {
   display: grid;
@@ -329,132 +364,178 @@ body {
     <p>探索内在认知，理解真实自我</p>
   </div>
 
-  <div class="test-grid">
-    <!-- 亲密关系测评 -->
-    <div class="test-card" onclick="goToTest('relationship')">
-      <div class="test-icon">💕</div>
-      <h3>亲密关系心理测评</h3>
-      <p class="desc">基于依恋理论的专业测评，帮助你理解自己在亲密关系中的情感模式与依恋倾向</p>
-      <div class="test-tags">
-        <span class="test-tag">48题</span>
-        <span class="test-tag">4维度</span>
-        <span class="test-tag">12种类型</span>
-      </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+  <!-- 职业发展类 -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">💼</div>
+      <div>
+        <div class="category-title">职业发展类</div>
+        <div class="category-desc">探索职业潜能，规划人生方向</div>
       </div>
     </div>
-
-    <!-- 职业性格测评 -->
-    <div class="test-card" onclick="goToTest('career')">
-      <div class="test-icon">💼</div>
-      <h3>职业性格测评</h3>
-      <p class="desc">基于MBTI与霍兰德理论，发现你的职业性格特质与发展方向</p>
-      <div class="test-tags">
-        <span class="test-tag">60题</span>
-        <span class="test-tag">MBTI</span>
-        <span class="test-tag">16种类型</span>
+    <div class="test-grid">
+      <!-- 职业性格测评 -->
+      <div class="test-card" onclick="goToTest('career')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">💼</div>
+        <h3>职业性格测评</h3>
+        <p class="desc">基于MBTI与霍兰德理论，发现你的职业性格特质与发展方向</p>
+        <div class="test-tags">
+          <span class="test-tag">60题</span>
+          <span class="test-tag">MBTI</span>
+          <span class="test-tag">16种类型</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+
+      <!-- 情绪智力测评 -->
+      <div class="test-card" onclick="goToTest('emotion')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🧠</div>
+        <h3>情绪智力测评</h3>
+        <p class="desc">基于Mayer-Salovey模型，评估你的情绪识别、理解和管理能力</p>
+        <div class="test-tags">
+          <span class="test-tag">40题</span>
+          <span class="test-tag">EQ评估</span>
+          <span class="test-tag">4维度</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- 情绪智力测评 -->
-    <div class="test-card" onclick="goToTest('emotion')">
-      <div class="test-icon">🧠</div>
-      <h3>情绪智力测评</h3>
-      <p class="desc">基于Mayer-Salovey模型，评估你的情绪识别、理解和管理能力</p>
-      <div class="test-tags">
-        <span class="test-tag">40题</span>
-        <span class="test-tag">EQ评估</span>
-        <span class="test-tag">4维度</span>
-      </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+  <!-- 心理健康类 -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">🌿</div>
+      <div>
+        <div class="category-title">心理健康类</div>
+        <div class="category-desc">关注身心状态，守护内在平衡</div>
       </div>
     </div>
-
-    <!-- 压力与韧性测评 -->
-    <div class="test-card" onclick="goToTest('resilience')">
-      <div class="test-icon">🌿</div>
-      <h3>压力与韧性测评</h3>
-      <p class="desc">基于心理韧性理论，了解你的压力应对模式和心理韧性水平</p>
-      <div class="test-tags">
-        <span class="test-tag">35题</span>
-        <span class="test-tag">韧性指数</span>
-        <span class="test-tag">5维度</span>
+    <div class="test-grid">
+      <!-- 压力与韧性测评 -->
+      <div class="test-card" onclick="goToTest('resilience')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">🌿</div>
+        <h3>压力与韧性测评</h3>
+        <p class="desc">基于心理韧性理论，了解你的压力应对模式和心理韧性水平</p>
+        <div class="test-tags">
+          <span class="test-tag">35题</span>
+          <span class="test-tag">韧性指数</span>
+          <span class="test-tag">5维度</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+
+      <!-- 心理状态评估 -->
+      <div class="test-card" onclick="goToTest('scl90')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">🩺</div>
+        <h3>心理状态评估</h3>
+        <p class="desc">基于SCL-90专业量表，评估你当前的心理健康状态与需要关注的维度</p>
+        <div class="test-tags">
+          <span class="test-tag">45题</span>
+          <span class="test-tag">SCL-90</span>
+          <span class="test-tag">9因子</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- 心理状态评估 -->
-    <div class="test-card" onclick="goToTest('scl90')">
-      <div class="test-icon">🩺</div>
-      <h3>心理状态评估</h3>
-      <p class="desc">基于SCL-90专业量表，评估你当前的心理健康状态与需要关注的维度</p>
-      <div class="test-tags">
-        <span class="test-tag">45题</span>
-        <span class="test-tag">SCL-90</span>
-        <span class="test-tag">9因子</span>
-      </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+  <!-- 情感侦测类 -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">💕</div>
+      <div>
+        <div class="category-title">情感侦测类</div>
+        <div class="category-desc">解读情感密码，洞察关系本质</div>
       </div>
     </div>
-
-    <!-- 爱情心理结构测评 -->
-    <div class="test-card" onclick="goToTest('love')">
-      <div class="test-icon">💜</div>
-      <h3>爱情心理结构测评</h3>
-      <p class="desc">量化你在亲密关系中的投入模式、依赖程度与情感消耗结构</p>
-      <div class="test-tags">
-        <span class="test-tag">42题</span>
-        <span class="test-tag">关系模式</span>
-        <span class="test-tag">5维度</span>
+    <div class="test-grid">
+      <!-- 亲密关系测评 -->
+      <div class="test-card" onclick="goToTest('relationship')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">💕</div>
+        <h3>亲密关系心理测评</h3>
+        <p class="desc">基于依恋理论的专业测评，帮助你理解自己在亲密关系中的情感模式与依恋倾向</p>
+        <div class="test-tags">
+          <span class="test-tag">48题</span>
+          <span class="test-tag">4维度</span>
+          <span class="test-tag">12种类型</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+
+      <!-- 爱情心理结构测评 -->
+      <div class="test-card" onclick="goToTest('love')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">💜</div>
+        <h3>爱情心理结构测评</h3>
+        <p class="desc">量化你在亲密关系中的投入模式、依赖程度与情感消耗结构</p>
+        <div class="test-tags">
+          <span class="test-tag">42题</span>
+          <span class="test-tag">关系模式</span>
+          <span class="test-tag">5维度</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- 动物投射测试 -->
-    <div class="test-card" onclick="goToTest('animal')">
-      <div class="test-icon">🦊</div>
-      <h3>动物投射测试</h3>
-      <p class="desc">探索你在不同心理状态下自动切换的人格模式与潜意识防御机制</p>
-      <div class="test-tags">
-        <span class="test-tag">16题</span>
-        <span class="test-tag">4情境</span>
-        <span class="test-tag">8种动物</span>
-      </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+  <!-- 心灵投射类 -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">🔮</div>
+      <div>
+        <div class="category-title">心灵投射类</div>
+        <div class="category-desc">透视潜意识，发现隐藏的自我</div>
       </div>
     </div>
-
-    <!-- 欲望比重测试 -->
-    <div class="test-card" onclick="goToTest('desire')">
-      <div class="test-icon">🔮</div>
-      <h3>欲望比重测试</h3>
-      <p class="desc">揭示你做选择时背后的真正驱动力，理解欲望冲突与被压抑的需求</p>
-      <div class="test-tags">
-        <span class="test-tag">36题</span>
-        <span class="test-tag">6维度</span>
-        <span class="test-tag">4类型</span>
+    <div class="test-grid">
+      <!-- 动物投射测试 -->
+      <div class="test-card" onclick="goToTest('animal')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">🦊</div>
+        <h3>动物投射测试</h3>
+        <p class="desc">探索你在不同心理状态下自动切换的人格模式与潜意识防御机制</p>
+        <div class="test-tags">
+          <span class="test-tag">16题</span>
+          <span class="test-tag">4情境</span>
+          <span class="test-tag">8种动物</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
-      <div class="test-status">
-        <span class="status-dot available"></span>
-        <span>可用</span>
+
+      <!-- 欲望比重测试 -->
+      <div class="test-card" onclick="goToTest('desire')">
+        <div class="test-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">🔮</div>
+        <h3>欲望比重测试</h3>
+        <p class="desc">揭示你做选择时背后的真正驱动力，理解欲望冲突与被压抑的需求</p>
+        <div class="test-tags">
+          <span class="test-tag">36题</span>
+          <span class="test-tag">6维度</span>
+          <span class="test-tag">4类型</span>
+        </div>
+        <div class="test-status">
+          <span class="status-dot available"></span>
+          <span>可用</span>
+        </div>
       </div>
     </div>
   </div>

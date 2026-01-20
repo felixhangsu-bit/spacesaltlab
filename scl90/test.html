@@ -327,6 +327,142 @@ function getDimLevel(score) {
   return { level: '需重视', class: 'level-low', color: '#dc2626' };
 }
 
+// 获取维度的具体实施方法和警惕的心理疾病
+function getDimWarningInfo(dim, score) {
+  const warningInfo = {
+    som: {
+      methods: [
+        '每天进行15-20分钟的渐进式肌肉放松练习，从脚到头逐步放松每个肌肉群',
+        '建立"身体扫描"习惯，每天花5分钟专注感受身体各部位，区分正常感觉和压力反应',
+        '保持规律运动，每周至少3次有氧运动（如快走、游泳），帮助身体释放紧张',
+        '学习腹式呼吸法：吸气4秒、屏气4秒、呼气6秒，每天练习10分钟'
+      ],
+      diseases: [
+        { name: '躯体化障碍', desc: '长期出现多种无法用医学解释的身体症状，如慢性疼痛、疲劳、头晕等' },
+        { name: '疑病症', desc: '过度担心自己患有严重疾病，反复检查身体，即使医学检查正常也难以放心' },
+        { name: '转换障碍', desc: '心理冲突转化为身体症状，如突发性失明、瘫痪等，但无器质性病变' }
+      ]
+    },
+    obs: {
+      methods: [
+        '练习"延迟检查"：有检查冲动时，先等待5分钟再决定是否检查，逐步延长等待时间',
+        '建立"一次足够"原则：做完一件事后告诉自己"已经检查过了，一次就够了"',
+        '记录强迫思维日记：写下触发想法、情绪反应和实际结果，帮助识别不合理认知',
+        '学习接纳不确定性：练习对"可能出错"的情况说"那就算了"，培养对不完美的容忍'
+      ],
+      diseases: [
+        { name: '强迫症(OCD)', desc: '反复出现无法控制的想法（强迫思维）或重复行为（强迫行为），明知不合理但无法停止' },
+        { name: '囤积障碍', desc: '难以丢弃物品，导致居住空间堆满杂物，影响正常生活功能' },
+        { name: '拔毛癖', desc: '反复拔自己的头发或体毛，导致明显脱发，伴随紧张和拔后的满足感' }
+      ]
+    },
+    int: {
+      methods: [
+        '练习自我肯定：每天写下3件自己做得好的事情，无论大小',
+        '挑战负面自我评价：当出现"我不如别人"的想法时，列出反驳证据',
+        '从小的社交互动开始：先与熟悉的人练习表达想法，逐步扩大社交圈',
+        '学习assertive沟通：用"我感觉...当...我希望..."的句式表达需求，不卑不亢'
+      ],
+      diseases: [
+        { name: '社交焦虑障碍', desc: '在社交场合中感到强烈恐惧和焦虑，担心被他人负面评价，导致回避社交' },
+        { name: '回避型人格障碍', desc: '极度敏感于他人的批评和拒绝，因害怕被嘲笑而回避人际交往和新活动' },
+        { name: '自卑情结', desc: '持续性地低估自己的能力和价值，总觉得自己不够好，影响生活各方面' }
+      ]
+    },
+    dep: {
+      methods: [
+        '建立"行为激活"计划：每天安排至少一项愉快活动，即使不想做也坚持完成',
+        '保持规律作息：固定时间起床和睡觉，白天多接触自然光',
+        '每天进行至少30分钟的有氧运动，运动能促进大脑分泌"快乐激素"',
+        '与信任的人保持联系，每周至少与朋友或家人进行一次深入交流',
+        '如症状持续超过两周，请务必寻求专业心理或精神科帮助'
+      ],
+      diseases: [
+        { name: '重度抑郁症', desc: '持续两周以上的情绪低落、兴趣丧失，伴随睡眠、食欲变化，严重时有自杀想法' },
+        { name: '持续性抑郁障碍', desc: '慢性低落情绪持续至少两年，症状较轻但持久，严重影响生活质量' },
+        { name: '季节性情感障碍', desc: '在特定季节（通常是秋冬）出现抑郁症状，春夏季节缓解' }
+      ]
+    },
+    anx: {
+      methods: [
+        '学习4-7-8呼吸法：吸气4秒、屏气7秒、呼气8秒，激活副交感神经',
+        '练习正念冥想：每天10-15分钟，专注于当下感受，不评判地观察想法来去',
+        '建立"担忧时间"：每天固定15分钟专门用来担心，其他时间出现担忧就推迟到这个时段',
+        '限制咖啡因和酒精摄入，它们会加重焦虑症状',
+        '练习渐进式暴露：从最小的焦虑情境开始，逐步面对和适应'
+      ],
+      diseases: [
+        { name: '广泛性焦虑障碍', desc: '对多种事情持续过度担忧至少6个月，伴随紧张、易疲劳、难以集中注意力' },
+        { name: '惊恐障碍', desc: '反复出现突发性强烈恐惧发作，伴随心悸、出汗、窒息感，担心再次发作' },
+        { name: '分离焦虑障碍', desc: '与依恋对象分离时出现过度焦虑和痛苦，常见于儿童但也可能持续到成年' }
+      ]
+    },
+    hos: {
+      methods: [
+        '学习识别愤怒预警信号：注意身体紧张、心跳加速等信号，在爆发前采取行动',
+        '使用"暂停技术"：感到愤怒时，先离开现场，做10次深呼吸，等情绪平复再处理问题',
+        '练习用"我"开头的陈述句表达感受，而不是指责对方',
+        '找到健康的情绪宣泄方式：运动、写日记、打枕头等',
+        '探索愤怒背后的需求：愤怒常常是受伤、恐惧或无助的面具'
+      ],
+      diseases: [
+        { name: '间歇性爆发障碍', desc: '反复出现无法控制的攻击性爆发，与触发事件严重程度不成比例' },
+        { name: '对立违抗性障碍', desc: '持续性的愤怒情绪、争辩行为和对权威的反抗，常见于儿童青少年' },
+        { name: '边缘型人格障碍', desc: '情绪不稳定、人际关系紧张、易怒，伴随自我伤害行为和空虚感' }
+      ]
+    },
+    pho: {
+      methods: [
+        '学习系统脱敏法：建立恐惧等级表，从最轻的恐惧开始逐步暴露',
+        '在安全环境下想象恐惧场景，同时练习放松技巧，打破恐惧与紧张的联结',
+        '制定"面对恐惧"的小目标：每天做一件让你轻微不适的事情',
+        '记录恐惧发作前后的想法，识别不合理的灾难化思维',
+        '与支持者一起进行暴露练习，有人陪伴会更有安全感'
+      ],
+      diseases: [
+        { name: '特定恐惧症', desc: '对特定对象或情境（如动物、高处、打针）产生过度恐惧和回避' },
+        { name: '广场恐惧症', desc: '害怕在难以逃脱或无法获得帮助的环境中出现惊恐症状，导致回避外出' },
+        { name: '社交恐惧症', desc: '对社交场合产生强烈恐惧，害怕被他人审视或评判' }
+      ]
+    },
+    par: {
+      methods: [
+        '练习"证据检验"：当出现怀疑想法时，列出支持和反对的证据，做出更平衡的判断',
+        '学习从多角度解读他人行为，而不是默认负面意图',
+        '建立信任的小步骤：选择一个相对安全的人，尝试分享一件小事',
+        '记录"被针对"的想法和实际结果，检验预期与现实的差距',
+        '练习给他人"善意解读"：假设对方有合理的理由，而不是恶意'
+      ],
+      diseases: [
+        { name: '偏执型人格障碍', desc: '对他人持续不信任和猜疑，总觉得别人有恶意，导致人际关系困难' },
+        { name: '妄想障碍', desc: '持续存在一个或多个不合理的信念（如被跟踪、被迫害），无法被证据说服' },
+        { name: '精神分裂症偏执型', desc: '以被害妄想或关系妄想为主，可能伴随幻觉，需要专业治疗' }
+      ]
+    },
+    psy: {
+      methods: [
+        '建立稳定的日常routine：规律的作息和活动可以增强现实感',
+        '增加与他人的真实连接：面对面交流比线上交流更能增强存在感',
+        '练习"五感锚定"：当感到不真实时，找5个能看到的、4个能听到的、3个能触摸的...',
+        '减少独处时间，参与群体活动和社交',
+        '如果经常感到与现实脱节，请及时寻求专业帮助'
+      ],
+      diseases: [
+        { name: '解离障碍', desc: '与自己的想法、感受、身份或记忆产生分离感，感觉不像自己或世界不真实' },
+        { name: '人格解体障碍', desc: '持续感觉自己是自身想法和身体的旁观者，像在做梦或看电影' },
+        { name: '精神分裂症', desc: '思维、情感和行为的严重障碍，可能包括幻觉、妄想和思维紊乱' }
+      ]
+    }
+  };
+
+  const info = warningInfo[dim];
+  if (!info) return null;
+
+  // 根据分数决定是否显示警告信息
+  if (score <= 5) return null; // 良好状态不需要显示
+  return info;
+}
+
 function getDimAnalysis(dim, score) {
   const analyses = {
     som: {
@@ -457,10 +593,43 @@ function showResult() {
       <div class="section-title"><div class="section-icon" style="background:#fee2e2">⚠️</div>需要特别关注的维度</div>
       <div class="summary-text">
         根据你的评估结果，以下维度需要特别关注：
-        <ul style="margin-top:12px;padding-left:20px;">
-          ${concerns.map(([dim, score]) => `<li><strong>${dimInfo[dim].name}</strong>（得分 ${score}/20）：建议重点关注并采取相应措施</li>`).join('')}
-        </ul>
       </div>
+
+      ${concerns.map(([dim, score]) => {
+        const warningInfo = getDimWarningInfo(dim, score);
+        if (!warningInfo) return '';
+        return `
+          <div style="margin-top:20px;padding:20px;background:#fef2f2;border-radius:12px;border-left:4px solid ${dimInfo[dim].color};">
+            <div style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">${dimInfo[dim].icon}</span>
+              ${dimInfo[dim].name}
+              <span style="font-size:13px;color:#dc2626;background:#fee2e2;padding:2px 8px;border-radius:10px;">得分 ${score}/20</span>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div style="font-size:14px;font-weight:600;color:#059669;margin-bottom:8px;">🛠️ 具体实施方法：</div>
+              <ul style="font-size:13px;color:var(--text-muted);line-height:1.8;padding-left:20px;">
+                ${warningInfo.methods.map(m => `<li>${m}</li>`).join('')}
+              </ul>
+            </div>
+
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#dc2626;margin-bottom:8px;">⚠️ 需警惕的心理状况：</div>
+              <div style="display:grid;gap:10px;">
+                ${warningInfo.diseases.map(d => `
+                  <div style="background:white;padding:12px;border-radius:8px;border:1px solid #fecaca;">
+                    <div style="font-size:13px;font-weight:600;color:#dc2626;margin-bottom:4px;">${d.name}</div>
+                    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">${d.desc}</div>
+                  </div>
+                `).join('')}
+              </div>
+              <div style="font-size:12px;color:#7f1d1d;margin-top:8px;font-style:italic;">
+                * 以上仅为科普信息，如有相关困扰请寻求专业诊断
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
     </div>
     ` : ''}
 
