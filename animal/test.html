@@ -12,53 +12,48 @@
 :root {
   --primary: #f59e0b;
   --primary-dark: #d97706;
+  --primary-light: #fcd34d;
   --gradient: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-  --bg: #0f0f1a;
+  --bg: #f8fafc;
+  --card: #ffffff;
   --text: #1e293b;
   --text-muted: #64748b;
   --border: #e2e8f0;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 16px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: #f8fafc; color: var(--text); min-height: 100vh; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 .page { display: none; min-height: 100vh; }
 .page.active { display: block; }
 
 /* 测试页 */
-#testPage { background: var(--bg); }
-.test-container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-.progress-section { margin-bottom: 32px; }
-.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: rgba(255,255,255,0.8); font-size: 14px; }
-.progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 4px; transition: width 0.3s; }
-.situation-tag { display: inline-block; padding: 8px 16px; background: rgba(245,158,11,0.2); border-radius: 20px; color: #f59e0b; font-size: 13px; margin-bottom: 20px; }
-.question-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px 32px; }
-.question-text { font-size: 20px; color: #fff; line-height: 1.6; margin-bottom: 32px; text-align: center; }
+#testPage { background: var(--bg); padding: 20px; }
+.test-container { max-width: 700px; margin: 0 auto; }
+.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+.back-btn:hover { background: white; color: var(--text); }
+.progress-wrap { text-align: right; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
 .options { display: flex; flex-direction: column; gap: 12px; }
-.option {
-  padding: 18px 24px;
-  background: rgba(255,255,255,0.05);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  color: rgba(255,255,255,0.9);
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-}
-.option:hover { border-color: var(--primary); background: rgba(245,158,11,0.1); }
-.option.selected { border-color: var(--primary); background: rgba(245,158,11,0.2); }
-.nav-buttons { display: flex; gap: 12px; margin-top: 24px; }
-.nav-btn {
-  flex: 1;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.nav-btn.secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
-.nav-btn.primary { background: var(--gradient); border: none; color: #fff; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: var(--primary-light); background: #fffbeb; }
+.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
+.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+.opt-text { font-size: 15px; font-weight: 500; }
+.nav-btns { display: flex; gap: 12px; margin-top: 32px; }
+.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: var(--primary-light); }
+.nav-btn.primary { background: var(--gradient); border: none; color: white; }
+.nav-btn.primary:hover { opacity: 0.9; }
 .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* 结果页 */
@@ -106,9 +101,6 @@ body { font-family: 'Noto Sans SC', sans-serif; background: #f8fafc; color: var(
 .tip-num { width: 28px; height: 28px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 600; flex-shrink: 0; }
 .tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-/* 雷达图 */
-.chart-container { height: 300px; margin: 20px 0; }
-
 /* 按钮 */
 .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
 .action-btn { flex: 1; min-width: 140px; padding: 16px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -142,20 +134,29 @@ body { font-family: 'Noto Sans SC', sans-serif; background: #f8fafc; color: var(
 
 <div id="testPage" class="page active">
   <div class="test-container">
-    <div class="progress-section">
-      <div class="progress-header">
-        <span id="progressText">1 / 16</span>
-        <span id="situationText">放松安全时</span>
+    <div class="test-header">
+      <button class="back-btn" onclick="if(confirm('确定要退出吗？'))location.href='index.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回
+      </button>
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="current">1</span> / 16</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:6.25%"></div></div>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:6.25%"></div></div>
     </div>
-    <div id="situationTag" class="situation-tag">🌿 情境：放松安全时</div>
     <div class="question-card">
-      <div class="question-text" id="questionText"></div>
+      <div class="q-num">第 <span id="qNum">1</span> 题</div>
+      <div class="q-text" id="questionText"></div>
       <div class="options" id="optionsContainer"></div>
-      <div class="nav-buttons">
-        <button class="nav-btn secondary" id="prevBtn" onclick="prev()" disabled>上一题</button>
-        <button class="nav-btn primary" id="nextBtn" onclick="next()" disabled>下一题</button>
+      <div class="nav-btns">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prev()" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          上一题
+        </button>
+        <button class="nav-btn primary" id="nextBtn" onclick="next()" disabled>
+          下一题
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -300,23 +301,24 @@ let answers = new Array(16).fill(null);
 
 function render() {
   const q = questions[idx];
-  const sitInfo = situations[q.situation];
 
-  document.getElementById('progressText').textContent = `${idx + 1} / ${questions.length}`;
+  document.getElementById('qNum').textContent = idx + 1;
+  document.getElementById('current').textContent = idx + 1;
   document.getElementById('progressFill').style.width = `${((idx + 1) / questions.length) * 100}%`;
-  document.getElementById('situationText').textContent = sitInfo.name;
-  document.getElementById('situationTag').innerHTML = `${sitInfo.icon} 情境：${sitInfo.name}`;
-  document.getElementById('situationTag').style.background = `${sitInfo.color}20`;
-  document.getElementById('situationTag').style.color = sitInfo.color;
   document.getElementById('questionText').textContent = q.q;
 
   const container = document.getElementById('optionsContainer');
   container.innerHTML = q.options.map((opt, i) => `
-    <div class="option ${answers[idx] === i ? 'selected' : ''}" onclick="select(${i})">${opt.text}</div>
+    <div class="opt ${answers[idx] === i ? 'selected' : ''}" onclick="select(${i})">
+      <div class="opt-radio"></div>
+      <div class="opt-text">${opt.text}</div>
+    </div>
   `).join('');
 
   document.getElementById('prevBtn').disabled = idx === 0;
-  document.getElementById('nextBtn').textContent = idx === questions.length - 1 ? '查看结果' : '下一题';
+  document.getElementById('nextBtn').innerHTML = idx === questions.length - 1 ?
+    '查看结果 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' :
+    '下一题 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
   document.getElementById('nextBtn').disabled = answers[idx] === null;
 }
 
