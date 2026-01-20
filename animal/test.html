@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动物投射测试 | 宇宙认知盐究所</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --primary: #f59e0b;
+  --primary-dark: #d97706;
+  --gradient: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --bg: #0f0f1a;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans SC', sans-serif; background: #f8fafc; color: var(--text); min-height: 100vh; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* 测试页 */
+#testPage { background: var(--bg); }
+.test-container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+.progress-section { margin-bottom: 32px; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: rgba(255,255,255,0.8); font-size: 14px; }
+.progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 4px; transition: width 0.3s; }
+.situation-tag { display: inline-block; padding: 8px 16px; background: rgba(245,158,11,0.2); border-radius: 20px; color: #f59e0b; font-size: 13px; margin-bottom: 20px; }
+.question-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px 32px; }
+.question-text { font-size: 20px; color: #fff; line-height: 1.6; margin-bottom: 32px; text-align: center; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option {
+  padding: 18px 24px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.9);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.option:hover { border-color: var(--primary); background: rgba(245,158,11,0.1); }
+.option.selected { border-color: var(--primary); background: rgba(245,158,11,0.2); }
+.nav-buttons { display: flex; gap: 12px; margin-top: 24px; }
+.nav-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-btn.secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+.nav-btn.primary { background: var(--gradient); border: none; color: #fff; }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 结果页 */
+#resultPage { background: #f8fafc; }
+.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+.result-header { text-align: center; margin-bottom: 40px; }
+.result-logo { font-size: 64px; margin-bottom: 16px; }
+.result-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.result-subtitle { color: var(--text-muted); font-size: 15px; }
+.card { background: #fff; border-radius: 20px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.section-title { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--text); }
+.section-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+/* 动物人格卡片 */
+.animal-main { display: flex; gap: 24px; align-items: center; padding: 24px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; margin-bottom: 20px; }
+.animal-icon { font-size: 72px; }
+.animal-info h3 { font-size: 24px; color: #92400e; margin-bottom: 8px; }
+.animal-info .subtitle { font-size: 14px; color: #b45309; margin-bottom: 12px; }
+.animal-info p { font-size: 14px; color: #78350f; line-height: 1.6; }
+
+.animal-secondary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+.animal-card { padding: 20px; background: #f8fafc; border-radius: 12px; text-align: center; }
+.animal-card .icon { font-size: 40px; margin-bottom: 8px; }
+.animal-card .name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.animal-card .context { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.animal-card .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+/* 情境分析 */
+.situation-analysis { margin-top: 20px; }
+.situation-item { padding: 20px; background: #f8fafc; border-radius: 12px; margin-bottom: 12px; }
+.situation-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.situation-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.situation-name { font-weight: 600; color: var(--text); }
+.situation-animal { font-size: 13px; color: var(--primary); }
+.situation-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+/* 切换模式分析 */
+.switch-analysis { padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%); border-radius: 12px; margin-top: 20px; }
+.switch-title { font-weight: 600; color: #92400e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.switch-content { font-size: 14px; color: #78350f; line-height: 1.7; }
+
+/* 建议 */
+.tip-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+.tip-item:last-child { border-bottom: none; }
+.tip-num { width: 28px; height: 28px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+/* 雷达图 */
+.chart-container { height: 300px; margin: 20px 0; }
+
+/* 按钮 */
+.action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+.action-btn { flex: 1; min-width: 140px; padding: 16px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-btn.primary { background: var(--gradient); border: none; color: #fff; }
+.action-btn.secondary { background: #fff; border: 2px solid var(--border); color: var(--text); }
+.restart-btn { background: #fff; border: 2px solid var(--border); color: var(--text); padding: 16px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+/* 弹窗 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay.show { opacity: 1; visibility: visible; }
+.modal-content { background: #fff; border-radius: 24px; padding: 40px; max-width: 400px; text-align: center; }
+.modal-icon { font-size: 48px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 20px; margin-bottom: 12px; }
+.modal-content p { color: var(--text-muted); margin-bottom: 24px; }
+.modal-btn { padding: 14px 32px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.modal-btn.primary { background: var(--gradient); border: none; color: #fff; }
+
+/* loading */
+.loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.loading-overlay.show { opacity: 1; visibility: visible; }
+.loading-spinner { width: 48px; height: 48px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .animal-main { flex-direction: column; text-align: center; }
+  .action-buttons { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="testPage" class="page active">
+  <div class="test-container">
+    <div class="progress-section">
+      <div class="progress-header">
+        <span id="progressText">1 / 16</span>
+        <span id="situationText">放松安全时</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:6.25%"></div></div>
+    </div>
+    <div id="situationTag" class="situation-tag">🌿 情境：放松安全时</div>
+    <div class="question-card">
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="nav-buttons">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prev()" disabled>上一题</button>
+        <button class="nav-btn primary" id="nextBtn" onclick="next()" disabled>下一题</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="page">
+  <div class="result-container" id="resultContent"></div>
+</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <p style="margin-top:16px;color:var(--text-muted)">正在生成PDF报告...</p>
+</div>
+
+<script>
+const questions = [
+  // 放松安全时 (4题)
+  { q: "周末独处时，你最可能在做什么？", situation: "relax", options: [
+    { text: "窝在角落看书或刷剧，享受不被打扰", animals: ["cat", "owl"] },
+    { text: "约朋友出去玩，或者在家也要开着视频聊天", animals: ["dog", "dolphin"] },
+    { text: "研究一个感兴趣的话题，深度探索", animals: ["owl", "fox"] },
+    { text: "做点创意的事，比如画画、写东西、整理房间", animals: ["fox", "deer"] }
+  ]},
+  { q: "在一个让你完全放松的环境里，你会展现出什么样的状态？", situation: "relax", options: [
+    { text: "安静、慵懒，享受独处的自在", animals: ["cat", "owl"] },
+    { text: "活跃、话多，喜欢和人互动", animals: ["dog", "dolphin"] },
+    { text: "好奇、探索，对新事物充满兴趣", animals: ["fox", "owl"] },
+    { text: "温和、包容，照顾周围人的感受", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "当你感到安全和被接纳时，你最容易流露出的特质是？", situation: "relax", options: [
+    { text: "独立且有边界感", animals: ["cat", "wolf"] },
+    { text: "热情且乐于分享", animals: ["dog", "dolphin"] },
+    { text: "敏锐且有洞察力", animals: ["fox", "owl"] },
+    { text: "柔软且容易信任他人", animals: ["deer", "dog"] }
+  ]},
+  { q: "在最舒适的状态下，你对待时间的态度是？", situation: "relax", options: [
+    { text: "按自己的节奏来，不被打扰最重要", animals: ["cat", "owl"] },
+    { text: "和喜欢的人在一起，怎样都开心", animals: ["dog", "dolphin"] },
+    { text: "做有意义的事，不想浪费时间", animals: ["fox", "wolf"] },
+    { text: "随遇而安，享受当下就好", animals: ["deer", "dolphin"] }
+  ]},
+
+  // 亲密关系中 (4题)
+  { q: "在亲密关系中，你最在意的是什么？", situation: "intimate", options: [
+    { text: "被尊重个人空间和独立性", animals: ["cat", "wolf"] },
+    { text: "被需要、被依赖的感觉", animals: ["dog", "bear"] },
+    { text: "精神上的契合和理解", animals: ["owl", "fox"] },
+    { text: "情感的稳定和安全感", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "当伴侣情绪低落时，你通常会？", situation: "intimate", options: [
+    { text: "给ta空间，等ta准备好了再说", animals: ["cat", "owl"] },
+    { text: "主动靠近，陪伴和安慰", animals: ["dog", "bear"] },
+    { text: "分析问题，帮ta想解决办法", animals: ["fox", "owl"] },
+    { text: "感同身受，容易被ta的情绪影响", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "在爱情里，你更像哪种状态？", situation: "intimate", options: [
+    { text: "保持神秘感，不会完全敞开", animals: ["cat", "fox"] },
+    { text: "全身心投入，恨不得黏在一起", animals: ["dog", "bear"] },
+    { text: "理性观察，同时保持自我", animals: ["owl", "wolf"] },
+    { text: "付出型，总想着对方的需求", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "如果感情出现危机，你的第一反应是？", situation: "intimate", options: [
+    { text: "后退一步，需要时间思考", animals: ["cat", "owl"] },
+    { text: "更加努力挽回，害怕失去", animals: ["dog", "deer"] },
+    { text: "冷静分析原因，找解决方案", animals: ["fox", "owl"] },
+    { text: "感到受伤，但还是想包容对方", animals: ["deer", "dolphin"] }
+  ]},
+
+  // 冲突压力下 (4题)
+  { q: "面对激烈的争吵，你的应激反应是？", situation: "conflict", options: [
+    { text: "冷漠回避，不想纠缠", animals: ["cat", "owl"] },
+    { text: "据理力争，不能被误解", animals: ["wolf", "bear"] },
+    { text: "冷静观察，寻找弱点或出路", animals: ["fox", "owl"] },
+    { text: "委屈退让，只想结束冲突", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "当你感到被攻击或不公平对待时，你会？", situation: "conflict", options: [
+    { text: "表面冷静，内心已经在划清界限", animals: ["cat", "wolf"] },
+    { text: "直接反击，保护自己的立场", animals: ["wolf", "bear"] },
+    { text: "策略性应对，不正面硬刚", animals: ["fox", "owl"] },
+    { text: "感到受伤，可能会哭或沉默", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "在高压环境下，你最可能出现的状态是？", situation: "conflict", options: [
+    { text: "切断情绪，变得冷漠高效", animals: ["cat", "owl"] },
+    { text: "焦躁易怒，战斗力爆棚", animals: ["wolf", "bear"] },
+    { text: "高度警觉，随时准备应变", animals: ["fox", "wolf"] },
+    { text: "紧张焦虑，想要逃避或求助", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "冲突过后，你需要多久才能恢复？", situation: "conflict", options: [
+    { text: "很快，我会迅速切割情绪", animals: ["cat", "fox"] },
+    { text: "取决于输赢，赢了就没事", animals: ["wolf", "bear"] },
+    { text: "会复盘分析，确保下次更好应对", animals: ["fox", "owl"] },
+    { text: "需要很久，会反复回想受伤的感觉", animals: ["deer", "dolphin"] }
+  ]},
+
+  // 被需要/被期待时 (4题)
+  { q: "当别人对你抱有很高期待时，你会？", situation: "expected", options: [
+    { text: "感到压力，想要划清边界", animals: ["cat", "wolf"] },
+    { text: "感到被重视，更有动力", animals: ["dog", "bear"] },
+    { text: "评估是否合理，再决定如何回应", animals: ["fox", "owl"] },
+    { text: "尽力满足，怕让人失望", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "有人向你求助时，你的内心活动是？", situation: "expected", options: [
+    { text: "看情况，不是所有忙都要帮", animals: ["cat", "fox"] },
+    { text: "很开心被需要，会尽力帮忙", animals: ["dog", "bear"] },
+    { text: "分析问题，给出有效建议", animals: ["owl", "fox"] },
+    { text: "很难拒绝，即使自己很累", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "在团队中，你通常扮演什么角色？", situation: "expected", options: [
+    { text: "独立完成自己的部分，不太干涉别人", animals: ["cat", "owl"] },
+    { text: "核心人物，大家都愿意跟着我", animals: ["wolf", "bear"] },
+    { text: "军师型，出谋划策", animals: ["fox", "owl"] },
+    { text: "协调者，照顾每个人的感受", animals: ["deer", "dolphin"] }
+  ]},
+  { q: "当你帮助别人后，你期待什么？", situation: "expected", options: [
+    { text: "不期待回报，但希望被尊重边界", animals: ["cat", "wolf"] },
+    { text: "希望对方记得这份情谊", animals: ["dog", "bear"] },
+    { text: "希望对方能学到东西，不要重复犯错", animals: ["fox", "owl"] },
+    { text: "不期待什么，帮助本身让我开心", animals: ["deer", "dolphin"] }
+  ]}
+];
+
+const animals = {
+  cat: { name: "猫", icon: "🐱", trait: "独立自主", color: "#a78bfa", desc: "你有着猫一样的独立性格，珍视个人空间和自由。你不轻易依赖他人，有自己的节奏和边界。表面可能显得疏离，但对亲近的人有着深厚的感情。你需要独处来恢复能量，被打扰会让你烦躁。" },
+  dog: { name: "狗", icon: "🐕", trait: "忠诚热情", color: "#f59e0b", desc: "你像狗一样热情忠诚，渴望被需要和被爱。你对亲近的人全心付出，喜欢被认可和表扬。你害怕被抛弃或忽视，有时会过度讨好他人。你的世界需要稳定的情感连接。" },
+  wolf: { name: "狼", icon: "🐺", trait: "强势保护", color: "#6366f1", desc: "你有狼的领地意识和保护欲，在面对威胁时会展现强势的一面。你重视忠诚和原则，对自己人无条件保护，对外人保持警惕。你可能不善言辞，但行动力强，是可靠的存在。" },
+  fox: { name: "狐狸", icon: "🦊", trait: "机敏灵活", color: "#ec4899", desc: "你像狐狸一样机敏灵活，善于观察和应变。你不会正面硬刚，而是用智慧找到最优解。你有时会隐藏真实想法，让人觉得难以捉摸。你享受智力游戏，不喜欢被看透。" },
+  deer: { name: "鹿", icon: "🦌", trait: "敏感温柔", color: "#10b981", desc: "你有着鹿一样的敏感和温柔，能敏锐感知他人的情绪。你天性善良，容易心软，有时会因为太在意别人而忽略自己。你需要安全的环境才能放松，容易受惊或受伤。" },
+  bear: { name: "熊", icon: "🐻", trait: "力量担当", color: "#8b5cf6", desc: "你像熊一样有力量感和担当，平时看起来温和憨厚，但在保护重要的人时会爆发出强大的能量。你喜欢照顾人，有时会过度保护。你需要被信任和依赖的感觉。" },
+  owl: { name: "猫头鹰", icon: "🦉", trait: "智慧洞察", color: "#64748b", desc: "你有着猫头鹰般的洞察力和智慧，喜欢观察和思考。你不轻易表态，但一旦发言就很有分量。你可能显得疏离或高冷，实际上只是在用自己的方式理解世界。你重视知识和理性。" },
+  dolphin: { name: "海豚", icon: "🐬", trait: "共情治愈", color: "#06b6d4", desc: "你像海豚一样具有强大的共情能力，能感知和治愈他人的情绪。你乐于助人，喜欢和谐的氛围，会主动调解冲突。你有时会因为过度共情而消耗自己，需要学会保护自己的能量。" }
+};
+
+const situations = {
+  relax: { name: "放松安全时", icon: "🌿", color: "#10b981", bg: "#d1fae5" },
+  intimate: { name: "亲密关系中", icon: "💕", color: "#ec4899", bg: "#fce7f3" },
+  conflict: { name: "冲突压力下", icon: "⚡", color: "#f59e0b", bg: "#fef3c7" },
+  expected: { name: "被需要时", icon: "🌟", color: "#8b5cf6", bg: "#ede9fe" }
+};
+
+let idx = 0;
+let answers = new Array(16).fill(null);
+
+function render() {
+  const q = questions[idx];
+  const sitInfo = situations[q.situation];
+
+  document.getElementById('progressText').textContent = `${idx + 1} / ${questions.length}`;
+  document.getElementById('progressFill').style.width = `${((idx + 1) / questions.length) * 100}%`;
+  document.getElementById('situationText').textContent = sitInfo.name;
+  document.getElementById('situationTag').innerHTML = `${sitInfo.icon} 情境：${sitInfo.name}`;
+  document.getElementById('situationTag').style.background = `${sitInfo.color}20`;
+  document.getElementById('situationTag').style.color = sitInfo.color;
+  document.getElementById('questionText').textContent = q.q;
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = q.options.map((opt, i) => `
+    <div class="option ${answers[idx] === i ? 'selected' : ''}" onclick="select(${i})">${opt.text}</div>
+  `).join('');
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').textContent = idx === questions.length - 1 ? '查看结果' : '下一题';
+  document.getElementById('nextBtn').disabled = answers[idx] === null;
+}
+
+function select(i) {
+  answers[idx] = i;
+  render();
+}
+
+function prev() {
+  if (idx > 0) { idx--; render(); }
+}
+
+function next() {
+  if (answers[idx] === null) return;
+  if (idx < questions.length - 1) { idx++; render(); }
+  else { showResult(); }
+}
+
+function calcScores() {
+  const scores = {};
+  const situationScores = { relax: {}, intimate: {}, conflict: {}, expected: {} };
+
+  Object.keys(animals).forEach(a => {
+    scores[a] = 0;
+    Object.keys(situations).forEach(s => situationScores[s][a] = 0);
+  });
+
+  answers.forEach((ansIdx, qIdx) => {
+    if (ansIdx === null) return;
+    const q = questions[qIdx];
+    const selectedAnimals = q.options[ansIdx].animals;
+    selectedAnimals.forEach((a, i) => {
+      const points = i === 0 ? 2 : 1;
+      scores[a] += points;
+      situationScores[q.situation][a] += points;
+    });
+  });
+
+  return { total: scores, bySituation: situationScores };
+}
+
+function getTopAnimals(scores, count = 2) {
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, count)
+    .map(([animal]) => animal);
+}
+
+function getSituationAnimal(situationScores) {
+  const result = {};
+  Object.entries(situationScores).forEach(([sit, scores]) => {
+    const top = getTopAnimals(scores, 1)[0];
+    result[sit] = top;
+  });
+  return result;
+}
+
+function analyzeSwitchPattern(situationAnimals) {
+  const uniqueAnimals = new Set(Object.values(situationAnimals));
+  const switchCount = uniqueAnimals.size;
+
+  if (switchCount === 1) {
+    return { type: "一致型", desc: "你在不同情境下展现的人格模式非常一致，这意味着你有着稳定的核心自我。你不会因为环境改变而大幅改变自己的应对方式，这是一种内在稳定的表现。但也要注意，过于一致可能意味着应对策略不够灵活，某些情境下可能需要更多适应性。" };
+  } else if (switchCount === 2) {
+    return { type: "双模式切换", desc: "你主要在两种人格模式之间切换，这是一种健康的适应模式。你能根据情境需要调整自己的状态，同时又保持了一定的稳定性。这种切换通常是自动的、流畅的，说明你有着良好的情境适应能力。" };
+  } else if (switchCount === 3) {
+    return { type: "多模式适应", desc: "你在不同情境下会展现出多种人格模式，这显示出你较强的适应能力和灵活性。你能够根据不同的社交需求调整自己的状态，这是一种社交智慧的体现。但也要注意，过多的切换可能会消耗更多心理能量，注意找到自己的核心状态。" };
+  } else {
+    return { type: "高度适应型", desc: "你在每种情境下都会展现不同的人格模式，这显示出极强的情境适应能力。你很善于读取环境信号并做出相应调整，这让你在各种社交场合都能游刃有余。但也需要警惕：如果切换过于频繁或刻意，可能会导致"我到底是谁"的困惑，建议多花时间独处，连接真实的自己。" };
+  }
+}
+
+function getEnergyDrain(situationAnimals) {
+  const conflictAnimal = situationAnimals.conflict;
+  const relaxAnimal = situationAnimals.relax;
+
+  if (conflictAnimal === relaxAnimal) {
+    return "你在压力下和放松时的状态比较一致，说明冲突对你的消耗相对较小。你能用相对自然的方式应对压力。";
+  }
+
+  const drainMap = {
+    "deer": "冲突情境对你的消耗最大。你天性敏感温柔，激烈的对抗会让你感到巨大的内耗。建议在冲突后给自己足够的恢复时间，避免连续面对高压场景。",
+    "dolphin": "需要承受他人负面情绪的情境对你消耗最大。你的共情能力让你很容易吸收他人的情绪，建议学习建立情绪边界。",
+    "dog": "被拒绝或被忽视的情境对你消耗最大。你渴望被需要和被认可，当这种需求无法满足时会感到巨大的失落。",
+    "cat": "被迫社交或失去个人空间的情境对你消耗最大。你需要独处来恢复能量，建议为自己争取足够的独处时间。",
+    "wolf": "无法掌控局面的情境对你消耗最大。你习惯于主导，当失去控制感时会感到焦虑。",
+    "bear": "无法保护重要的人的情境对你消耗最大。你的保护欲很强，当感到无力保护时会产生自责。",
+    "fox": "被看透或被限制的情境对你消耗最大。你喜欢保持神秘感和灵活性，被约束会让你不适。",
+    "owl": "被迫快速决策或情绪化场景对你消耗最大。你需要时间思考和观察，被催促会让你失去平衡。"
+  };
+
+  return drainMap[conflictAnimal] || "每个人都有自己的能量消耗模式，建议观察什么情境让你最疲惫，并主动调整。";
+}
+
+function goToHome() { window.location.href = '../platform.html'; }
+
+function getHomeButtonHtml() {
+  const userSource = sessionStorage.getItem('user_source');
+  if (userSource === 'platform') {
+    return '<button class="restart-btn" onclick="goToHome()" style="margin-left:8px">返回测试中心</button>';
+  } else {
+    return '<button class="restart-btn more-tests-btn" onclick="showMoreTests()" style="margin-left:8px">更多测试</button>';
+  }
+}
+
+function showMoreTests() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `<div class="modal-content"><div class="modal-icon">🧂</div><h3>更多专业测评</h3><p>请在宇宙认知盐究所购买其他测试哦~</p><div class="modal-buttons"><button class="modal-btn primary" onclick="closeModal()">知道了</button></div></div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+}
+
+function showResult() {
+  document.getElementById('testPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const { total, bySituation } = calcScores();
+  const topAnimals = getTopAnimals(total, 2);
+  const mainAnimal = animals[topAnimals[0]];
+  const subAnimal = animals[topAnimals[1]];
+  const situationAnimals = getSituationAnimal(bySituation);
+  const switchPattern = analyzeSwitchPattern(situationAnimals);
+  const energyDrain = getEnergyDrain(situationAnimals);
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-header">
+      <div class="result-logo">${mainAnimal.icon}</div>
+      <h1 class="result-title">你的动物人格：${mainAnimal.name}</h1>
+      <p class="result-subtitle">在不同情境下，你会展现不同的动物人格面向</p>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fef3c7">🎭</div>主导动物人格</div>
+      <div class="animal-main">
+        <div class="animal-icon">${mainAnimal.icon}</div>
+        <div class="animal-info">
+          <h3>${mainAnimal.name}型人格</h3>
+          <div class="subtitle">${mainAnimal.trait}</div>
+          <p>${mainAnimal.desc}</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px"><div class="section-icon" style="background:#ede9fe">🌙</div>次级防御动物</div>
+      <div class="animal-secondary">
+        <div class="animal-card">
+          <div class="icon">${subAnimal.icon}</div>
+          <div class="name">${subAnimal.name}型</div>
+          <div class="context">${subAnimal.trait}</div>
+          <div class="desc">在压力或特定情境下，你会切换到${subAnimal.name}模式作为防御或适应</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#dbeafe">🔄</div>情境人格切换</div>
+      <div class="situation-analysis">
+        ${Object.entries(situationAnimals).map(([sit, animal]) => {
+          const sitInfo = situations[sit];
+          const animalInfo = animals[animal];
+          return `
+            <div class="situation-item">
+              <div class="situation-header">
+                <div class="situation-icon" style="background:${sitInfo.bg};color:${sitInfo.color}">${sitInfo.icon}</div>
+                <div>
+                  <div class="situation-name">${sitInfo.name}</div>
+                  <div class="situation-animal">${animalInfo.icon} ${animalInfo.name}型 · ${animalInfo.trait}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="switch-analysis">
+        <div class="switch-title">📊 切换模式分析：${switchPattern.type}</div>
+        <div class="switch-content">${switchPattern.desc}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#fee2e2">⚡</div>能量消耗分析</div>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7">${energyDrain}</p>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>人格切换更柔性的建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">觉察你的自动反应：下次进入某个情境时，观察自己是如何自动切换的</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">给切换留出缓冲：不要在不同情境间快速切换，给自己几分钟过渡时间</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在安全环境练习：尝试在放松时用不同的方式回应，扩展你的反应模式</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">接纳每个面向：每种动物人格都有其价值，不要否定任何一个部分的自己</div></div>
+    </div>
+
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#fef3c7 0%,#fff7ed 100%)">
+      <p style="font-size:15px;color:#92400e;line-height:1.8">
+        你不需要只是一种动物<br>
+        在不同的森林里，你可以是不同的存在<br>
+        重要的是，知道自己为什么会变，以及如何更自在地变
+      </p>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn primary" onclick="downloadPDF()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        下载PDF报告
+      </button>
+      <button class="restart-btn" onclick="location.reload()">重新测试</button>
+      ${getHomeButtonHtml()}
+    </div>
+
+    <div style="text-align:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+      <p style="font-size:12px;color:var(--text-muted)">© 2025 宇宙认知盐究所 · 测评结果仅供参考</p>
+    </div>
+  `;
+}
+
+async function downloadPDF() {
+  const btn = document.querySelector('.action-btn.primary');
+  const loading = document.getElementById('loading');
+  btn.disabled = true;
+  btn.innerHTML = '生成中...';
+  loading.classList.add('show');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const content = document.getElementById('resultContent');
+    const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    let imgY = 0;
+    let heightLeft = imgHeight * ratio;
+
+    pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      imgY = heightLeft - imgHeight * ratio;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      heightLeft -= pdfHeight;
+    }
+
+    const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '-');
+    pdf.save(`动物投射测试报告_${date}.pdf`);
+  } catch (e) { console.error(e); alert('PDF生成失败'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> 下载PDF报告';
+    loading.classList.remove('show');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

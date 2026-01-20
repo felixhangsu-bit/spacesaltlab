@@ -425,6 +425,38 @@ body {
         <span>可用</span>
       </div>
     </div>
+
+    <!-- 动物投射测试 -->
+    <div class="test-card" onclick="goToTest('animal')">
+      <div class="test-icon">🦊</div>
+      <h3>动物投射测试</h3>
+      <p class="desc">探索你在不同心理状态下自动切换的人格模式与潜意识防御机制</p>
+      <div class="test-tags">
+        <span class="test-tag">16题</span>
+        <span class="test-tag">4情境</span>
+        <span class="test-tag">8种动物</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot available"></span>
+        <span>可用</span>
+      </div>
+    </div>
+
+    <!-- 欲望比重测试 -->
+    <div class="test-card" onclick="goToTest('desire')">
+      <div class="test-icon">🔮</div>
+      <h3>欲望比重测试</h3>
+      <p class="desc">揭示你做选择时背后的真正驱动力，理解欲望冲突与被压抑的需求</p>
+      <div class="test-tags">
+        <span class="test-tag">36题</span>
+        <span class="test-tag">6维度</span>
+        <span class="test-tag">4类型</span>
+      </div>
+      <div class="test-status">
+        <span class="status-dot available"></span>
+        <span>可用</span>
+      </div>
+    </div>
   </div>
 
   <footer class="footer">
@@ -448,7 +480,9 @@ function goToTest(type) {
     'emotion': 'emotion/index.html?from=platform',
     'resilience': 'resilience/index.html?from=platform',
     'scl90': 'scl90/index.html?from=platform',
-    'love': 'love/index.html?from=platform'
+    'love': 'love/index.html?from=platform',
+    'animal': 'animal/index.html?from=platform',
+    'desire': 'desire/index.html?from=platform'
   };
   if (urls[type]) {
     window.location.href = urls[type];
