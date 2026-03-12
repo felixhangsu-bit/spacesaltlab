@@ -1017,7 +1017,7 @@ function showResult() {
             ticks: { stepSize: 6, color: 'rgba(255,255,255,0.38)', backdropColor: 'transparent' },
             grid: { color: 'rgba(255,255,255,0.07)' },
             angleLines: { color: 'rgba(255,255,255,0.07)' },
-            pointLabels: { color: 'rgba(255,255,255,0.75)' }
+            pointLabels: { color: 'rgba(255,255,255,0.75)', backdropColor: 'transparent' }
           }
         },
         plugins: { legend: { display: false } }
@@ -1045,6 +1045,8 @@ async function downloadPDF() {
     const date = new Date().toLocaleDateString('zh-CN');
 
     const typeSuggestionsPdf = getTypeSuggestions(typeKey, scores);
+    const trueDrivePdf = getTrueDrive(scores);
+    const blindSpotPdf = getBlindSpot(scores);
 
     function getPdfDimInterp(dim, score) {
       const pct = (score / maxScore) * 100;
@@ -1063,7 +1065,7 @@ async function downloadPDF() {
         <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%);border-radius:16px;padding:24px;margin-bottom:25px;text-align:center;">
+      <div style="background:linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%);padding:24px;margin-bottom:25px;text-align:center;">
         <div style="font-size:48px;margin-bottom:12px;">${type.icon}</div>
         <div style="font-size:24px;font-weight:700;color:#5b21b6;margin-bottom:8px;">${type.name}</div>
         <div style="font-size:14px;color:#7c3aed;margin-bottom:16px;">${type.subtitle}</div>
@@ -1071,13 +1073,35 @@ async function downloadPDF() {
       </div>
 
       <div style="margin-bottom:25px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#8b5cf6;text-transform:uppercase;margin-bottom:6px;">DEEP ANALYSIS</div>
         <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">深层心理分析</div>
         <div style="font-size:13px;color:#1e293b;line-height:1.8;margin-bottom:16px;">${type.analysis}</div>
         <div style="font-size:14px;font-weight:600;color:#dc2626;margin-bottom:8px;">你的阴影面</div>
         <div style="font-size:13px;color:#1e293b;line-height:1.8;">${type.shadow}</div>
       </div>
 
+      <div style="margin-bottom:25px;border-left:3px solid #8b5cf6;padding-left:20px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#8b5cf6;text-transform:uppercase;margin-bottom:6px;">TRUE DRIVING FORCE</div>
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">🔑 你的真实驱动力</div>
+        <div style="background:#f5f3ff;padding:16px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="font-size:28px;font-weight:700;color:#8b5cf6;">#1</div>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:#1e293b;">${trueDrivePdf.topDim.icon} ${trueDrivePdf.topDim.name}</div>
+              <div style="font-size:13px;color:#7c3aed;">${trueDrivePdf.topScore} / ${maxScore}</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#475569;line-height:1.8;">${trueDrivePdf.surface}</div>
+        </div>
+        <div style="font-size:13px;color:#1e293b;line-height:1.8;margin-bottom:14px;">${trueDrivePdf.deep}</div>
+        <div style="background:#fef2f2;padding:14px;border-left:3px solid #ef4444;">
+          <div style="font-size:10px;letter-spacing:2px;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">CAUTION</div>
+          <div style="font-size:12px;color:#7f1d1d;line-height:1.7;font-style:italic;">${trueDrivePdf.risk}</div>
+        </div>
+      </div>
+
       <div style="margin-bottom:25px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#8b5cf6;text-transform:uppercase;margin-bottom:6px;">SIX DIMENSIONS</div>
         <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">六维度欲望解析</div>
         ${sortedDims.map(([dim, score]) => {
           const info = dimensions[dim];
@@ -1085,52 +1109,64 @@ async function downloadPDF() {
           const level = pct >= 70 ? '主导' : pct >= 50 ? '中等' : '平和';
           const levelColor = pct >= 70 ? '#059669' : pct >= 50 ? '#d97706' : '#6366f1';
           const interp = getPdfDimInterp(dim, score);
-          return `
-            <div style="background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <div style="font-size:16px;font-weight:600;color:#1e293b;">${info.icon} ${info.name}</div>
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span style="background:${levelColor};color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;">${level}</span>
-                  <span style="font-weight:700;color:#8b5cf6;">${score}/${maxScore}</span>
-                </div>
-              </div>
-              <div style="background:#e2e8f0;height:8px;border-radius:4px;margin-bottom:12px;">
-                <div style="background:${info.color};height:100%;border-radius:4px;width:${pct}%;"></div>
-              </div>
-              <div style="font-size:12px;color:#475569;line-height:1.7;">${interp}</div>
-            </div>
-          `;
+          return '<div style="background:#f8fafc;padding:20px;margin-bottom:12px;border-left:3px solid ' + info.color + ';">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+                '<div style="font-size:16px;font-weight:600;color:#1e293b;">' + info.icon + ' ' + info.name + '</div>' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                  '<span style="background:' + levelColor + ';color:#fff;padding:4px 12px;font-size:12px;">' + level + '</span>' +
+                  '<span style="font-weight:700;color:#8b5cf6;">' + score + '/' + maxScore + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div style="background:#e2e8f0;height:6px;margin-bottom:12px;">' +
+                '<div style="background:' + info.color + ';height:100%;width:' + pct + '%;"></div>' +
+              '</div>' +
+              '<div style="font-size:12px;color:#475569;line-height:1.7;">' + interp + '</div>' +
+            '</div>';
         }).join('')}
       </div>
 
-      <div style="background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%);border-radius:12px;padding:20px;margin-bottom:25px;">
+      <div style="margin-bottom:25px;border-left:3px solid #f59e0b;padding-left:20px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#f59e0b;text-transform:uppercase;margin-bottom:6px;">BLIND SPOT</div>
+        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">👁️ 你的欲望盲区</div>
+        <div style="display:flex;gap:12px;margin-bottom:14px;">
+          <div style="flex:1;padding:14px;background:#f5f3ff;text-align:center;">
+            <div style="font-size:10px;letter-spacing:2px;color:#8b5cf6;text-transform:uppercase;margin-bottom:6px;">STRONGEST</div>
+            <div style="font-size:20px;margin-bottom:4px;">${dimensions[blindSpotPdf.topDim].icon}</div>
+            <div style="font-size:13px;color:#1e293b;">${dimensions[blindSpotPdf.topDim].name}</div>
+            <div style="font-size:24px;font-weight:700;color:#8b5cf6;margin-top:4px;">${blindSpotPdf.topScore}</div>
+          </div>
+          <div style="display:flex;align-items:center;color:#cbd5e1;font-size:24px;">⇄</div>
+          <div style="flex:1;padding:14px;background:#fef2f2;text-align:center;">
+            <div style="font-size:10px;letter-spacing:2px;color:#ef4444;text-transform:uppercase;margin-bottom:6px;">WEAKEST</div>
+            <div style="font-size:20px;margin-bottom:4px;">${dimensions[blindSpotPdf.bottomDim].icon}</div>
+            <div style="font-size:13px;color:#1e293b;">${dimensions[blindSpotPdf.bottomDim].name}</div>
+            <div style="font-size:24px;font-weight:700;color:#ef4444;margin-top:4px;">${blindSpotPdf.bottomScore}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#475569;line-height:1.8;background:#fffbeb;padding:14px;">${blindSpotPdf.insight}</div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%);padding:20px;margin-bottom:25px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#6366f1;text-transform:uppercase;margin-bottom:8px;">SUPPRESSED NEED</div>
         <div style="font-size:14px;font-weight:600;color:#3730a3;margin-bottom:8px;">🔮 被压抑的欲望：${suppressed.info.icon} ${suppressed.info.name}</div>
         <div style="font-size:13px;color:#312e81;line-height:1.7;">${suppressed.interpretation}</div>
       </div>
 
-      ${conflict ? `
-      <div style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-radius:12px;padding:20px;margin-bottom:25px;">
-        <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:8px;">⚔️ 欲望冲突结构</div>
-        <div style="font-size:13px;color:#78350f;line-height:1.7;">${conflict.desc}</div>
-      </div>
-      ` : ''}
+      ${conflict ? '<div style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:20px;margin-bottom:25px;"><div style="font-size:11px;letter-spacing:3px;color:#92400e;text-transform:uppercase;margin-bottom:8px;">INNER CONFLICT</div><div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:8px;">⚔️ 欲望冲突结构</div><div style="font-size:13px;color:#78350f;line-height:1.7;">' + conflict.desc + '</div></div>' : ''}
 
-      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px;margin-bottom:25px;">
+      <div style="background:#fef2f2;border:1px solid #fecaca;padding:20px;margin-bottom:25px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#ef4444;text-transform:uppercase;margin-bottom:8px;">RISK AWARENESS</div>
         <div style="font-size:14px;font-weight:600;color:#991b1b;margin-bottom:8px;">⚠️ 你最可能掉进的陷阱</div>
         <div style="font-size:13px;color:#7f1d1d;line-height:1.7;">${risk}</div>
       </div>
 
       <div style="margin-bottom:25px;">
+        <div style="font-size:11px;letter-spacing:3px;color:#8b5cf6;text-transform:uppercase;margin-bottom:6px;">ACTION PLAN</div>
         <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">写给你的行动处方</div>
-        ${typeSuggestionsPdf.map((t, i) => `
-          <div style="display:flex;gap:12px;margin-bottom:14px;">
-            <div style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#6366f1);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">${i+1}</div>
-            <div style="color:#475569;font-size:13px;line-height:1.7;padding-top:4px;">${t}</div>
-          </div>
-        `).join('')}
+        ${typeSuggestionsPdf.map((t, i) => '<div style="display:flex;gap:12px;margin-bottom:14px;"><div style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">' + (i+1) + '</div><div style="color:#475569;font-size:13px;line-height:1.7;padding-top:4px;">' + t + '</div></div>').join('')}
       </div>
 
-      <div style="background:linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%);border-radius:16px;padding:24px;margin-bottom:25px;text-align:center;">
+      <div style="background:linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%);padding:24px;margin-bottom:25px;text-align:center;">
         <div style="font-size:15px;color:#5b21b6;line-height:2;font-weight:500;">
           欲望不是你的敌人，它是你最诚实的翻译官<br>
           它把你内心真正在乎的东西，翻译成了行动、翻译成了选择
@@ -1142,7 +1178,7 @@ async function downloadPDF() {
         </div>
       </div>
 
-      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+      <div style="background:#f8fafc;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
         <div>本报告仅供参考，帮助你更好地理解内心的驱动力和需求结构</div>
       </div>
