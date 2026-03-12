@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心理状态评估 · 商品页长图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#111; display:flex; flex-direction:column; align-items:center; padding:40px 0; font-family:'Noto Sans SC',sans-serif; }
+.page { width:750px; background:#0a0a0a; position:relative; overflow:hidden; }
+.noise { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+
+.hero { position:relative; width:750px; height:540px; background:#080808; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 64px; }
+.hero-orb-1 { position:absolute; width:500px; height:500px; top:-200px; left:-150px; background:radial-gradient(circle,#06b6d4,transparent 65%); opacity:0.20; border-radius:50%; filter:blur(80px); }
+.hero-orb-2 { position:absolute; width:400px; height:400px; bottom:-180px; right:-120px; background:radial-gradient(circle,#0891b2,transparent 65%); opacity:0.16; border-radius:50%; filter:blur(80px); }
+.hero-orb-3 { position:absolute; width:300px; height:300px; top:50%; left:55%; transform:translate(-50%,-50%); background:radial-gradient(circle,#22d3ee,transparent 65%); opacity:0.08; border-radius:50%; filter:blur(60px); }
+.hero-content { position:relative; z-index:2; text-align:center; }
+.hero-label { font-family:'EB Garamond',serif; font-size:12px; letter-spacing:6px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:20px; }
+.hero-icon { font-size:64px; margin-bottom:20px; line-height:1; }
+.hero-title { font-family:'Noto Serif SC',serif; font-size:56px; font-weight:700; background:linear-gradient(135deg,#a5f3fc 0%,#06b6d4 50%,#0891b2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; letter-spacing:2px; }
+.hero-sub { font-size:15px; font-weight:300; color:rgba(255,255,255,0.40); letter-spacing:3px; margin-bottom:28px; }
+.hero-divider { width:48px; height:1px; background:linear-gradient(90deg,transparent,rgba(6,182,212,0.5),transparent); margin:0 auto 28px; }
+.hero-tagline { font-size:18px; font-weight:400; color:rgba(255,255,255,0.65); line-height:1.8; letter-spacing:1px; }
+.hero-tagline em { font-style:normal; background:linear-gradient(90deg,#a5f3fc,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:600; }
+.hero-stats { display:flex; gap:0; margin-top:36px; border-top:1px solid rgba(255,255,255,0.07); padding-top:28px; width:100%; justify-content:center; }
+.stat { flex:1; text-align:center; position:relative; }
+.stat+.stat::before { content:''; position:absolute; left:0; top:20%; height:60%; width:1px; background:rgba(255,255,255,0.08); }
+.stat-num { font-family:'EB Garamond',serif; font-size:36px; background:linear-gradient(135deg,#a5f3fc,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:6px; }
+.stat-label { font-size:12px; color:rgba(255,255,255,0.28); letter-spacing:2px; }
+
+.section { position:relative; padding:56px 64px; border-top:1px solid rgba(255,255,255,0.05); }
+.section-tag { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:5px; color:rgba(6,182,212,0.55); text-transform:uppercase; margin-bottom:12px; }
+.section-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:rgba(255,255,255,0.88); margin-bottom:20px; letter-spacing:1px; }
+.section-body { font-size:15px; line-height:2.0; color:rgba(255,255,255,0.45); font-weight:300; }
+
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.about-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:24px 22px; position:relative; overflow:hidden; }
+.about-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#06b6d4,transparent); }
+.about-card-icon { font-size:24px; margin-bottom:12px; }
+.about-card-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:8px; letter-spacing:1px; }
+.about-card-text { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.8; font-weight:300; }
+
+/* 9因子展示 */
+.factors-bg { background:rgba(6,182,212,0.03); }
+.factors-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:28px; }
+.factor-card { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); padding:20px 16px; text-align:center; position:relative; overflow:hidden; }
+.factor-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(6,182,212,0.35),transparent); }
+.factor-icon { font-size:24px; margin-bottom:10px; }
+.factor-name { font-family:'Noto Serif SC',serif; font-size:14px; font-weight:700; color:rgba(255,255,255,0.80); margin-bottom:4px; }
+.factor-desc { font-size:11px; color:rgba(255,255,255,0.28); line-height:1.6; font-weight:300; }
+
+/* 说明框 */
+.note-box { background:rgba(6,182,212,0.05); border:1px solid rgba(6,182,212,0.15); padding:20px 24px; margin-top:24px; }
+.note-text { font-size:14px; color:rgba(255,255,255,0.50); line-height:1.9; font-weight:300; }
+.note-text strong { color:rgba(6,182,212,0.80); font-weight:500; }
+
+/* 样本 */
+.sample-bg { background:rgba(6,182,212,0.03); }
+.sample-result { background:rgba(255,255,255,0.02); border:1px solid rgba(6,182,212,0.15); margin-top:24px; overflow:hidden; }
+.sample-header { background:linear-gradient(135deg,rgba(6,182,212,0.12),rgba(8,145,178,0.08)); padding:28px 28px 24px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sample-header-top { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.sample-icon { font-size:44px; }
+.sample-label { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(6,182,212,0.6); text-transform:uppercase; margin-bottom:4px; }
+.sample-name { font-family:'Noto Serif SC',serif; font-size:28px; font-weight:700; color:#67e8f9; }
+.sample-subtitle { font-size:13px; color:rgba(255,255,255,0.35); letter-spacing:2px; }
+.sample-body { padding:24px 28px; }
+.sample-section-title { font-size:13px; font-weight:600; color:rgba(6,182,212,0.7); letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.sample-section-title::before { content:''; display:inline-block; width:16px; height:1px; background:rgba(6,182,212,0.5); }
+.dimension-bars { display:flex; flex-direction:column; gap:10px; }
+.dim-row { display:flex; align-items:center; gap:14px; }
+.dim-label-s { font-size:11px; color:rgba(255,255,255,0.30); width:76px; flex-shrink:0; }
+.dim-bg { flex:1; height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+.dim-fill-normal { height:100%; border-radius:3px; background:linear-gradient(90deg,#06b6d4,#0891b2); }
+.dim-fill-warn { height:100%; border-radius:3px; background:linear-gradient(90deg,#f59e0b,#d97706); }
+.dim-fill-alert { height:100%; border-radius:3px; background:linear-gradient(90deg,#ef4444,#dc2626); }
+.dim-val { font-family:'EB Garamond',serif; font-size:12px; color:rgba(6,182,212,0.55); width:32px; text-align:right; }
+.level-tag { font-size:11px; padding:2px 8px; border-radius:10px; }
+.level-normal { background:rgba(6,182,212,0.15); color:rgba(6,182,212,0.8); }
+.level-mild { background:rgba(245,158,11,0.15); color:rgba(245,158,11,0.8); }
+.level-moderate { background:rgba(239,68,68,0.15); color:rgba(239,68,68,0.8); }
+
+.theory-bg { background:rgba(6,182,212,0.03); }
+.theory-quote { border-left:2px solid rgba(6,182,212,0.4); padding:18px 24px; margin:24px 0; background:rgba(6,182,212,0.04); }
+.theory-quote-text { font-family:'Noto Serif SC',serif; font-size:16px; color:rgba(255,255,255,0.60); line-height:1.9; font-style:italic; }
+.theory-quote-author { font-size:12px; color:rgba(6,182,212,0.5); letter-spacing:2px; margin-top:10px; font-family:'EB Garamond',serif; }
+
+.steps { display:flex; flex-direction:column; gap:0; margin-top:28px; }
+.step { display:flex; gap:20px; position:relative; padding-bottom:28px; }
+.step:last-child { padding-bottom:0; }
+.step-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.step-num { width:36px; height:36px; border-radius:50%; background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.25); display:flex; align-items:center; justify-content:center; font-family:'EB Garamond',serif; font-size:16px; color:rgba(6,182,212,0.7); }
+.step-line { flex:1; width:1px; background:linear-gradient(180deg,rgba(6,182,212,0.2),transparent); margin-top:8px; }
+.step-content { padding-top:6px; }
+.step-title { font-size:15px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:6px; letter-spacing:1px; }
+.step-text { font-size:13px; color:rgba(255,255,255,0.33); line-height:1.8; font-weight:300; }
+
+.audience-list { display:flex; flex-direction:column; gap:14px; margin-top:24px; }
+.audience-item { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; background:rgba(255,255,255,0.02); border-left:2px solid rgba(6,182,212,0.25); }
+.audience-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.audience-text { font-size:14px; color:rgba(255,255,255,0.45); line-height:1.7; font-weight:300; }
+.audience-text strong { color:rgba(255,255,255,0.72); font-weight:500; }
+
+.promise-bg { background:rgba(6,182,212,0.03); }
+.promise-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+.promise-item { text-align:center; padding:24px 16px; border:1px solid rgba(255,255,255,0.05); }
+.promise-icon { font-size:28px; margin-bottom:12px; }
+.promise-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); margin-bottom:8px; letter-spacing:1px; }
+.promise-text { font-size:12px; color:rgba(255,255,255,0.28); line-height:1.7; font-weight:300; }
+
+.cta { position:relative; padding:60px 64px; text-align:center; background:#080808; border-top:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+.cta-orb { position:absolute; width:400px; height:400px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#06b6d4,transparent 60%); opacity:0.08; border-radius:50%; filter:blur(60px); pointer-events:none; }
+.cta-content { position:relative; z-index:1; }
+.cta-title { font-family:'Noto Serif SC',serif; font-size:30px; font-weight:700; background:linear-gradient(135deg,#a5f3fc 0%,#06b6d4 60%,#0891b2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:14px; }
+.cta-sub { font-size:14px; color:rgba(255,255,255,0.30); letter-spacing:3px; margin-bottom:32px; font-weight:300; }
+.cta-btn { display:inline-block; padding:14px 48px; border:1px solid rgba(6,182,212,0.40); color:rgba(6,182,212,0.80); font-size:14px; letter-spacing:4px; font-family:'Noto Sans SC',sans-serif; font-weight:300; background:rgba(6,182,212,0.06); }
+
+.footer { padding:28px 64px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); }
+.footer-brand { font-family:'EB Garamond',serif; font-size:13px; letter-spacing:4px; color:rgba(255,255,255,0.18); text-transform:uppercase; }
+.footer-note { font-size:11px; color:rgba(255,255,255,0.14); letter-spacing:1px; font-weight:300; }
+
+.page-break { width:100%; height:2px; background:linear-gradient(90deg,transparent,rgba(6,182,212,0.3),transparent); }
+.page-break-label { text-align:center; padding:8px; background:#111; font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(6,182,212,0.3); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div class="page-break-label">— Page 1 of 4 —</div>
+<div class="page">
+<div class="noise"></div>
+
+<div class="hero">
+  <div class="hero-orb-1"></div><div class="hero-orb-2"></div><div class="hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-label">Mental Health · SCL-90 Professional Scale</div>
+    <div class="hero-icon">🩺</div>
+    <div class="hero-title">心理状态评估</div>
+    <div class="hero-sub">你的心理现在处于什么状态？</div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">
+      不需要等到崩溃才去了解自己——<br>
+      <em>定期体检</em>你的心理状态，<br>
+      比等出问题再解决更重要
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">45</div><div class="stat-label">测评题目</div></div>
+      <div class="stat"><div class="stat-num">9</div><div class="stat-label">心理因子</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">风险等级</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">分钟完成</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 关于 -->
+<div class="section">
+  <div class="section-tag">About This Test</div>
+  <div class="section-title">这个测评在测什么</div>
+  <div class="section-body">
+    基于国际通用的 SCL-90 症状自评量表改编，评估你<strong style="color:rgba(255,255,255,0.72)">最近一周的真实心理状态</strong>，覆盖 9 大心理健康因子，识别需要关注的维度。
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-icon">🏥</div>
+      <div class="about-card-title">专业量表改编</div>
+      <div class="about-card-text">SCL-90 是国际精神病学领域广泛使用的自评量表，已有数十年临床验证数据。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">📍</div>
+      <div class="about-card-title">定位「关注区域」</div>
+      <div class="about-card-text">不是诊断你有没有病，而是找出你当前心理状态中需要额外关注的具体维度。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">📅</div>
+      <div class="about-card-title">测「最近一周」</div>
+      <div class="about-card-text">专注于当前状态而非长期性格，帮你了解此时此刻的心理负荷水平。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">⚠️</div>
+      <div class="about-card-title">有风险预警</div>
+      <div class="about-card-text">高风险维度会有明确提示，建议进一步寻求专业支持，不让问题被忽视。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9因子 -->
+<div class="section factors-bg">
+  <div class="section-tag">Nine Factors · SCL-90 Dimensions</div>
+  <div class="section-title">9 大心理健康因子</div>
+  <div class="section-body">每个因子对应一个心理健康维度，报告会给出每个维度的得分和状态评级。</div>
+  <div class="factors-grid">
+    <div class="factor-card">
+      <div class="factor-icon">🩺</div>
+      <div class="factor-name">躯体化</div>
+      <div class="factor-desc">身体症状对心理状态的影响</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">🔄</div>
+      <div class="factor-name">强迫症状</div>
+      <div class="factor-desc">反复出现的想法或行为</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">👥</div>
+      <div class="factor-name">人际敏感</div>
+      <div class="factor-desc">对人际互动的敏感与不适</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">😔</div>
+      <div class="factor-name">抑郁</div>
+      <div class="factor-desc">情绪低落与兴趣丧失程度</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">😰</div>
+      <div class="factor-name">焦虑</div>
+      <div class="factor-desc">持续紧张与担忧的程度</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">😤</div>
+      <div class="factor-name">敌对</div>
+      <div class="factor-desc">易怒、冲动与攻击倾向</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">😨</div>
+      <div class="factor-name">恐惧</div>
+      <div class="factor-desc">对特定情境的回避与恐惧</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">🤔</div>
+      <div class="factor-name">偏执</div>
+      <div class="factor-desc">多疑、猜忌与被迫害感</div>
+    </div>
+    <div class="factor-card">
+      <div class="factor-icon">🌀</div>
+      <div class="factor-name">现实感稳定性</div>
+      <div class="factor-desc">与现实世界的联结感</div>
+    </div>
+  </div>
+  <div class="note-box">
+    <div class="note-text">📢 重要说明：本测评为<strong>自评辅助工具</strong>，结果不等于临床诊断。若多个维度出现「中高风险」提示，建议寻求专业心理咨询师或精神科医生的支持。</div>
+  </div>
+</div>
+</div>
+
+<div class="page-break"></div>
+<div class="page-break-label">— Page 2 of 4 —</div>
+
+<div class="page">
+<div class="noise"></div>
+
+<!-- 结果示例 -->
+<div class="section sample-bg">
+  <div class="section-tag">Sample Result · 结果示例</div>
+  <div class="section-title">测试结果长这样</div>
+  <div class="section-body">以下为示例结果，实际报告展示 9 个因子的得分、状态评级、风险提示与针对性建议。</div>
+  <div class="sample-result">
+    <div class="sample-header">
+      <div class="sample-header-top">
+        <div class="sample-icon">🩺</div>
+        <div>
+          <div class="sample-label">Current Mental State</div>
+          <div class="sample-name">心理状态 · 良好基础</div>
+        </div>
+      </div>
+      <div class="sample-subtitle">总体正常 · 焦虑维度需关注</div>
+    </div>
+    <div class="sample-body">
+      <div class="sample-section-title">9 因子评分（示例）</div>
+      <div class="dimension-bars">
+        <div class="dim-row"><span class="dim-label-s">躯体化</span><div class="dim-bg"><div class="dim-fill-normal" style="width:28%"></div></div><span class="dim-val">1.4</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">强迫症状</span><div class="dim-bg"><div class="dim-fill-warn" style="width:54%"></div></div><span class="dim-val">2.7</span><span class="level-tag level-mild" style="margin-left:8px">轻度</span></div>
+        <div class="dim-row"><span class="dim-label-s">人际敏感</span><div class="dim-bg"><div class="dim-fill-normal" style="width:32%"></div></div><span class="dim-val">1.6</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">抑郁</span><div class="dim-bg"><div class="dim-fill-normal" style="width:24%"></div></div><span class="dim-val">1.2</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">焦虑</span><div class="dim-bg"><div class="dim-fill-alert" style="width:72%"></div></div><span class="dim-val">3.6</span><span class="level-tag level-moderate" style="margin-left:8px">中度</span></div>
+        <div class="dim-row"><span class="dim-label-s">敌对</span><div class="dim-bg"><div class="dim-fill-normal" style="width:30%"></div></div><span class="dim-val">1.5</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">恐惧</span><div class="dim-bg"><div class="dim-fill-normal" style="width:20%"></div></div><span class="dim-val">1.0</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">偏执</span><div class="dim-bg"><div class="dim-fill-normal" style="width:36%"></div></div><span class="dim-val">1.8</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+        <div class="dim-row"><span class="dim-label-s">现实感</span><div class="dim-bg"><div class="dim-fill-normal" style="width:22%"></div></div><span class="dim-val">1.1</span><span class="level-tag level-normal" style="margin-left:8px">正常</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 理论 -->
+<div class="section theory-bg">
+  <div class="section-tag">About SCL-90</div>
+  <div class="section-title">为什么选 SCL-90？</div>
+  <div class="section-body">
+    SCL-90（Symptom Checklist-90）由 Leonard R. Derogatis 博士于 1973 年开发，是目前精神病学和心理学领域最广泛使用的自评量表之一，在全球已有超过 1000 项学术研究基于此量表进行。
+  </div>
+  <div class="theory-quote">
+    <div class="theory-quote-text">「心理健康不是没有问题，而是有处理问题的能力。了解自己的状态，才是照顾自己的第一步。」</div>
+    <div class="theory-quote-author">—— 心理健康的现代理解</div>
+  </div>
+  <div class="section-body">
+    我们将原量表进行了适配性精简，保留 9 大核心因子，<strong style="color:rgba(255,255,255,0.65)">针对最近一周的状态</strong>进行评估，更贴近真实的心理波动周期。
+  </div>
+</div>
+
+<!-- 流程 -->
+<div class="section">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">测评怎么做</div>
+  <div class="steps">
+    <div class="step"><div class="step-left"><div class="step-num">01</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">进入测评页面</div><div class="step-text">输入平台密码，进入心理状态评估。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">02</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">回顾「最近一周」作答</div><div class="step-text">每道题询问最近一周的真实感受，按 0-4 分（没有到严重）诚实评分。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">03</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">获得 9 因子报告</div><div class="step-text">每个因子单独评分，标注「正常 / 轻度 / 中度 / 重度」，高风险维度附有专业建议。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">04</div></div><div class="step-content"><div class="step-title">定期重测追踪变化</div><div class="step-text">建议每月测一次，观察自己心理状态的动态变化趋势。</div></div></div>
+  </div>
+</div>
+
+<!-- 适合人群 -->
+<div class="section">
+  <div class="section-tag">Who Is This For</div>
+  <div class="section-title">这个测评适合你吗</div>
+  <div class="audience-list">
+    <div class="audience-item"><div class="audience-icon">😶</div><div class="audience-text"><strong>感觉「不对劲」但说不出哪里不对</strong>——睡眠、情绪、社交都有点问题，但不知道是压力大还是真的需要关注</div></div>
+    <div class="audience-item"><div class="audience-icon">🌪️</div><div class="audience-text"><strong>正在经历高压期的人</strong>——毕业季、职业转型、重大关系变化……想知道自己的心理状态是否在承受范围内</div></div>
+    <div class="audience-item"><div class="audience-icon">🏃</div><div class="audience-text"><strong>长期忽视心理健康的人</strong>——「我没问题」说了很多年，但想给自己做一次客观的心理体检</div></div>
+    <div class="audience-item"><div class="audience-icon">🤝</div><div class="audience-text"><strong>想陪伴亲人或朋友的人</strong>——身边有人状态不好，想先了解心理健康评估是什么，再更好地支持对方</div></div>
+  </div>
+</div>
+
+<!-- 品牌承诺 -->
+<div class="section promise-bg">
+  <div class="section-tag">Our Promise</div>
+  <div class="section-title">关于这份测评</div>
+  <div class="promise-grid">
+    <div class="promise-item"><div class="promise-icon">🔒</div><div class="promise-title">数据不留存</div><div class="promise-text">所有计算在本地完成，服务器不记录任何答题数据</div></div>
+    <div class="promise-item"><div class="promise-icon">⚕️</div><div class="promise-title">非诊断工具</div><div class="promise-text">明确说明这是辅助自评工具，不替代专业诊断，有风险时会明确提示</div></div>
+    <div class="promise-item"><div class="promise-icon">💙</div><div class="promise-title">结果有温度</div><div class="promise-text">高风险提示附有专业建议而非恐吓，引导而非评判</div></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-orb"></div>
+  <div class="cta-content">
+    <div class="cta-title">你的心理状态，现在怎么样？</div>
+    <div class="cta-sub">8 分钟 · 45 题 · 立即查看结果</div>
+    <div class="cta-btn">开 始 评 估</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="footer-brand">宇宙认知盐究所 · Spacesaltlab</span>
+  <span class="footer-note">测评结果仅供参考，不构成心理诊断，如需帮助请寻求专业支持</span>
+</div>
+</div>
+
+</body>
+</html>

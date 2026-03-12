@@ -7,117 +7,120 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #a5b4fc;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --radius: 16px;
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --bg: #0a0a0a;
+  --card: rgba(255,255,255,0.025);
+  --card-border: rgba(255,255,255,0.07);
+  --text: rgba(255,255,255,0.88);
+  --text-muted: rgba(255,255,255,0.38);
+  --border: rgba(255,255,255,0.07);
+  --accent: rgba(139,92,246,0.55);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-.page { display: none; min-height: 100vh; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-weight: 300; }
+.noise { position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .page.active { display: block; }
 #testPage { background: var(--bg); padding: 20px; }
 .test-container { max-width: 700px; margin: 0 auto; }
 .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
-.back-btn:hover { background: white; color: var(--text); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 0; transition: all 0.2s; font-family: 'Noto Sans SC', sans-serif; letter-spacing: 1px; }
+.back-btn:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
 .progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
-.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
-.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
-.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
+.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); border-radius: 0; transition: width 0.3s; }
+.question-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 40px; position: relative; overflow: hidden; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #8b5cf6, #7c3aed, #a78bfa); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 0; font-size: 12px; font-weight: 500; margin-bottom: 16px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
+.q-num { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-family: 'EB Garamond', serif; letter-spacing: 3px; }
+.q-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 32px; font-family: 'Noto Serif SC', serif; color: var(--text); }
 .options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: var(--primary-light); background: #fafaff; }
-.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
-.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.04); }
+.opt.selected { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.08); }
+.opt-radio { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
 .opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
 .opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
-.opt-text { font-size: 15px; }
+.opt-text { font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.45); }
+.opt.selected .opt-text { color: var(--text); }
 .nav-btns { display: flex; justify-content: space-between; margin-top: 28px; }
-.nav-btn { padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
-.nav-btn.secondary:hover { border-color: var(--primary); color: var(--primary); }
-.nav-btn.primary { background: var(--primary); border: none; color: white; }
-.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn { padding: 12px 28px; border-radius: 0; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
+.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.nav-btn.secondary:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.nav-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.nav-btn.primary:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
 .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+#resultPage { background: var(--bg); }
 .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-.result-header { text-align: center; color: white; padding: 20px 0 60px; }
-.result-header h1 { font-size: 28px; margin-bottom: 8px; }
-.result-header p { opacity: 0.9; }
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
-.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-.type-badge { display: inline-block; padding: 8px 20px; background: var(--gradient); color: white; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 14px; }
-.type-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.type-desc { color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+.result-header { text-align: center; color: var(--text); padding: 40px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.result-header h1 { font-size: 28px; margin-bottom: 8px; font-family: 'Noto Serif SC', serif; font-weight: 700; color: var(--text); }
+.result-header p { color: var(--text-muted); font-family: 'EB Garamond', serif; letter-spacing: 3px; font-size: 14px; }
+.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #8b5cf6, #7c3aed, #a78bfa); }
+.section-icon { width: 44px; height: 44px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: 'Noto Serif SC', serif; color: var(--text); }
+.type-badge { display: inline-block; padding: 8px 20px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; font-size: 13px; font-weight: 500; margin-bottom: 14px; font-family: 'EB Garamond', serif; letter-spacing: 3px; }
+.type-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; font-family: 'Noto Serif SC', serif; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.type-desc { color: rgba(255,255,255,0.45); font-size: 15px; line-height: 1.8; font-weight: 300; }
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
-.stat-card { padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; }
-.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-card { padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); font-family: 'EB Garamond', serif; }
 .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 .dim-item { margin-bottom: 20px; }
 .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .dim-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-.dim-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.dim-score { font-weight: 600; color: var(--primary); }
-.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; position: relative; }
-.dim-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-.dim-bar-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--text-muted); }
-.dim-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
-.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+.dim-icon { width: 28px; height: 28px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-score { font-weight: 600; color: var(--primary); font-family: 'EB Garamond', serif; }
+.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; margin-bottom: 12px; position: relative; }
+.dim-bar-fill { height: 100%; border-radius: 0; transition: width 0.5s; }
+.dim-bar-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.15); }
+.dim-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-family: 'EB Garamond', serif; letter-spacing: 1px; }
+.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 0; }
 .career-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
-.career-item { padding: 14px; background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); border-radius: 10px; font-size: 14px; text-align: center; }
+.career-item { padding: 14px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 0; font-size: 14px; text-align: center; }
 .strength-list { margin-top: 16px; }
-.strength-item { display: flex; gap: 12px; margin-bottom: 12px; padding: 14px; background: #f0fdf4; border-radius: 10px; }
+.strength-item { display: flex; gap: 12px; margin-bottom: 12px; padding: 14px; background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.15); border-radius: 0; }
 .strength-icon { font-size: 20px; }
-.weakness-item { background: #fef2f2; }
-.celeb-box { display: flex; gap: 20px; align-items: center; padding: 20px; background: #f8fafc; border-radius: 14px; margin-top: 16px; }
-.celeb-avatar { width: 70px; height: 70px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
-.celeb-info h4 { font-size: 16px; margin-bottom: 4px; }
-.celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-.tip-item { display: flex; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
-.tip-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.weakness-item { background: rgba(248,113,113,0.05); border-color: rgba(248,113,113,0.15); }
+.celeb-box { display: flex; gap: 20px; align-items: center; padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; margin-top: 16px; }
+.celeb-avatar { width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+.celeb-info h4 { font-size: 16px; margin-bottom: 4px; font-family: 'Noto Serif SC', serif; }
+.celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.6; font-weight: 300; }
+.tip-item { display: flex; gap: 14px; padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; border-left: 2px solid var(--primary); }
+.tip-num { width: 26px; height: 26px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; font-family: 'EB Garamond', serif; }
+.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300; }
 .download-section { text-align: center; padding: 32px; }
-.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.35); }
-.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-.restart-btn:hover { border-color: var(--primary); color: var(--primary); }
-.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
+.download-btn:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
+.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 0; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
+.restart-btn:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .loading.show { opacity: 1; visibility: visible; }
-.loading-box { background: white; padding: 36px; border-radius: 16px; text-align: center; }
-.spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+.loading-box { background: #111; border: 1px solid var(--border); padding: 36px; border-radius: 0; text-align: center; }
+.spinner { width: 44px; height: 44px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: white; padding: 36px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { background: #111; border: 1px solid var(--border); padding: 36px; border-radius: 0; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
 .modal-overlay.show .modal-content { transform: scale(1); }
 .modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-.modal-tests { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; font-family: 'Noto Serif SC', serif; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; font-weight: 300; }
+.modal-tests { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; padding: 16px; margin-bottom: 16px; }
 .modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
 .modal-test-item:last-child { border-bottom: none; }
 .modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
 .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
-.modal-btn { padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-.modal-btn.primary { background: var(--gradient); color: white; }
-.modal-btn.secondary { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
-.more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
+.modal-btn { padding: 14px 24px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
+.modal-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.modal-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.more-tests-btn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: rgba(251,191,36,0.8); }
 @media (max-width: 640px) {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .career-grid { grid-template-columns: 1fr; }
@@ -128,6 +131,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 </style>
 </head>
 <body>
+<div class="noise"></div>
 
 <div id="testPage" class="page active">
   <div class="test-container">
@@ -175,72 +179,72 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 // 60道MBTI测评题目
 const questions = [
   // E-I 能量来源 (15题)
-  { dim: 'EI', text: '在社交聚会中，你通常会？', options: ['主动结识新朋友，享受热闹氛围', '倾向于和熟悉的人待在一起'] },
-  { dim: 'EI', text: '独处一段时间后，你会感到？', options: ['有点无聊，想找人聊天', '精力充沛，感觉很好'] },
-  { dim: 'EI', text: '工作中遇到问题时，你更倾向于？', options: ['立即找同事讨论解决方案', '先自己思考，必要时再请教他人'] },
-  { dim: 'EI', text: '周末理想的放松方式是？', options: ['和朋友聚会或参加活动', '在家看书、追剧或做自己的事'] },
-  { dim: 'EI', text: '在团队项目中，你更喜欢？', options: ['频繁的小组讨论和头脑风暴', '各自完成分工后再汇总'] },
-  { dim: 'EI', text: '当你有好消息时，你会？', options: ['立刻分享给很多人', '只告诉少数亲密的人'] },
-  { dim: 'EI', text: '参加大型会议或活动后，你通常？', options: ['感到兴奋和充满活力', '需要独处一段时间恢复精力'] },
-  { dim: 'EI', text: '在思考问题时，你更倾向于？', options: ['边说边想，通过讨论理清思路', '在脑海中默默思考'] },
-  { dim: 'EI', text: '你更喜欢的工作环境是？', options: ['开放式办公，随时可以交流', '独立空间，减少干扰'] },
-  { dim: 'EI', text: '认识新朋友时，你通常？', options: ['很快就能熟络起来', '需要一段时间才能敞开心扉'] },
-  { dim: 'EI', text: '你觉得自己的朋友圈？', options: ['广泛，认识很多人', '精简，但关系都很深'] },
-  { dim: 'EI', text: '在演讲或展示时，你感到？', options: ['兴奋，享受被关注的感觉', '紧张，更喜欢幕后工作'] },
-  { dim: 'EI', text: '做决定时，你更倾向于？', options: ['征求多人意见后决定', '独立思考后自己决定'] },
-  { dim: 'EI', text: '你的能量主要来自于？', options: ['与他人互动和交流', '独处和内心反思'] },
-  { dim: 'EI', text: '电话响起时，你的第一反应是？', options: ['高兴有人找，立刻接听', '希望对方发短信就好'] },
+  { dim: 'EI', text: '一场理想的晚餐，桌上坐着几个人？', options: ['越多越好，热闹是一种能量', '两三个就够，话要说进心里才算数'] },
+  { dim: 'EI', text: '你被困在一座空旷的图书馆里整整一天，出来后你最想做什么？', options: ['立刻打电话给朋友，约出来聊聊', '回家泡杯茶，享受这份余韵'] },
+  { dim: 'EI', text: '一个困扰你的难题，你更可能怎么解决？', options: ['找个人边走边聊，说着说着就有思路了', '关上门，在纸上画画写写，等灵光乍现'] },
+  { dim: 'EI', text: '如果你的房间有一扇窗，你更希望窗外是什么？', options: ['一条热闹的步行街，人来人往', '一片安静的湖面，偶尔有鸟掠过'] },
+  { dim: 'EI', text: '做一道菜的过程中，你更享受哪个环节？', options: ['一群人在厨房里手忙脚乱的那种默契', '自己一个人安静地切菜、调味的专注'] },
+  { dim: 'EI', text: '你意外获得了一张演唱会门票，你会？', options: ['赶紧找人一起去，好东西要分享', '一个人去也挺好，反正是去听歌的'] },
+  { dim: 'EI', text: '连续参加三天的行业峰会后，你的状态更接近？', options: ['像被充了电，认识了好多有趣的人', '像被榨干了，需要独自待着恢复元气'] },
+  { dim: 'EI', text: '如果思考是一条河，你的河更像什么？', options: ['一条有很多支流汇入的大河，越聊越宽', '一口深井，越往下越安静，越接近答案'] },
+  { dim: 'EI', text: '你的理想咖啡馆是什么样的？', options: ['有公共长桌，随时可能跟陌生人聊起来', '有角落的单人卡座，戴上耳机就是自己的世界'] },
+  { dim: 'EI', text: '搬到一个新城市，第一周你更可能做什么？', options: ['去社区活动、酒吧或兴趣小组认识新朋友', '先独自走遍附近的街道，建立自己的地图'] },
+  { dim: 'EI', text: '你的手机通讯录里，哪种联系人更多？', options: ['认识但不算深交的朋友，各行各业都有', '数量不多，但每一个都可以凌晨打电话'] },
+  { dim: 'EI', text: '被邀请上台即兴讲几句话，你的第一反应是？', options: ['有点兴奋，这种场合让人来劲', '胃微微一紧，心想为什么不能让我写下来'] },
+  { dim: 'EI', text: '面前有一个岔路口，一条路通向集市，一条通向山顶，你走哪条？', options: ['集市——热闹的地方总能遇到有意思的事', '山顶——安静的地方才能看清全貌'] },
+  { dim: 'EI', text: '你的精力像什么？', options: ['火——需要人群来添柴，越烧越旺', '电池——需要独处来充电，满了才能输出'] },
+  { dim: 'EI', text: '手机突然响了，屏幕显示一个不太熟的号码，你？', options: ['直接接，说不定有什么新鲜事', '盯着屏幕等它停，心想发条微信不好吗'] },
 
   // S-N 信息获取 (15题)
-  { dim: 'SN', text: '在学习新技能时，你更喜欢？', options: ['按步骤一步步实操练习', '先理解整体概念和原理'] },
-  { dim: 'SN', text: '描述一件事情时，你倾向于？', options: ['关注具体细节和事实', '强调整体意义和可能性'] },
-  { dim: 'SN', text: '你更信任？', options: ['亲身经历和实际经验', '直觉和灵感'] },
-  { dim: 'SN', text: '阅读时，你更喜欢？', options: ['实用性强的指南类书籍', '富有想象力的小说或理论'] },
-  { dim: 'SN', text: '在工作中，你更擅长？', options: ['处理具体的、明确的任务', '发现新的可能性和创意'] },
-  { dim: 'SN', text: '你更关注？', options: ['当下正在发生的事情', '未来的可能性和趋势'] },
-  { dim: 'SN', text: '解决问题时，你更依赖？', options: ['已被验证的方法和经验', '创新的想法和直觉'] },
-  { dim: 'SN', text: '你觉得自己更？', options: ['脚踏实地，务实可靠', '富有想象力，喜欢创新'] },
-  { dim: 'SN', text: '接收信息时，你更注重？', options: ['具体的数据和事实', '背后的意义和联系'] },
-  { dim: 'SN', text: '规划旅行时，你更倾向于？', options: ['详细安排每天的行程', '只定大方向，随性发挥'] },
-  { dim: 'SN', text: '在讨论中，你更关注？', options: ['讨论的具体内容和细节', '讨论引发的新想法'] },
-  { dim: 'SN', text: '你的记忆方式更倾向于？', options: ['记住具体的事件和细节', '记住整体印象和感受'] },
-  { dim: 'SN', text: '面对说明书，你会？', options: ['从头到尾仔细阅读', '大概浏览后直接上手'] },
-  { dim: 'SN', text: '你更欣赏的品质是？', options: ['稳重、可靠、注重细节', '创新、灵活、富有远见'] },
-  { dim: 'SN', text: '在项目中，你更擅长？', options: ['执行和落实计划', '构思和规划愿景'] },
+  { dim: 'SN', text: '学做一道新菜，你更倾向于？', options: ['严格按照食谱的克数和步骤来', '大概看一遍就开始，凭感觉调整'] },
+  { dim: 'SN', text: '读一本小说，你更容易记住什么？', options: ['主角穿了什么颜色的衣服、在哪条街转了弯', '整个故事让你想到了自己的某段经历'] },
+  { dim: 'SN', text: '迷路时，你更相信什么？', options: ['手机地图上的实时导航', '一种说不清的方向感，觉得应该往那边走'] },
+  { dim: 'SN', text: '逛博物馆时，你的目光更容易停在？', options: ['展品旁边的年代标注和工艺说明', '某件展品引发的一连串联想和遐想'] },
+  { dim: 'SN', text: '别人跟你描述一个新项目，你最先想知道？', options: ['具体要做什么、截止日期是几号', '这件事的意义是什么、可能带来什么改变'] },
+  { dim: 'SN', text: '站在窗前看一棵树，你更容易注意到？', options: ['树叶的形状、树干的纹理、枝条的朝向', '这棵树经历了多少个冬天，像不像某种隐喻'] },
+  { dim: 'SN', text: '修理一件坏掉的东西，你会怎么做？', options: ['找到说明书或教程，按步骤排查', '凭直觉拆开看看，多半能猜到哪里出了问题'] },
+  { dim: 'SN', text: '如果人生是一张地图，你更关心？', options: ['自己现在站在哪个坐标上', '地图之外还有没有未标注的大陆'] },
+  { dim: 'SN', text: '有人给你看一组数据，你第一反应是？', options: ['盯着具体的数字，看看有没有异常', '想这些数字背后在讲一个什么故事'] },
+  { dim: 'SN', text: '计划一次旅行，你更兴奋的是？', options: ['研究每个景点的开放时间和最佳路线', '想象自己站在某个陌生地方时的感觉'] },
+  { dim: 'SN', text: '一场好的对话结束后，你脑子里留下的更多是？', options: ['对方说的具体观点和案例', '一种模糊但强烈的启发感'] },
+  { dim: 'SN', text: '回忆一段旅行，最先浮现的是？', options: ['那家旅馆的房间号、那条路拐角的面包店', '一种整体的色调和氛围，像一张褪色的照片'] },
+  { dim: 'SN', text: '刚买了一个新电器，你会？', options: ['先把说明书读完，搞清楚每个按钮的功能', '直接按开关试试，遇到问题再说'] },
+  { dim: 'SN', text: '你更佩服哪种人？', options: ['把一件事做到极致精确的匠人', '能看见别人看不见的趋势的预言家'] },
+  { dim: 'SN', text: '在一个项目里，你更常扮演的角色是？', options: ['把蓝图变成现实的人，一砖一瓦地搭建', '画蓝图的人，描绘它完成后的样子'] },
 
   // T-F 决策方式 (15题)
-  { dim: 'TF', text: '做决定时，你更看重？', options: ['逻辑分析和客观事实', '对人的影响和价值观'] },
-  { dim: 'TF', text: '当朋友向你倾诉时，你更倾向于？', options: ['帮他们分析问题、提供建议', '倾听并给予情感支持'] },
-  { dim: 'TF', text: '在团队冲突中，你更关注？', options: ['谁的观点更有道理', '如何维护团队和谐'] },
-  { dim: 'TF', text: '给他人反馈时，你更倾向于？', options: ['直接指出问题和改进点', '先肯定优点再委婉提建议'] },
-  { dim: 'TF', text: '你认为好的决策应该是？', options: ['基于数据和逻辑的', '考虑到所有人感受的'] },
-  { dim: 'TF', text: '别人说你更？', options: ['理性、客观、有原则', '善解人意、体贴、温暖'] },
-  { dim: 'TF', text: '面对批评时，你会？', options: ['分析批评是否客观合理', '首先感到受伤或沮丧'] },
-  { dim: 'TF', text: '你更看重工作中的？', options: ['公平和效率', '团队氛围和人际关系'] },
-  { dim: 'TF', text: '在争论中，你更可能？', options: ['坚持自己认为正确的观点', '寻求妥协以维持关系'] },
-  { dim: 'TF', text: '你觉得什么更重要？', options: ['真实，即使可能伤害到人', '善意，即使需要隐瞒一些真相'] },
-  { dim: 'TF', text: '评价一个方案时，你首先考虑？', options: ['方案的逻辑性和可行性', '方案对相关人员的影响'] },
-  { dim: 'TF', text: '你更容易被什么打动？', options: ['有理有据的论证', '真挚的情感表达'] },
-  { dim: 'TF', text: '处理员工问题时，你更倾向于？', options: ['按规章制度办事', '根据具体情况灵活处理'] },
-  { dim: 'TF', text: '你认为成功主要取决于？', options: ['能力和努力', '机遇和人脉'] },
-  { dim: 'TF', text: '当逻辑和情感冲突时，你更可能？', options: ['遵循逻辑', '遵循情感'] },
+  { dim: 'TF', text: '一个朋友创业失败了，找你聊天，你更可能说？', options: ['我帮你分析一下问题出在哪里', '我知道这很难，你现在感觉怎么样？'] },
+  { dim: 'TF', text: '如果正义和仁慈只能选一个，你选？', options: ['正义——没有规则，善意也会变成混乱', '仁慈——没有温度的正义，只是冰冷的机器'] },
+  { dim: 'TF', text: '团队里两个人吵起来了，你的第一反应是？', options: ['搞清楚到底谁的方案更合理', '先让双方都冷静下来，别伤了和气'] },
+  { dim: 'TF', text: '给一个后辈写评语，你更接近哪种风格？', options: ['直接点出三个需要改进的地方', '先写他做得好的地方，再温和地提一点建议'] },
+  { dim: 'TF', text: '一艘船只能再载一个人，你会怎么决定？', options: ['评估每个人的情况，选择最合理的方案', '这种事没法理性分析，凭良心走'] },
+  { dim: 'TF', text: '别人形容你时，哪句话你听着更顺耳？', options: ['你这个人特别靠谱，有原则', '你这个人特别暖，跟你待着很舒服'] },
+  { dim: 'TF', text: '有人当众批评了你的工作，你内心的第一个声音是？', options: ['他说的到底对不对？让我想想', '他怎么能这样说？这让我很不舒服'] },
+  { dim: 'TF', text: '一份工作薪资高但团队氛围冷漠，另一份薪资一般但同事亲如家人，你选？', options: ['高薪那份——工作就是工作，效率和回报更重要', '氛围好的那份——每天相处的人比数字更影响生活质量'] },
+  { dim: 'TF', text: '两个朋友闹矛盾，都来找你评理，你会？', options: ['客观分析双方的对错，哪怕结论会让其中一个人不高兴', '想办法找到双方都能接受的说法，维持关系更重要'] },
+  { dim: 'TF', text: '一个善意的谎言和一句伤人的实话，你更能接受哪个？', options: ['实话——被骗的感觉比受伤更难忍', '善意的谎言——有时候温柔比真相更重要'] },
+  { dim: 'TF', text: '评价一部电影，你更关注？', options: ['剧情逻辑是否自洽、叙事结构是否精巧', '它让你哭了还是笑了、触动了你的哪根弦'] },
+  { dim: 'TF', text: '什么样的演讲最打动你？', options: ['论据充分、推理严密，让你心服口服', '讲述者声音颤抖时的那一刻真情流露'] },
+  { dim: 'TF', text: '一个员工能力很强但经常迟到，你怎么处理？', options: ['规则面前人人平等，该怎么处理就怎么处理', '了解一下原因，如果情有可原就灵活对待'] },
+  { dim: 'TF', text: '你认为一个人能走多远，主要取决于？', options: ['清醒的头脑和持续的自律', '生命中遇到的人和被给予的善意'] },
+  { dim: 'TF', text: '脑子里的声音和心里的感觉打架了，你更听谁的？', options: ['脑子——情绪会骗人，逻辑不会', '心——有些事只有心才能判断'] },
 
   // J-P 生活态度 (15题)
-  { dim: 'JP', text: '你更喜欢的工作方式是？', options: ['有明确的计划和截止日期', '灵活应变，保持开放性'] },
-  { dim: 'JP', text: '面对任务时，你通常？', options: ['尽早开始，按计划完成', '等到灵感来了或临近截止时'] },
-  { dim: 'JP', text: '你的工作区域通常是？', options: ['整洁有序，物品分类清楚', '看起来有点乱但自己能找到东西'] },
-  { dim: 'JP', text: '制定计划后，你会？', options: ['尽量按计划执行', '把计划当作参考，随时调整'] },
-  { dim: 'JP', text: '你更享受？', options: ['完成任务后的成就感', '探索过程中的新发现'] },
-  { dim: 'JP', text: '周末的计划，你通常？', options: ['提前安排好活动', '到时候看心情决定'] },
-  { dim: 'JP', text: '你对待规则的态度是？', options: ['规则应该被遵守', '规则可以灵活变通'] },
-  { dim: 'JP', text: '购物时，你更倾向于？', options: ['列好清单，买需要的东西', '随性逛逛，看到喜欢的就买'] },
-  { dim: 'JP', text: '你更喜欢的生活状态是？', options: ['稳定可预测', '充满变化和惊喜'] },
-  { dim: 'JP', text: '做决定时，你通常？', options: ['快速决定，然后执行', '保持选项开放，多收集信息'] },
-  { dim: 'JP', text: '在项目中，你更关注？', options: ['按时交付成果', '持续改进和优化'] },
-  { dim: 'JP', text: '你的日程安排通常是？', options: ['详细规划，精确到小时', '大致方向，保持弹性'] },
-  { dim: 'JP', text: '面对变化，你的反应是？', options: ['有些不适应，喜欢按原计划', '感到兴奋，乐于接受新变化'] },
-  { dim: 'JP', text: '你更讨厌？', options: ['计划被打乱', '被过多规则束缚'] },
-  { dim: 'JP', text: '完成一个项目后，你会？', options: ['满足于完成，准备下一个任务', '想想还有什么可以改进的'] }
+  { dim: 'JP', text: '明天是自由的一天，今晚你会？', options: ['列一个清单，把想做的事安排好', '什么都不想，明天醒来再说'] },
+  { dim: 'JP', text: '一篇论文的截止日期是两周后，你的节奏更接近？', options: ['第一周就完成初稿，第二周修改', '截止前三天突然文思泉涌，一气呵成'] },
+  { dim: 'JP', text: '如果你的书桌是一面镜子，它照出的你是什么样的？', options: ['每样东西都有固定的位置，整齐是一种安全感', '看起来像一场小型爆炸，但你知道论文在第三摞的中间'] },
+  { dim: 'JP', text: '旅行前你做了详细攻略，到了发现一条没在计划里的小巷，你会？', options: ['记下来，回头有空再去，今天按计划走', '计划是什么？先钻进去看看再说'] },
+  { dim: 'JP', text: '一个项目终于完成了，你的满足感更来自？', options: ['终于画上句号了，这种完成感真好', '过程中那几个意外发现，比结果更让人兴奋'] },
+  { dim: 'JP', text: '朋友问你周六干什么，你的回答更可能是？', options: ['上午健身，下午见一个朋友，晚上看电影', '还没想，到时候看吧'] },
+  { dim: 'JP', text: '如果世界上只有两种国家，一种秩序井然，一种自由散漫，你住哪种？', options: ['秩序井然的那个——规则让人安心', '自由散漫的那个——束缚比混乱更让人窒息'] },
+  { dim: 'JP', text: '逛超市时，你更接近哪种画风？', options: ['拿着清单，直奔目标货架，绝不多逛', '推着车随便走，看到什么有趣的就丢进去'] },
+  { dim: 'JP', text: '如果生活是一首曲子，你更希望它是？', options: ['一首结构完整的交响乐，每个乐章各就各位', '一段即兴爵士，走到哪算哪，精彩全在意料之外'] },
+  { dim: 'JP', text: '面前有两扇门，一扇写着"确定的好结果"，一扇写着"未知"，你推哪扇？', options: ['确定的好结果——到手的才是真的', '未知——万一后面有更好的呢'] },
+  { dim: 'JP', text: '团队在赶工期，你更关心？', options: ['能不能按时交付，deadline是底线', '能不能做得更好，哪怕再多花点时间'] },
+  { dim: 'JP', text: '你的手机日历是什么状态？', options: ['色块密密麻麻，每天被安排得明明白白', '基本是空的，重要的事我记在脑子里'] },
+  { dim: 'JP', text: '原定计划突然被打乱了，你的内心独白是？', options: ['有点烦躁，我明明都安排好了', '无所谓，说不定新计划比老计划更好玩'] },
+  { dim: 'JP', text: '哪种处境更让你难受？', options: ['精心制定的计划被别人随意推翻', '被密不透风的日程表压得喘不过气'] },
+  { dim: 'JP', text: '写完最后一页论文，你的第一个念头是？', options: ['终于完成了，打个勾，进入下一个任务', '等等，第三章那个论点好像还能再展开一下……'] }
 ];
 
 // 16种MBTI类型结果
@@ -248,9 +252,11 @@ const RESULT_MAP = {
   'INTJ': {
     name: '策略家 INTJ',
     title: '独立思考的战略大师',
-    desc: '你是一个具有远见卓识的战略思考者，拥有罕见的逻辑分析能力和系统性思维。你善于将复杂的想法转化为可执行的长期计划，追求知识和能力的不断提升。你独立自主，有强烈的内驱力，相信通过理性分析和持续努力可以改变现状。在工作中，你往往能够看到他人忽视的深层联系和模式，并据此制定出高效的解决方案。你对自己和他人都有较高的标准，追求卓越是你的内在驱动力。虽然你可能不善于闲聊和社交应酬，但在专业领域，你的洞察力和战略眼光让你成为不可或缺的核心人物。你的决策通常基于严谨的逻辑推理，而非一时的情感冲动，这使你在复杂的商业环境中能够保持清醒的判断。',
-    strengths: ['战略性思维，能够从宏观角度规划长期目标', '独立自主，不随波逐流', '追求卓越，持续自我提升', '善于规划，将复杂问题系统化'],
-    weaknesses: ['可能显得冷漠，不善于表达关心', '对他人要求较高，容易产生失望', '有时过于完美主义，难以接受不完美的结果'],
+    philosopher: '尼采',
+    philosopherDesc: '尼采以"超人"哲学和对传统价值的彻底重估闻名——他那种孤独地站在山巅俯瞰世界、用意志力重塑秩序的姿态，与INTJ骨子里的独立性和战略远见如出一辙。',
+    desc: '你的思维像一座精密运转的钟表机芯——每一个齿轮都服务于更宏大的目的。你不是在观察世界，而是在解构它，在别人看到混乱的地方，你看到可以被重新设计的系统。你像一位下棋者，总是比当下多想三步，把复杂的变量折叠成清晰的路径。你对平庸有种本能的抗拒，不是出于傲慢，而是因为你真的相信事情可以被做得更好。你的内心有一座安静的堡垒，外人很难进入，但那里存放着你最珍贵的东西：对卓越的信仰，对逻辑之美的痴迷，以及一种不需要他人认可也能坚定前行的罕见力量。',
+    strengths: ['能在混沌中看见秩序，像建筑师一样从无到有地搭建体系', '拥有罕见的智识诚实——不会为了舒适而欺骗自己', '对长期目标有近乎执念的专注力，不被短期诱惑动摇', '善于把直觉转化为可执行的战略，兼具远见与落地能力'],
+    weaknesses: ['可能把人际关系也当作系统来"优化"，忽略了人的非理性之美', '对不完美的容忍度极低，有时会因此错过"足够好"的时机', '内心的高标准可能变成一面镜子，让身边的人感到被审视而非被接纳'],
     careers: ['战略顾问', '科研工作者', '投资分析师', '系统架构师', '管理咨询师', '创业者'],
     celeb: '埃隆·马斯克',
     celebDesc: '以远见和战略思维著称，不断挑战传统，追求突破性创新。他创立了SpaceX和特斯拉，展现了INTJ将愿景转化为现实的卓越能力。'
@@ -258,9 +264,11 @@ const RESULT_MAP = {
   'INTP': {
     name: '逻辑学家 INTP',
     title: '创新思维的理论探索者',
-    desc: '你是一个富有创造力的思想家，热爱探索抽象概念和理论框架。你的思维如同一台永不停歇的分析机器，不断寻找世界运作的底层逻辑。你追求逻辑的完美和知识的深度，善于发现模式和建立联系，能够在看似毫无关联的事物之间找到隐藏的共同点。你独立思考，不轻易接受传统观念，总是在寻找更好的解释和更优雅的解决方案。你的好奇心无边无际，可能同时对哲学、科学、艺术和技术都有浓厚的兴趣。虽然你可能在社交场合显得有些笨拙或心不在焉，但一旦找到志同道合的人，你可以进行深入而精彩的思想交流。你最大的快乐来自于理解复杂系统的运作原理，以及用新的方式看待旧问题。',
-    strengths: ['逻辑分析能力超群，善于抽象思维', '创新思维活跃，不受传统束缚', '求知欲旺盛，持续学习新知识', '客观公正，能够不带偏见地分析问题'],
-    weaknesses: ['可能过于理论化，忽视实际操作', '社交互动较少，可能被误解为孤僻', '容易忽视他人的情感需求'],
+    philosopher: '维特根斯坦',
+    philosopherDesc: '维特根斯坦一生都在追问语言与思维的边界，不惜推翻自己早期的整个哲学体系——这种对"终极正确"的纯粹追求和自我颠覆的勇气，正是INTP灵魂的写照。',
+    desc: '你的大脑像一台永不断电的粒子对撞机，无数想法在其中高速碰撞，偶尔迸发出连你自己都惊讶的火花。你不是在"学习"世界，而是在"拆解"它——每一个被普遍接受的结论在你眼中都只是下一个待验证的假设。你活在一个由纯粹思维构成的宇宙里，那里没有社交的喧嚣，只有概念与概念之间优雅的碰撞。别人觉得你心不在焉，其实你只是在追踪一条只有你能看见的逻辑线索。你最大的快乐不是"知道答案"，而是那个从混沌中突然浮现出清晰结构的瞬间——像雾散开后看见了山。',
+    strengths: ['拥有极其罕见的第一性原理思维，能穿透现象直达本质', '不受既有框架束缚，愿意为了更优雅的解释推翻一切', '好奇心像一口永远打不干的井，驱动着持续而纯粹的求知', '能在毫不相关的领域之间搭建桥梁，看见隐藏的同构关系'],
+    weaknesses: ['可能陷入"思维的无限循环"，永远在完善理论而迟迟不肯行动', '对社交信号的感知像是隔了一层毛玻璃，容易被误读为冷漠', '有时会忘记：不是所有问题都需要被"解决"，有些只需要被倾听'],
     careers: ['软件工程师', '数据科学家', '哲学研究者', '游戏设计师', '技术顾问', '学术研究员'],
     celeb: '爱因斯坦',
     celebDesc: '以革命性的思维方式重新定义物理学，追求真理不畏权威。他的相对论彻底改变了人类对时间和空间的理解，展现了INTP突破常规思维的非凡能力。'
@@ -268,9 +276,11 @@ const RESULT_MAP = {
   'ENTJ': {
     name: '指挥官 ENTJ',
     title: '天生的领导者',
-    desc: '你是一个果断自信的领导者，具备与生俱来的指挥才能和战略眼光。你善于组织资源、制定战略并带领团队达成目标，在复杂的环境中能够快速做出正确的决策。你有强烈的成就动机，追求效率和结果，不满足于平庸的表现。你敢于挑战权威和传统，善于激励他人超越自我，天生具备影响力和号召力。在你的领导下，团队往往能够达成看似不可能的目标。你的思维清晰有条理，能够将宏大的愿景分解为可执行的步骤。虽然你的直接风格有时可能让人感到压力，但你的能力和决心通常能够赢得他人的尊重和信任。你相信通过持续的努力和正确的策略，没有什么目标是不能达成的。',
-    strengths: ['领导力出众，能够激发团队潜能', '决策果断，不拖泥带水', '目标导向，专注于结果', '善于激励，能够让他人相信愿景'],
-    weaknesses: ['可能过于强势，忽视不同意见', '缺乏耐心，对进度要求苛刻', '有时忽视他人感受，显得不近人情'],
+    philosopher: '黑格尔',
+    philosopherDesc: '黑格尔构建了人类思想史上最宏大的哲学体系，试图将整个世界纳入辩证法的逻辑秩序中——这种将混沌组织成宏伟蓝图的冲动，与ENTJ骨子里的统帅气质一脉相承。',
+    desc: '你像一位天生的将军，不是因为你渴望权力，而是因为你看到了混乱就忍不住想要建立秩序。当别人还在讨论"要不要做"的时候，你已经在规划"怎么做"了。你的存在本身就是一种方向感——人群中，你是那个不需要被指定就会自然走到前面的人。你把世界看作一盘未完成的棋局，而你总有下一步。你的果断不是莽撞，而是一种经过压缩的深思熟虑；你的强势不是控制欲，而是对效率的本能信仰。你相信一个简单的道理：愿景如果不能变成现实，就只是幻觉。',
+    strengths: ['拥有罕见的"愿景执行力"——既能仰望星空又能铺路架桥', '天生的气场让人愿意追随，不需要头衔也能成为中心', '在复杂博弈中保持清醒，像手术刀一样精确地切割问题', '把挫折当作反馈而非阻碍，从不在失败面前自怜'],
+    weaknesses: ['可能把所有关系都变成"项目管理"，忘记亲密关系需要的是温度而非效率', '对"慢"的容忍度几乎为零，可能碾压那些需要更多时间的人', '内心深处的脆弱被铠甲包裹得太严，连自己都很难触及'],
     careers: ['企业CEO', '项目经理', '律师', '企业家', '政治家', '管理顾问'],
     celeb: '史蒂夫·乔布斯',
     celebDesc: '以强大的领导力和愿景改变了多个行业，追求极致的完美。他带领苹果从濒临破产到成为全球最有价值的公司，展现了ENTJ将不可能变为可能的领导魅力。'
@@ -278,9 +288,11 @@ const RESULT_MAP = {
   'ENTP': {
     name: '辩论家 ENTP',
     title: '充满活力的创新者',
-    desc: '你是一个机智灵活的思想家，热爱智力挑战和思想碰撞。你的头脑如同一个永不停歇的创意工厂，不断产生新的想法和可能性。你善于从不同角度看问题，能够发现传统思维的盲点和漏洞。你敢于挑战现状，不满足于"一直以来都是这样做的"的答案。你充满创意，喜欢打破常规，用创新的方式解决问题，有时甚至会故意唱反调来激发讨论。你的口才出众，在辩论中总能找到对方论证的弱点。你喜欢探索新领域，可能同时开展多个项目，虽然这有时会让你难以专注于完成某一件事。你的热情具有感染力，能够让他人也对你的想法感到兴奋。',
-    strengths: ['创意无限，善于发现新可能', '适应性强，能够快速应对变化', '善于辩论，逻辑清晰有说服力', '思维敏捷，反应迅速'],
-    weaknesses: ['可能缺乏持久力，难以坚持到底', '容易分心，同时追逐太多目标', '有时过于享受争辩，忽视他人感受'],
+    philosopher: '苏格拉底',
+    philosopherDesc: '苏格拉底从不给出答案，只负责提出让人无处躲藏的问题——这种用对话瓦解虚假确定性、在思想碰撞中寻找真理的方式，正是ENTP最纯粹的精神原型。',
+    desc: '你的思维像一把永远在寻找锁的钥匙——不，更准确地说，你是那种看到一把锁就忍不住想试试它有几种打开方式的人。你活在可能性的海洋里，每一个"定论"在你听来都像是一份邀请函，邀请你去找到它的反例。你不是为了反对而反对，你只是真心觉得"另一面"永远值得一看。你的大脑像一场永不散场的即兴演出，观众（包括你自己）永远不知道下一刻会蹦出什么。无聊是你唯一的天敌，而世界对你来说，永远不够无聊。',
+    strengths: ['拥有"思维柔术"——能用对方的逻辑反驳对方，让人输得心服口服', '在别人看到死路的地方看到岔路口，创造性解决问题的能力超群', '适应变化的速度比变化本身还快，混乱反而激发最佳状态', '天生的跨界者，在A领域的知识常常成为解决B领域问题的钥匙'],
+    weaknesses: ['可能爱上了"开始"这件事本身，而对"完成"缺乏同等的热情', '辩论的快感有时会盖过对他人感受的觉察，赢了逻辑却输了关系', '太多想法同时占据大脑，像打开了二十个浏览器标签却不舍得关掉任何一个'],
     careers: ['创业者', '产品经理', '营销策划', '律师', '咨询顾问', '媒体人'],
     celeb: '马克·吐温',
     celebDesc: '以机智幽默和犀利的社会评论著称，善于用新视角看问题。他的作品至今仍然启发人们反思社会问题，展现了ENTP用智慧挑战传统的独特魅力。'
@@ -288,9 +300,11 @@ const RESULT_MAP = {
   'INFJ': {
     name: '提倡者 INFJ',
     title: '富有远见的理想主义者',
-    desc: '你是一个有深度的理想主义者，拥有罕见的直觉洞察力和对人性的深刻理解。你关注人类的成长和福祉，有强烈的使命感驱使你为更美好的世界而努力。你能够理解他人的深层需求和未言说的情感，常常比对方自己更了解他们的内心。你追求有意义的生活，希望通过自己的努力让世界变得更好，即使是微小的改变。你有独特的创造力，善于用艺术或文字表达深刻的思想和情感。虽然你外表可能显得温和安静，但内心有着坚定的原则和信念，不会轻易妥协于与价值观相悖的事情。你是天生的辅导者和引路人，能够帮助他人发现自己的潜能并找到人生的方向。',
-    strengths: ['洞察力极强，能够看透表象', '富有同理心，深度理解他人', '追求意义，有明确的人生使命', '坚持原则，不随波逐流'],
-    weaknesses: ['容易理想化，对现实期望过高', '可能过于敏感，容易受伤', '难以接受批评，即使是建设性的'],
+    philosopher: '柏拉图',
+    philosopherDesc: '柏拉图相信在纷乱的现实背后存在着一个完美的"理念世界"，并用一生去追寻它——这种从不满足于表象、始终朝向更高意义的渴望，与INFJ的灵魂深度高度共振。',
+    desc: '你像是一面能照见他人灵魂的镜子——别人还没开口，你就已经感知到了那些藏在微笑后面的疲惫，和沉默背后的求助。你活在两个世界之间：一个是你用直觉编织的理想蓝图，一个是不那么完美的现实。这种撕裂感既是你的痛苦，也是你的礼物。你不是在"帮助别人"，你是在履行一种你自己都说不清从哪里来的使命感。你安静，但你的安静不是空白，而是一座蓄满了理解和悲悯的水库，等待在对的时刻开闸。',
+    strengths: ['拥有近乎神秘的"读人"能力，能看透言语背后的真实意图', '将深邃的直觉和坚定的原则结合——既柔软又不可动摇', '能把抽象的理想转化为具体的行动，是罕见的"务实理想主义者"', '给予他人的理解是真正深层次的——不是同情，而是共鸣'],
+    weaknesses: ['可能在理想与现实的落差中反复受伤，却不肯降低期望', '对自己的情感需求照顾得最少，总是先确保别人没事', '完美主义可能变成自我折磨——你对自己的苛刻远超对他人'],
     careers: ['心理咨询师', '作家', '人力资源', '非营利组织管理', '教育工作者', '社会工作者'],
     celeb: '马丁·路德·金',
     celebDesc: '以远见和对人类平等的追求，推动了深刻的社会变革。他的"我有一个梦想"演讲激励了无数人，展现了INFJ用愿景改变世界的力量。'
@@ -298,9 +312,11 @@ const RESULT_MAP = {
   'INFP': {
     name: '调停者 INFP',
     title: '诗意的理想主义者',
-    desc: '你是一个富有想象力和同理心的人，拥有丰富而深邃的内心世界。你追求真实和有意义的生活，不愿意为了世俗的成功而牺牲自己的价值观。你有丰富的情感和创造力，善于理解他人的情感并给予真诚的支持。你重视个人价值观，希望按照自己的方式生活，同时帮助他人实现潜能。你可能看起来安静内向，但内心充满了对美好事物的热爱和对不公正的愤慨。你是天生的艺术家和作家，善于用创意的方式表达复杂的情感和思想。虽然你可能在实际事务上显得有些不切实际，但你的真诚和理想主义能够感染和启发身边的人。你相信每个人都有独特的价值，值得被理解和尊重。',
-    strengths: ['富有创造力，善于艺术表达', '同理心强，能够深度共情', '忠于价值观，有坚定的道德立场', '适应性好，对新想法持开放态度'],
-    weaknesses: ['可能过于理想化，逃避现实', '容易自我怀疑，缺乏自信', '难以面对冲突，倾向于回避'],
+    philosopher: '克尔凯郭尔',
+    philosopherDesc: '克尔凯郭尔被称为"存在主义之父"，一生都在追问个体存在的意义和真实性——这种对内心真实的执着追求、对虚伪的深刻厌恶，正是INFP灵魂最深处的共鸣。',
+    desc: '你的内心是一座花园，种满了别人看不见的花。你不是"敏感"——你是拥有一种更精密的感知仪器，能接收到这个世界大多数人过滤掉的信号。一首歌的某个转调、一个陌生人眼角的湿润、秋天第一片落叶的弧线——这些对别人来说是背景噪音，对你来说却是宇宙在低声诉说什么。你追求的不是成功，而是意义；你害怕的不是失败，而是虚假。你宁可做一个真实的普通人，也不愿做一个光鲜但空洞的角色。',
+    strengths: ['拥有将无形的感受转化为有形艺术的天赋——你是情感的翻译官', '共情能力深入骨髓，能给予他人一种"终于被真正理解了"的体验', '道德指南针极其灵敏，在价值观问题上有着不可撼动的坚定', '能在平凡之中发现诗意，这种能力本身就是一种稀缺的智慧'],
+    weaknesses: ['内心的理想国太过美好，现实的每一次粗糙都可能成为一道伤痕', '自我怀疑像一条暗河在内心流淌，有时会吞噬本该属于你的勇气', '面对冲突时可能选择消失而非面对，但逃避的代价往往比冲突本身更高'],
     careers: ['作家', '艺术家', '心理咨询师', '社工', '人文学者', 'UX设计师'],
     celeb: '威廉·莎士比亚',
     celebDesc: '以深刻的人性洞察和丰富的情感表达，创作了永恒的文学作品。他的作品跨越四百年仍然打动人心，展现了INFP将内心世界化为艺术的天赋。'
@@ -308,9 +324,11 @@ const RESULT_MAP = {
   'ENFJ': {
     name: '主人公 ENFJ',
     title: '充满魅力的引导者',
-    desc: '你是一个有感染力的领导者，拥有天生的魅力和对他人的深切关怀。你善于激励和引导他人发挥潜能，能够看到每个人身上的闪光点。你关心他人的成长和发展，愿意投入时间和精力帮助他人成功。你有强烈的社会责任感，希望通过自己的影响力创造积极的改变，让世界变得更美好。你的沟通能力出色，能够在不同背景的人之间架起桥梁，促进理解与合作。你是天生的教师和导师，在引导他人的过程中找到巨大的满足感。虽然你总是关注他人的需求，但也要记得照顾好自己，避免过度付出导致的身心疲惫。',
-    strengths: ['领导力强，能够凝聚团队', '善于激励，让他人相信自己', '同理心强，深度理解他人需求', '有责任感，言出必行'],
-    weaknesses: ['可能过于在意他人评价', '容易过度付出，忽视自身需求', '难以拒绝他人请求，承担过多'],
+    philosopher: '孔子',
+    philosopherDesc: '孔子毕生致力于教化他人、建设和谐社会，相信每个人都可以通过引导成为更好的自己——这种以"成就他人"为天职的精神，与ENFJ的人格底色完全吻合。',
+    desc: '你是那种走进房间就会改变房间温度的人——不是因为你刻意表演，而是因为你对人的关注是如此真诚，以至于它变成了一种引力场。你看人的眼光像一束聚光灯，但不是审视的那种，而是那种能让人在光束中发现自己从未注意过的闪光点的那种。你是天生的"人类翻译官"，能在两个完全不同的灵魂之间架起桥梁。你的付出不是牺牲，而是一种本能——就像河流不需要理由就会奔向大海。',
+    strengths: ['拥有一种罕见的"催化剂"能力——你的存在本身就能激发他人的潜能', '直觉地理解"每个人需要听到什么"，沟通精准度堪称艺术', '承诺一旦许下就化为血液的一部分，可靠到可以被当作自然定律', '在混乱的人际关系中能迅速找到平衡点，像一个天生的指挥家'],
+    weaknesses: ['可能把自己的价值完全绑定在"被他人需要"上，一旦不被需要就陷入存在危机', '给予的本能如此强烈，以至于忘记了接受也是一种勇气', '有时会用"为你好"替代了"你想要什么"，善意可能变成温柔的控制'],
     careers: ['教师', '培训师', '人力资源总监', '社区领袖', '心理咨询师', '公关经理'],
     celeb: '奥普拉·温弗瑞',
     celebDesc: '以强大的感染力和对他人的关怀，影响了数百万人的生活。她的节目和慈善事业展现了ENFJ用爱和影响力改变世界的能力。'
@@ -318,9 +336,11 @@ const RESULT_MAP = {
   'ENFP': {
     name: '竞选者 ENFP',
     title: '热情洋溢的创新者',
-    desc: '你是一个充满热情和创意的人，如同一团永不熄灭的火焰，总能点燃周围人的激情。你对生活充满好奇，总能看到每一天蕴含的可能性和惊喜。你善于与人建立联系，能够快速与陌生人成为朋友，你的热情和真诚让人感到温暖。你追求自由和自我表达，不喜欢被规则和传统束缚，喜欢探索新事物和新想法。你的创意如泉涌，经常能够提出让人眼前一亮的点子。你是天生的激励者，能够让他人也开始相信梦想的可能。虽然你可能在坚持执行某一计划时遇到困难，但你的乐观和创造力往往能够找到新的出路。你相信生活应该是一场精彩的冒险，而不是按部就班的重复。',
-    strengths: ['热情感染力强，能够激励他人', '创意丰富，想象力活跃', '适应性强，拥抱变化', '善于沟通，建立人际联系'],
-    weaknesses: ['可能缺乏专注，难以长期坚持', '容易过度承诺，超出能力范围', '不喜欢处理细节和重复性工作'],
+    philosopher: '爱默生',
+    philosopherDesc: '爱默生倡导自我信赖和精神自由，认为每个人心中都有一个尚未被发现的宇宙——这种对个体潜能的狂热信仰和对生活无限可能的热忱，正是ENFP精神的最佳注脚。',
+    desc: '你像是一场永不结束的烟花表演——每一个火花都是一个新想法，每一声爆响都是一次对无聊的宣战。你不是在"生活"，你是在和生活谈恋爱，而且是那种每天都觉得对方有新发现的恋爱。你跟陌生人聊五分钟就能成为朋友，不是因为社交技巧，而是因为你对每个人都真的好奇。你的热情不是表演，而是一种燃料——你燃烧自己，顺便照亮了周围所有人。你最害怕的不是失败，而是有一天变成一个"无趣的大人"。',
+    strengths: ['热情具有核聚变级别的感染力，能让一个沮丧的房间重新燃起希望', '在人与人之间建立连接的速度和深度同时令人惊叹', '创意像呼吸一样自然，你不是"想出"点子的，你是"长出"点子的', '面对变化时不是适应，而是拥抱——你天生就在流动中找到自己'],
+    weaknesses: ['可能同时追逐太多兔子，最后一只也没抓到，然后被自己的分散所挫败', '承诺可能超出交付能力——你的热情答应的事，你的时间未必同意', '在需要独自面对无聊重复性工作时，灵魂可能会试图逃跑'],
     careers: ['市场营销', '公关', '创意总监', '记者', '创业者', '演艺人员'],
     celeb: '罗宾·威廉姆斯',
     celebDesc: '以无限的创意和热情，为世界带来欢笑和感动。他的即兴表演能力和真诚的人性光辉展现了ENFP用创造力感染世界的天赋。'
@@ -328,9 +348,11 @@ const RESULT_MAP = {
   'ISTJ': {
     name: '物流师 ISTJ',
     title: '可靠务实的守护者',
-    desc: '你是一个认真负责的实践者，是任何组织中最可依赖的基石。你注重事实和细节，做事有条理、有计划，不会让任何重要的事情从指缝间溜走。你遵守承诺，一旦做出承诺就会竭尽全力兑现，是团队中最可靠的成员。你尊重传统和规则，相信这些经过时间考验的准则有其存在的价值。你通过脚踏实地的努力来达成目标，不相信走捷径或投机取巧。你的记忆力出色，能够准确地记住重要的事实和细节。虽然你可能不是最会表达情感的人，但你用实际行动表达对所爱之人的关心和承诺。你相信稳定和秩序是美好生活的基础，并为维护这种秩序付出持续的努力。',
-    strengths: ['责任心强，言出必行', '注重细节，做事精确', '可靠守信，值得信赖', '组织能力强，善于规划'],
-    weaknesses: ['可能过于固执，不易接受新方法', '不善于变通，缺乏灵活性', '不易表达情感，显得疏远'],
+    philosopher: '康德',
+    philosopherDesc: '康德一生作息精确到邻居用他的散步时间来对钟，却在这种极致的规律中构建出人类最深刻的道德哲学——这种用秩序承载深度的方式，正是ISTJ被低估的伟大之处。',
+    desc: '你是这个世界的地基——不张扬，但没有你，一切都会倒塌。你不信任没有被验证过的东西，不是因为你缺乏想象力，而是因为你深刻地理解：城堡建在沙子上终将崩塌。你的可靠不是一种性格特征，而是一种人生哲学——你相信承诺是世界上最重的东西，一旦说出口，就应该比石头还坚硬。你的记忆像一座图书馆，每一个重要的事实和细节都被分门别类地存放。你用行动而非言语表达爱，用坚守而非激情证明忠诚。',
+    strengths: ['可靠性已经到了可以被当作物理常数的程度——你承诺的事，宇宙都会帮你记住', '对细节的感知精确到让人怀疑你自带放大镜', '在他人慌乱时保持冷静——你是风暴中的锚', '建立系统和秩序的能力是一种被严重低估的创造力'],
+    weaknesses: ['对变化的第一反应可能是抵触，需要更多时间才能看到新方法的价值', '情感表达像是一门从未被正式教过的外语——你心里有，但说不出来', '对"正确的方式"过于执着，有时会错过"不同但同样有效"的路径'],
     careers: ['会计师', '项目管理', '法务', '军人', '公务员', '质量控制'],
     celeb: '沃伦·巴菲特',
     celebDesc: '以稳健务实的投资风格和对细节的关注，成为最成功的投资者。他数十年如一日的纪律性和可靠性展现了ISTJ通过坚持原则获得成功的典范。'
@@ -338,9 +360,11 @@ const RESULT_MAP = {
   'ISFJ': {
     name: '守卫者 ISFJ',
     title: '温暖可靠的守护者',
-    desc: '你是一个温暖体贴的守护者，默默地关心和支持着身边的人。你有强烈的责任感和奉献精神，总是把他人的需求放在自己的需求之前。你注重和谐的人际关系，善于记住他人的喜好、生日和重要的日期，用细心的关怀让人感到被珍视。你做事认真仔细，能够注意到他人容易忽视的细节。你是传统价值观的守护者，重视家庭、友谊和社区的纽带。虽然你不喜欢成为聚光灯下的焦点，但你的付出和贡献是任何团队或家庭正常运转的关键。你的爱是通过行动而非言语表达的——为家人准备一顿用心的晚餐，记住朋友提过的一个小愿望，或者在他人需要时默默地伸出援手。',
-    strengths: ['体贴入微，善于照顾他人', '责任心强，可靠守信', '善于支持他人，甘当绿叶', '耐心细致，注重品质'],
-    weaknesses: ['可能过于自我牺牲，忽视自身需求', '难以拒绝他人，承担过多', '不善于表达自己的需求和想法'],
+    philosopher: '列维纳斯',
+    philosopherDesc: '列维纳斯将"对他者的责任"置于所有哲学的核心，认为我们在面对他人面容的那一刻就已经承担了无限的义务——这种"他人优先"的伦理直觉，正是ISFJ最深层的精神密码。',
+    desc: '你是那种会记住朋友随口提过一次的口味偏好、然后在半年后的生日会上端出那道菜的人。你的爱不是烟花式的，而是溪流式的——安静、持久、渗透进生活的每一个缝隙。你像一本只有亲密的人才能翻开的书，封面朴素，内页却写满了深情。你把"照顾"这件事做成了一门手艺，细致到几乎让人忘记这需要多大的心力。你是世界运转背后那个不被看见的齿轮，而你甘之如饴。',
+    strengths: ['记忆力和细心程度的结合创造出一种独特的"被珍视感"——你让人觉得自己是世界上最重要的人', '责任感已经融入血液，你的可靠性不是表演，而是呼吸', '能用最不起眼的方式给予最温暖的支持——一杯水的温度、一条毯子的厚度都恰到好处', '在混乱中维持秩序的能力是一种安静的英雄主义'],
+    weaknesses: ['可能把自己的需求埋得太深，深到连自己都忘了它们的存在', '习惯性说"没关系"的背后，积累着说不出口的疲惫', '对改变的恐惧有时会让你困在一个不再合适的位置上太久'],
     careers: ['护士', '教师', '行政助理', '客户服务', '人力资源', '社工'],
     celeb: '特蕾莎修女',
     celebDesc: '以无私的奉献和对他人的关爱，感动了整个世界。她一生服务于最贫困和最需要帮助的人，展现了ISFJ无私奉献的精神。'
@@ -348,9 +372,11 @@ const RESULT_MAP = {
   'ESTJ': {
     name: '总经理 ESTJ',
     title: '高效务实的组织者',
-    desc: '你是一个果断高效的组织者，是让事情真正完成的实干家。你善于管理和执行，能够将混乱的局面变得井井有条。你重视秩序和效率，有清晰的是非标准，不能容忍懒散和不负责任。你是天生的管理者，能够建立有效的系统和流程，并确保每个人都在正确的轨道上。你的领导风格直接坦率，不会绕弯子或玩政治手腕。你相信勤奋工作和遵守规则是成功的基础，对自己和团队都有高标准的要求。虽然你的风格有时可能显得强势，但你的能力和公正让你赢得他人的尊重。你是社会和组织的支柱，确保事情按计划进行，承诺得到兑现。',
-    strengths: ['组织能力强，善于建立系统', '决策果断，不拖泥带水', '效率导向，追求结果', '直接坦率，沟通清晰'],
-    weaknesses: ['可能过于强势，不听取不同意见', '不够灵活，难以适应变化', '有时忽视情感因素，显得不近人情'],
+    philosopher: '亚里士多德',
+    philosopherDesc: '亚里士多德将哲学从柏拉图的"理念天空"拉回到"实践大地"，用系统分类和逻辑推理构建了几乎所有学科的基础——这种将混沌组织成秩序的实干精神，正是ESTJ的灵魂底色。',
+    desc: '你是那种走进一个房间、扫一眼就知道哪里需要修理的人。不是因为你挑剔，而是因为你骨子里相信：秩序是文明的骨架，没有骨架的东西只是一摊软泥。你的领导力不是演讲台上的慷慨激昂，而是在截止日期前确保每个螺丝都拧紧的那种。你说话像一把尺子——直、准、没有弯弯绕绕。你的世界观朴素而坚定：说到做到，对错分明，勤奋工作不是美德而是最低标准。',
+    strengths: ['组织能力堪称将混沌变为秩序的"炼金术"——你能让任何一团乱麻变得井井有条', '做决定的速度和质量同时在线，不会在犹豫中错失时机', '言行一致的可信度高到可以被写进合同', '在需要有人站出来的时刻，你永远不会缺席'],
+    weaknesses: ['对"正确的方式只有一种"的信念有时会变成一堵墙，挡住了其他同样有效的路径', '效率优先的思维模式可能忽视了一个事实：有些重要的东西恰恰是"低效"的，比如倾听和等待', '可能把脆弱看作需要修复的故障，而非需要被接纳的人性'],
     careers: ['企业管理者', '军官', '法官', '财务经理', '项目总监', '行政管理'],
     celeb: '杰克·韦尔奇',
     celebDesc: '以高效的管理和果断的决策，将GE打造成全球最有价值的公司。他的管理方法至今仍被商学院研究，展现了ESTJ卓越的组织和领导能力。'
@@ -358,9 +384,11 @@ const RESULT_MAP = {
   'ESFJ': {
     name: '执政官 ESFJ',
     title: '热心周到的协调者',
-    desc: '你是一个热心肠的社交达人，善于照顾他人的需求并创造和谐的氛围。你有与生俱来的主人翁精神，总是确保每个人都感到被关心和包括在内。你重视和谐的人际关系，愿意为团队和家庭付出。你是天生的组织者和协调者，能够策划活动、记住重要日期，让每个人都感到特别。你的社交天赋让你能够轻松地与各种人建立联系，你的温暖和真诚让人愿意与你亲近。你尊重传统和社会规范，相信这些准则有助于维护社会的和谐运转。虽然你非常在意他人的看法和评价，这有时可能给你带来压力，但你对他人的关心是真诚的，不是为了获得认可。',
-    strengths: ['善于关心他人，创造温暖氛围', '组织协调能力强，善于策划活动', '忠诚可靠，重视人际关系', '社交能力强，容易与人亲近'],
-    weaknesses: ['过于在意他人看法，容易焦虑', '难以接受批评，即使是建设性的', '可能过度干涉他人事务'],
+    philosopher: '孟子',
+    philosopherDesc: '孟子相信人性本善，主张以仁政治国，认为恻隐之心是一切道德的起点——这种对人际和谐的深层信仰和对他人福祉的天然关切，正是ESFJ精神世界的核心旋律。',
+    desc: '你是人群中的"温度调节器"——你一到场，氛围就自动升温。你不需要思考"应该关心谁"，因为关心他人对你来说就像呼吸一样自然。你记得每个朋友的咖啡口味、过敏源、和最近那件让他们烦心的小事。你的社交不是策略，而是本能；你的热情不是表演，而是你看待世界的方式。你相信人与人之间的纽带是世界上最重要的基础设施，而你自愿成为这个基础设施的维护工程师。',
+    strengths: ['社交直觉精准到近乎读心术——你知道谁不开心，在别人注意到之前', '组织能力和人际敏感度的结合让你成为天生的"氛围建筑师"', '忠诚度经过时间验证——你的友谊不会因为距离或变化而褪色', '能让每个人都感到被看见和被重视，这是一种被低估的超能力'],
+    weaknesses: ['对他人评价的敏感度有时像一台调到最高灵敏度的地震仪——任何微小的不满都会引发内心余震', '可能在关心他人的过程中越过了那条微妙的界线，从"关心"变成了"干涉"', '害怕被排斥的恐惧可能让你在应该说"不"的时候选择了"好的"'],
     careers: ['活动策划', '销售经理', '护士长', '教师', '社区工作者', '客户关系经理'],
     celeb: '泰勒·斯威夫特',
     celebDesc: '以真诚的互动和对粉丝的关心，建立了深厚的情感连接。她与粉丝之间的互动方式展现了ESFJ建立真诚人际关系的天赋。'
@@ -368,9 +396,11 @@ const RESULT_MAP = {
   'ISTP': {
     name: '鉴赏家 ISTP',
     title: '冷静灵活的实践者',
-    desc: '你是一个冷静务实的行动派，拥有敏锐的观察力和出色的动手能力。你善于分析和解决实际问题，喜欢探索事物的运作原理，无论是机械、系统还是自然规律。你独立自主，喜欢按自己的节奏行事，不喜欢被过多的规则和期望束缚。你在危机时刻能够保持冷静，快速评估情况并采取有效行动。你是天生的问题解决者，能够用最简洁有效的方式处理复杂的技术难题。你喜欢活在当下，享受通过实践学习的过程，而不是坐在教室里听理论。虽然你可能不善于表达情感或进行深入的情感交流，但你用实际行动证明自己的能力和可靠性。你的适应能力极强，能够在各种环境中生存和发展。',
-    strengths: ['动手能力强，善于解决技术问题', '冷静理性，危机中保持清醒', '适应性强，能够快速应对变化', '解决问题能力强，注重效率'],
-    weaknesses: ['可能显得冷漠，不善于情感表达', '不喜欢长期承诺，追求自由', '有时过于冒险，忽视安全'],
+    philosopher: '庄子',
+    philosopherDesc: '庄子追求"逍遥游"式的自由，不被任何框架束缚，在"无用之用"中发现最高的智慧——这种超然物外、在实践中寻找自由的态度，与ISTP骨子里的独立精神和务实哲学深度契合。',
+    desc: '你像一把瑞士军刀——安静地待在口袋里，但任何需要你的时刻，你都能亮出恰好合适的那一面。你不喜欢理论的空谈，你相信手比嘴更诚实。你看世界的方式像一个工程师看机器——你想知道它怎么运转，而不是它"意味着"什么。你在别人慌张的时候最冷静，在别人无聊的时候最清醒。你不需要被理解，你只需要被留出足够的空间。自由对你来说不是奢侈品，而是氧气。',
+    strengths: ['在危机中保持冷静的能力近乎超自然——压力越大，你反而越清醒', '动手解决问题的能力让那些只会"开会讨论"的人自惭形秽', '适应环境的速度像水——无论什么形状的容器，你都能找到最舒服的姿态', '用最少的资源解决最复杂的问题，你的效率本身就是一种美学'],
+    weaknesses: ['对情感表达的吝啬有时让关心你的人感到被拒于千里之外', '对自由的渴望可能让你在需要长期承诺时本能退缩', '有时会低估风险——因为你对自己的应变能力太有信心'],
     careers: ['工程师', '飞行员', '机械师', '数据分析师', '急诊医生', '探险家'],
     celeb: '迈克尔·乔丹',
     celebDesc: '以冷静的头脑和精湛的技术，在关键时刻展现出色的表现。他的比赛能力和在压力下的冷静展现了ISTP在实践中追求卓越的特质。'
@@ -378,9 +408,11 @@ const RESULT_MAP = {
   'ISFP': {
     name: '探险家 ISFP',
     title: '温和灵活的艺术家',
-    desc: '你是一个温和敏感的艺术家，拥有丰富的审美感知和对美的热爱。你活在当下，珍惜每一个体验，善于在日常生活中发现美好。你有独特的艺术天赋，能够用色彩、声音、动作或其他形式表达内心的感受。你不喜欢冲突和争论，追求和谐与平静的生活方式。你重视自由和真实，不愿意为了符合社会期望而改变自己。你对自然世界有特殊的亲近感，可能热爱动物、植物或户外活动。虽然你可能不善于用言语表达自己，但你的行动和创作展现了丰富的内心世界。你用自己的方式表达对美好事物的热爱，为世界增添色彩和温暖。你相信每个人都有权利按照自己的方式生活，同样也尊重他人的选择。',
-    strengths: ['审美能力强，善于感知美', '灵活适应，顺应环境变化', '善于倾听，给人安慰', '真实自然，不做作'],
-    weaknesses: ['可能回避冲突，不善于表达不满', '难以做长期规划，活在当下', '容易受情绪影响，情绪波动大'],
+    philosopher: '梭罗',
+    philosopherDesc: '梭罗独自住在瓦尔登湖畔，在最简单的生活中发现了最深刻的美——这种对真实体验的热爱、对内心自由的追求，与ISFP那颗不愿被世俗驯化的灵魂一脉相承。',
+    desc: '你是一个用五感而非语言来理解世界的人。一束光打在墙上的角度、雨后泥土的气味、一段旋律突然变调的那个瞬间——这些就是你的语言。你不大声宣告自己的存在，但你的存在本身就像一首安静的诗。你活在此刻，不是因为你不关心未来，而是因为你深刻地理解：所有的未来都是由无数个"此刻"串联而成的。你不想改变世界，你只想用你的方式为它增添一笔只有你才能画出的颜色。',
+    strengths: ['对美的感知力像一台精密的天线，能接收到大多数人过滤掉的频率', '在倾听时给予的安全感让人愿意卸下所有防备', '真实到近乎透明——你身上没有一丝伪装，这种稀缺品质本身就是一种力量', '在变化中保持优雅的能力——你不对抗流动，你融入它'],
+    weaknesses: ['面对冲突时的回避策略在短期内保护了你，但长期来看可能让问题像雪球一样越滚越大', '活在当下的天赋有时会变成长期规划的盲区——你可能在某一天突然发现自己"到了某个地方"却不记得是怎么来的', '情绪的潮汐对你来说比大多数人更猛烈，学会冲浪而非被淹没是终身课题'],
     careers: ['设计师', '摄影师', '兽医', '厨师', '理疗师', '园艺师'],
     celeb: '迈克尔·杰克逊',
     celebDesc: '以独特的艺术感知和表演天赋，创造了流行音乐的新纪元。他对音乐和舞蹈的完美追求展现了ISFP将内心感受转化为艺术的非凡能力。'
@@ -388,19 +420,23 @@ const RESULT_MAP = {
   'ESTP': {
     name: '企业家 ESTP',
     title: '精力充沛的行动派',
-    desc: '你是一个充满活力的行动派，生活在你身边总是充满刺激和惊喜。你善于把握机会和解决即时问题，在别人还在思考的时候，你已经采取行动了。你喜欢刺激和挑战，无聊是你最大的敌人。你能够在压力下保持冷静，甚至在危机中表现得更加出色。你直接坦率，喜欢实际行动而非空谈理论，认为实践是检验真理的唯一标准。你的感官敏锐，能够快速评估情况并做出反应。你是天生的谈判者和销售员，善于说服他人并达成交易。虽然你可能对长期规划和理论分析不太感兴趣，但你的行动力和适应能力让你能够在各种情况下获得成功。你相信生活应该是一场精彩的冒险，而你总是准备好迎接下一个挑战。',
-    strengths: ['行动力强，说做就做', '善于应变，危机中保持冷静', '社交能力强，善于说服他人', '务实高效，注重结果'],
-    weaknesses: ['可能冲动行事，缺乏深思熟虑', '不喜欢理论和长期计划', '容易感到无聊，追求刺激'],
+    philosopher: '马基雅维利',
+    philosopherDesc: '马基雅维利不关心世界"应该"是什么样，只关心它"实际上"是什么样——这种极度务实、在现实的钢丝上灵活行走的思维方式，与ESTP那种"先做了再说"的行动哲学高度一致。',
+    desc: '你是那种在别人还在讨论"要不要跳"的时候已经跳下去并且安全落地的人。你不是鲁莽，你只是比大多数人更快地完成了风险评估——只不过你的评估发生在身体里而非脑子里。你的五感像五个全天候在线的雷达，能在一秒钟内捕捉到房间里的所有信息。你讨厌理论不是因为你不聪明，而是因为你骨子里相信：真理不在书本里，在手上、在行动中、在尝试和失败之间的那道缝隙里。',
+    strengths: ['行动力达到了"思考和执行之间几乎没有延迟"的水平', '在混乱和压力中反而如鱼得水——你是为风暴设计的船', '说服力不靠口才靠气场——你的自信本身就是最好的论证', '对当下局势的判断力精准到让人以为你能预测未来，其实你只是比别人更认真地活在现在'],
+    weaknesses: ['可能把"停下来想想"当作"浪费时间"，但有些弯路恰恰是因为走得太快', '对理论和长远规划的不耐烦可能让你赢了眼前却输了全局', '肾上腺素退去后的那种空虚感是一个信号——刺激不能永远替代意义'],
     careers: ['销售', '企业家', '运动员', '急救人员', '谈判专家', '经纪人'],
-    celeb: '唐纳德·特朗普',
-    celebDesc: '以果断的行动力和把握机会的能力，在商业和政治领域取得成功。他的直接风格和行动导向展现了ESTP在竞争环境中的优势。'
+    celeb: '丘吉尔',
+    celebDesc: '在至暗时刻以果断的行动力和即兴应变能力带领英国走出危局。他的务实精神和在压力下的卓越表现，展现了ESTP在真实战场上的非凡魅力。'
   },
   'ESFP': {
     name: '表演者 ESFP',
     title: '热情开朗的娱乐家',
-    desc: '你是一个热情开朗的表演者，天生就知道如何给周围人带来欢乐和活力。你活在当下，享受生活中的每一刻，相信人生应该是一场欢乐的庆典。你有极强的感染力，能够让每个聚会都变得生动有趣，让每个房间都充满笑声。你热爱人群，善于建立轻松愉快的社交关系，走到哪里都能交到朋友。你的感官敏锐，热爱美食、音乐、艺术和一切能够带来感官愉悦的事物。你慷慨大方，愿意与他人分享快乐和资源。虽然你可能在严肃的学术或长期规划方面不是最强的，但你的乐观、适应力和人际魅力让你在许多领域都能够获得成功。你相信快乐是最好的礼物，而你总是准备好与他人分享这份礼物。',
-    strengths: ['乐观开朗，具有感染力', '社交能力强，善于营造氛围', '适应性强，随遇而安', '善于娱乐，给人带来快乐'],
-    weaknesses: ['可能缺乏专注，难以深入', '不喜欢理论和抽象思考', '有时回避负面情绪，不愿面对困难'],
+    philosopher: '伊壁鸠鲁',
+    philosopherDesc: '伊壁鸠鲁认为快乐是人生最高的善，但他说的快乐不是放纵，而是对当下每一刻的充分感知和真诚享受——这种"活在此刻、拥抱感官之美"的哲学，正是ESFP最本真的生命态度。',
+    desc: '你是人群中那个让灯光自动跟过来的人——不是因为你站在了聚光灯下，而是因为你本身就在发光。你活在每一个正在发生的"此刻"，像品尝一杯好酒那样品尝生活的每一秒。你不理解为什么有人会为了三年后的事焦虑到吃不下今天的晚餐。你的快乐是一种物质——它有温度、有重量、可以被传递。你走到哪里，哪里就多了一种颜色。你最大的天赋不是让自己开心，而是让所有人都觉得"嘿，此刻活着真好"。',
+    strengths: ['感染力像阳光一样无差别覆盖——你不需要"努力"让人开心，你只需要在场', '感官敏锐度让你能捕捉到生活中大多数人错过的美好瞬间', '适应能力极强——变化对你来说不是意外，而是新一集的开头', '慷慨和真诚的结合让你的善意没有任何杂质'],
+    weaknesses: ['对深度和持久性的挑战可能是你的阿喀琉斯之踵——表面的广度有时会替代深处的探索', '不愿面对负面情绪的倾向像是在债务上画了一朵花——它还在那里，只是被遮住了', '当世界需要你严肃下来的时候，你可能需要额外的勇气来放下那个总是微笑的面具'],
     careers: ['演员', '主持人', '活动策划', '销售', '旅游顾问', '健身教练'],
     celeb: '玛丽莲·梦露',
     celebDesc: '以无与伦比的魅力和娱乐天赋，成为永恒的文化符号。她的光芒和感染力展现了ESFP用魅力照亮世界的独特天赋。'
@@ -409,10 +445,10 @@ const RESULT_MAP = {
 
 // 维度信息
 const dimInfo = {
-  'EI': { name: '能量来源', icon: '⚡', leftLabel: '外向 E', rightLabel: '内向 I', bg: '#dbeafe', color: '#3b82f6' },
-  'SN': { name: '信息获取', icon: '👁️', leftLabel: '感觉 S', rightLabel: '直觉 N', bg: '#d1fae5', color: '#10b981' },
-  'TF': { name: '决策方式', icon: '⚖️', leftLabel: '思考 T', rightLabel: '情感 F', bg: '#fef3c7', color: '#f59e0b' },
-  'JP': { name: '生活态度', icon: '🎯', leftLabel: '判断 J', rightLabel: '感知 P', bg: '#fce7f3', color: '#ec4899' }
+  'EI': { name: '能量来源', icon: '⚡', leftLabel: '外向 E', rightLabel: '内向 I', bg: '#1e3a5f', color: '#60a5fa' },
+  'SN': { name: '信息获取', icon: '👁️', leftLabel: '感觉 S', rightLabel: '直觉 N', bg: '#064e3b', color: '#34d399' },
+  'TF': { name: '决策方式', icon: '⚖️', leftLabel: '思考 T', rightLabel: '情感 F', bg: '#451a03', color: '#fbbf24' },
+  'JP': { name: '生活态度', icon: '🎯', leftLabel: '判断 J', rightLabel: '感知 P', bg: '#4a1942', color: '#f472b6' }
 };
 
 let idx = 0;
@@ -524,8 +560,28 @@ function showResult() {
       <div class="type-desc">${result.desc}</div>
     </div>
 
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#667eea,#764ba2,#f472b6);margin-bottom:20px;"></div>
+
+    <div class="card" style="border:1px solid #334155;background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#667eea,#a78bfa);"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2e1065,#4a1942);display:flex;align-items:center;justify-content:center;font-size:22px;">🏛️</div>
+        <div style="font-size:18px;font-weight:600;">灵魂共振的思想家</div>
+      </div>
+      <div style="background:#0f172a;border-radius:14px;padding:24px;border-left:4px solid #a78bfa;position:relative;">
+        <div style="font-size:48px;color:#334155;position:absolute;top:8px;left:16px;font-family:Georgia,serif;line-height:1;">"</div>
+        <div style="padding-left:24px;">
+          <div style="font-size:22px;font-weight:700;margin-bottom:4px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${result.philosopher}</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-top:8px;">${result.philosopherDesc}</div>
+        </div>
+        <div style="font-size:48px;color:#334155;position:absolute;bottom:-8px;right:16px;font-family:Georgia,serif;line-height:1;transform:rotate(180deg);">"</div>
+      </div>
+    </div>
+
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#34d399,#667eea);margin:20px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>四维度分析</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e3a5f">📊</div>四维度分析</div>
       ${Object.keys(dimInfo).map(d => {
         const info = dimInfo[d];
         const score = scores[d];
@@ -547,38 +603,48 @@ function showResult() {
       }).join('')}
     </div>
 
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#34d399,#fbbf24);margin:20px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💪</div>优势与成长空间</div>
-      <div style="margin-bottom:16px;font-weight:500;color:#059669;">核心优势</div>
+      <div class="section-title"><div class="section-icon" style="background:#064e3b">💪</div>优势与成长空间</div>
+      <div style="margin-bottom:16px;font-weight:500;color:#34d399;">核心优势</div>
       <div class="strength-list">
-        ${result.strengths.map(s => `<div class="strength-item"><div class="strength-icon">✓</div><div>${s}</div></div>`).join('')}
+        ${result.strengths.map(s => `<div class="strength-item" style="border-left:4px solid #34d399;"><div class="strength-icon">✓</div><div>${s}</div></div>`).join('')}
       </div>
-      <div style="margin:20px 0 16px;font-weight:500;color:#dc2626;">成长空间</div>
+      <div style="margin:20px 0 16px;font-weight:500;color:#f87171;">成长空间</div>
       <div class="strength-list">
-        ${result.weaknesses.map(w => `<div class="strength-item weakness-item"><div class="strength-icon">!</div><div>${w}</div></div>`).join('')}
+        ${result.weaknesses.map(w => `<div class="strength-item weakness-item" style="border-left:4px solid #f87171;"><div class="strength-icon">!</div><div>${w}</div></div>`).join('')}
       </div>
     </div>
 
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#fbbf24,#f472b6);margin:20px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fef3c7">💼</div>适合的职业方向</div>
+      <div class="section-title"><div class="section-icon" style="background:#451a03">💼</div>适合的职业方向</div>
       <div class="career-grid">
         ${result.careers.map(c => `<div class="career-item">${c}</div>`).join('')}
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fce7f3">⭐</div>同类型名人</div>
-      <div class="celeb-box">
-        <div class="celeb-avatar">🌟</div>
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#f472b6,#667eea);margin:20px 0;"></div>
+
+    <div class="card" style="position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#fbbf24,#f472b6);"></div>
+      <div class="section-title"><div class="section-icon" style="background:linear-gradient(135deg,#4a1942,#1e1b4b)">⭐</div>同类型名人</div>
+      <div class="celeb-box" style="border:1px solid #334155;background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#a78bfa,#f472b6);"></div>
+        <div class="celeb-avatar" style="box-shadow:0 0 20px rgba(167,139,250,0.3);">🌟</div>
         <div class="celeb-info">
-          <h4>${result.celeb}</h4>
-          <p>${result.celebDesc}</p>
+          <h4 style="font-size:18px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${result.celeb}</h4>
+          <p style="margin-top:6px;">${result.celebDesc}</p>
         </div>
       </div>
     </div>
 
+    <div style="height:4px;border-radius:2px;background:linear-gradient(90deg,#667eea,#764ba2);margin:20px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">💡</div>职业发展建议</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e1b4b">💡</div>职业发展建议</div>
       <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">选择能够发挥你核心优势的工作环境，避免长期从事与性格相悖的工作</div></div>
       <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">了解并接纳自己的性格特点，同时有意识地发展非优势领域的能力</div></div>
       <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在团队中，主动承担与性格匹配的角色，同时学会欣赏其他类型同事的贡献</div></div>
@@ -613,7 +679,7 @@ async function downloadPDF() {
     const date = new Date().toLocaleDateString('zh-CN');
 
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#0f172a;padding:40px;font-family:"Noto Sans SC",sans-serif;color:#e2e8f0;';
 
     pdfContainer.innerHTML = `
       <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
@@ -621,54 +687,59 @@ async function downloadPDF() {
         <div style="font-size:32px;font-weight:700;margin-bottom:15px;">职业性格测评报告</div>
         <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
       </div>
-      <div style="background:#f8fafc;border-radius:16px;padding:30px;margin-bottom:25px;">
-        <div style="color:#667eea;font-size:14px;margin-bottom:8px;">你的MBTI类型</div>
-        <div style="font-size:28px;font-weight:700;color:#1e293b;margin-bottom:8px;">${result.name}</div>
-        <div style="font-size:16px;color:#667eea;margin-bottom:12px;">${result.title}</div>
-        <div style="color:#64748b;font-size:14px;line-height:1.8;">${result.desc}</div>
+      <div style="background:#1e293b;border-radius:16px;padding:30px;margin-bottom:25px;">
+        <div style="color:#a78bfa;font-size:14px;margin-bottom:8px;">你的MBTI类型</div>
+        <div style="font-size:28px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">${result.name}</div>
+        <div style="font-size:16px;color:#a78bfa;margin-bottom:12px;">${result.title}</div>
+        <div style="color:#94a3b8;font-size:14px;line-height:1.8;">${result.desc}</div>
+      </div>
+      <div style="background:#1e293b;border-radius:16px;padding:24px;margin-bottom:25px;border-left:4px solid #a78bfa;">
+        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:12px;">🏛️ 灵魂共振的思想家</div>
+        <div style="font-size:20px;font-weight:700;color:#a78bfa;margin-bottom:8px;">${result.philosopher}</div>
+        <div style="font-size:14px;color:#94a3b8;line-height:1.8;">${result.philosopherDesc}</div>
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">📊 四维度分析</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">📊 四维度分析</div>
         ${Object.keys(dimInfo).map(d => {
           const info = dimInfo[d];
           const score = scores[d];
           const pct = Math.round((score / 15) * 100);
           const leftPct = 100 - pct;
-          return `<div style="margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;"><span>${info.name}</span><span style="color:#667eea;">${leftPct}% : ${pct}%</span></div><div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${leftPct}%;background:${info.color};border-radius:4px;"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-top:4px;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
+          return `<div style="margin-bottom:16px;padding:12px;background:#1e293b;border-radius:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;"><span>${info.name}</span><span style="color:#a78bfa;">${leftPct}% : ${pct}%</span></div><div style="height:8px;background:#334155;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${leftPct}%;background:${info.color};border-radius:4px;"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-top:4px;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
         }).join('')}
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💪 核心优势</div>
-        ${result.strengths.map(s => `<div style="padding:12px;background:#f0fdf4;border-radius:8px;margin-bottom:8px;font-size:14px;color:#166534;"><span style="margin-right:8px;">✓</span>${s}</div>`).join('')}
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">💪 核心优势</div>
+        ${result.strengths.map(s => `<div style="padding:12px;background:#052e16;border-radius:8px;margin-bottom:8px;font-size:14px;color:#34d399;"><span style="margin-right:8px;">✓</span>${s}</div>`).join('')}
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">🌱 成长空间</div>
-        ${result.weaknesses.map(w => `<div style="padding:12px;background:#fef2f2;border-radius:8px;margin-bottom:8px;font-size:14px;color:#991b1b;"><span style="margin-right:8px;">!</span>${w}</div>`).join('')}
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">🌱 成长空间</div>
+        ${result.weaknesses.map(w => `<div style="padding:12px;background:#450a0a;border-radius:8px;margin-bottom:8px;font-size:14px;color:#f87171;"><span style="margin-right:8px;">!</span>${w}</div>`).join('')}
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💼 适合的职业方向</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;">${result.careers.map(c => `<div style="padding:10px 16px;background:#ede9fe;border-radius:8px;font-size:14px;">${c}</div>`).join('')}</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">💼 适合的职业方向</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">${result.careers.map(c => `<div style="padding:10px 16px;background:#2e1065;border-radius:8px;font-size:14px;color:#c4b5fd;">${c}</div>`).join('')}</div>
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">⭐ 同类型名人</div>
-        <div style="padding:20px;background:#f8fafc;border-radius:12px;">
-          <div style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:8px;">${result.celeb}</div>
-          <div style="font-size:14px;color:#64748b;line-height:1.7;">${result.celebDesc}</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">⭐ 同类型名人</div>
+        <div style="padding:20px;background:#1e293b;border-radius:12px;">
+          <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">${result.celeb}</div>
+          <div style="font-size:14px;color:#94a3b8;line-height:1.7;">${result.celebDesc}</div>
         </div>
       </div>
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💡 职业发展建议</div>
-        <div style="padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
-          <div style="font-size:14px;color:#64748b;line-height:1.6;">选择能够发挥你核心优势的工作环境，避免长期从事与性格相悖的工作</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:15px;color:#e2e8f0;">💡 职业发展建议</div>
+        <div style="padding:14px;background:#1e293b;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#94a3b8;line-height:1.6;">选择能够发挥你核心优势的工作环境，避免长期从事与性格相悖的工作</div>
         </div>
-        <div style="padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
-          <div style="font-size:14px;color:#64748b;line-height:1.6;">了解并接纳自己的性格特点，同时有意识地发展非优势领域的能力</div>
+        <div style="padding:14px;background:#1e293b;border-radius:8px;margin-bottom:10px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#94a3b8;line-height:1.6;">了解并接纳自己的性格特点，同时有意识地发展非优势领域的能力</div>
         </div>
-        <div style="padding:14px;background:#f8fafc;border-radius:8px;border-left:4px solid #667eea;">
-          <div style="font-size:14px;color:#64748b;line-height:1.6;">在团队中，主动承担与性格匹配的角色，同时学会欣赏其他类型同事的贡献</div>
+        <div style="padding:14px;background:#1e293b;border-radius:8px;border-left:4px solid #667eea;">
+          <div style="font-size:14px;color:#94a3b8;line-height:1.6;">在团队中，主动承担与性格匹配的角色，同时学会欣赏其他类型同事的贡献</div>
         </div>
       </div>
-      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+      <div style="background:#1e293b;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
         <div>本报告仅供参考，不构成心理诊断或职业建议</div>
       </div>
@@ -681,7 +752,7 @@ async function downloadPDF() {
     const canvas = await html2canvas(pdfContainer, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0f172a',
       height: pdfContainer.scrollHeight,
       windowHeight: pdfContainer.scrollHeight
     });

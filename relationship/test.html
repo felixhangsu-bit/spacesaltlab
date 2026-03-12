@@ -7,195 +7,206 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #a5b4fc;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --radius: 16px;
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --bg: #0a0a0a;
+  --card: rgba(255,255,255,0.025);
+  --text: rgba(255,255,255,0.88);
+  --text-muted: rgba(255,255,255,0.38);
+  --border: rgba(255,255,255,0.07);
+  --shadow: 0 1px 2px rgba(0,0,0,0.2);
+  --radius: 0px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.noise{position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
 /* 页面切换 */
-.page { display: none; min-height: 100vh; }
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .page.active { display: block; }
 
 /* 测试页 */
 #testPage { background: var(--bg); padding: 20px; }
 .test-container { max-width: 700px; margin: 0 auto; }
 .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
-.back-btn:hover { background: white; color: var(--text); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; font-size: 13px; letter-spacing: 1px; cursor: pointer; padding: 8px 16px; border-radius: 0; transition: all 0.3s; }
+.back-btn:hover { background: rgba(255,255,255,0.03); color: var(--text); border-color: rgba(255,255,255,0.15); }
 .progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
+.progress-text { font-family: 'EB Garamond', serif; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 2px; }
+.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 0; transition: width 0.4s ease; }
 
-.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
-.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
-.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
-.options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: var(--primary-light); background: #fafaff; }
-.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
-.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 48px 40px; position: relative; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--primary), transparent); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 0; font-size: 11px; font-weight: 500; margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.07); }
+.q-num { font-family: 'EB Garamond', serif; font-size: 14px; color: rgba(139,92,246,0.55); margin-bottom: 12px; letter-spacing: 3px; }
+.q-text { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.7; margin-bottom: 36px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.3s; }
+.opt:hover { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.04); }
+.opt.selected { border-color: var(--primary); background: rgba(139,92,246,0.08); }
+.opt-radio { width: 20px; height: 20px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
 .opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
-.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
-.opt-text { font-size: 15px; font-weight: 500; }
-.nav-btns { display: flex; gap: 12px; margin-top: 32px; }
-.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
-.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
-.nav-btn.secondary:hover { border-color: var(--primary-light); }
+.opt.selected .opt-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+.opt-text { font-size: 14px; font-weight: 400; color: var(--text-muted); letter-spacing: 0.5px; }
+.opt:hover .opt-text { color: var(--text); }
+.opt.selected .opt-text { color: var(--text); font-weight: 500; }
+.nav-btns { display: flex; gap: 12px; margin-top: 36px; }
+.nav-btn { flex: 1; padding: 14px; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s; text-transform: uppercase; }
+.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.nav-btn.secondary:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
 .nav-btn.primary { background: var(--primary); border: none; color: white; }
 .nav-btn.primary:hover { background: var(--primary-dark); }
-.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* 结果页 */
-#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+#resultPage { background: var(--bg); }
 .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
-.result-header { text-align: center; color: white; margin-bottom: 32px; padding-top: 20px; }
-.result-header h1 { font-size: 26px; margin-bottom: 8px; }
-.result-header p { opacity: 0.9; font-size: 14px; }
+.result-header { text-align: center; color: var(--text); margin-bottom: 40px; padding-top: 40px; }
+.result-header h1 { font-family: 'Noto Serif SC', serif; font-size: 24px; font-weight: 300; margin-bottom: 12px; letter-spacing: 4px; }
+.result-header p { font-size: 12px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; }
 
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.card-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-.card-title .icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.icon-purple { background: #ede9fe; }
-.icon-blue { background: #dbeafe; }
-.icon-green { background: #d1fae5; }
-.icon-orange { background: #ffedd5; }
-.icon-red { background: #fee2e2; }
-.icon-pink { background: #fce7f3; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 36px; box-shadow: none; margin-bottom: 16px; position: relative; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--primary), transparent); }
+.card-title { font-family: 'Noto Sans SC', sans-serif; font-size: 14px; font-weight: 500; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.card-title .icon { width: 28px; height: 28px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.icon-purple { background: rgba(139,92,246,0.1); }
+.icon-blue { background: rgba(59,130,246,0.1); }
+.icon-green { background: rgba(16,185,129,0.1); }
+.icon-orange { background: rgba(245,158,11,0.1); }
+.icon-red { background: rgba(239,68,68,0.1); }
+.icon-pink { background: rgba(236,72,153,0.1); }
 
-.type-result { text-align: center; padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-.type-badge { display: inline-block; padding: 8px 20px; background: var(--gradient); color: white; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 14px; }
-.type-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.type-desc { color: var(--text-muted); font-size: 15px; max-width: 500px; margin: 0 auto; line-height: 1.7; }
+.type-result { text-align: center; padding-bottom: 28px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+.type-badge { display: inline-block; padding: 6px 20px; background: transparent; color: var(--primary); border: 1px solid rgba(139,92,246,0.3); border-radius: 0; font-size: 11px; font-weight: 500; margin-bottom: 18px; letter-spacing: 3px; text-transform: uppercase; }
+.type-name { font-family: 'Noto Serif SC', serif; font-size: 30px; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #c4b5fd, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+.type-desc { color: var(--text-muted); font-size: 14px; max-width: 520px; margin: 0 auto; line-height: 1.9; }
 
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.stat-card { padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; }
-.stat-card .label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-card .value { font-size: 18px; font-weight: 700; color: var(--primary); }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat-card { padding: 18px 14px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; text-align: center; }
+.stat-card .label { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+.stat-card .value { font-family: 'EB Garamond', serif; font-size: 18px; font-weight: 600; background: linear-gradient(135deg, #c4b5fd, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
 .chart-wrap { max-width: 350px; margin: 0 auto; }
 
-.dim-item { padding: 20px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 14px; }
+.dim-item { padding: 24px; border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; transition: border-color 0.3s; }
+.dim-item:hover { border-color: rgba(139,92,246,0.2); }
 .dim-item:last-child { margin-bottom: 0; }
-.dim-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.dim-name { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-.dim-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.dim-score { font-size: 22px; font-weight: 700; }
-.dim-score span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
-.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-.dim-bar-fill { height: 100%; border-radius: 4px; }
-.dim-level { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 10px; }
-.level-high { background: #d1fae5; color: #059669; }
-.level-medium { background: #fef3c7; color: #d97706; }
-.level-low { background: #fee2e2; color: #dc2626; }
-.dim-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.dim-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.dim-name { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 14px; letter-spacing: 1px; }
+.dim-icon { width: 30px; height: 30px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-score { font-family: 'EB Garamond', serif; font-size: 22px; font-weight: 600; background: linear-gradient(135deg, #c4b5fd, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.dim-score span { font-size: 13px; font-weight: 400; background: none; -webkit-text-fill-color: var(--text-muted); }
+.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; margin-bottom: 14px; }
+.dim-bar-fill { height: 100%; border-radius: 0; }
+.dim-level { display: inline-block; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.07); border-radius: 0; font-size: 11px; font-weight: 500; margin-bottom: 12px; letter-spacing: 1px; }
+.level-high { border-color: rgba(5,150,105,0.3); color: #34d399; }
+.level-medium { border-color: rgba(217,119,6,0.3); color: #fbbf24; }
+.level-low { border-color: rgba(220,38,38,0.3); color: #f87171; }
+.dim-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
 
-.pattern-card { display: flex; gap: 16px; padding: 20px; background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); border-radius: 14px; margin-bottom: 12px; }
+.pattern-card { display: flex; gap: 16px; padding: 24px; background: rgba(139,92,246,0.03); border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; border-left: 2px solid var(--primary); position: relative; overflow: hidden; transition: border-color 0.3s; }
+.pattern-card:hover { border-color: rgba(139,92,246,0.2); }
+.pattern-card::after { display: none; }
 .pattern-card:last-child { margin-bottom: 0; }
-.pattern-icon { width: 50px; height: 50px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.pattern-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-.pattern-content p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.pattern-icon { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: none; }
+.pattern-content h4 { font-family: 'Noto Serif SC', serif; font-size: 15px; font-weight: 600; margin-bottom: 8px; background: linear-gradient(135deg, #c4b5fd, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.pattern-content p { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
 
-.risk-box { padding: 20px; background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); border-radius: 14px; border: 1px solid #fecaca; }
+.risk-box { padding: 24px; background: rgba(239,68,68,0.03); border-radius: 0; border: 1px solid rgba(239,68,68,0.1); }
 .risk-item { display: flex; gap: 12px; margin-bottom: 14px; }
 .risk-item:last-child { margin-bottom: 0; }
-.risk-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
-.risk-text { font-size: 14px; color: #7f1d1d; line-height: 1.6; }
+.risk-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 0; margin-top: 7px; flex-shrink: 0; }
+.risk-text { font-size: 13px; color: rgba(252,165,165,0.8); line-height: 1.8; }
 
-.celeb-box { display: flex; gap: 20px; align-items: center; padding: 20px; background: #f8fafc; border-radius: 14px; }
-.celeb-avatar { width: 70px; height: 70px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
-.celeb-info h4 { font-size: 16px; margin-bottom: 4px; }
-.celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-.celeb-info small { display: block; margin-top: 8px; font-size: 11px; color: #9ca3af; }
+.celeb-box { display: flex; gap: 20px; align-items: center; padding: 28px; background: rgba(255,255,255,0.015); border-radius: 0; border: 1px solid var(--border); }
+.celeb-avatar { width: 64px; height: 64px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.celeb-info h4 { font-family: 'Noto Serif SC', serif; font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+.celeb-info small { display: block; margin-top: 10px; font-size: 11px; color: rgba(255,255,255,0.25); }
 
-.timeline { position: relative; padding-left: 28px; }
-.timeline::before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%); }
-.timeline-step { position: relative; padding-bottom: 20px; }
+.timeline { position: relative; padding-left: 36px; }
+.timeline::before { content: ''; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 1px; background: linear-gradient(180deg, var(--primary), rgba(139,92,246,0.1)); }
+.timeline-step { position: relative; padding-bottom: 28px; padding-left: 8px; }
 .timeline-step:last-child { padding-bottom: 0; }
-.timeline-step::before { content: ''; position: absolute; left: -22px; top: 4px; width: 10px; height: 10px; background: var(--primary); border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-.timeline-step .phase { font-size: 11px; color: var(--primary); font-weight: 600; margin-bottom: 4px; }
-.timeline-step h5 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.timeline-step p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.timeline-step::before { content: ''; position: absolute; left: -28px; top: 4px; width: 10px; height: 10px; background: var(--primary); border-radius: 0; border: 2px solid #0a0a0a; box-shadow: 0 0 8px rgba(139,92,246,0.3); }
+.timeline-step .phase { font-family: 'EB Garamond', serif; font-size: 12px; color: rgba(139,92,246,0.55); font-weight: 600; margin-bottom: 6px; letter-spacing: 3px; text-transform: uppercase; }
+.timeline-step h5 { font-family: 'Noto Serif SC', serif; font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); -webkit-text-fill-color: unset; background: none; }
+.timeline-step p { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
 
-.tip-item { display: flex; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+.tip-item { display: flex; gap: 14px; padding: 18px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; margin-bottom: 8px; border-left: 2px solid var(--primary); }
 .tip-item:last-child { margin-bottom: 0; }
-.tip-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-.tip-text { font-size: 14px; line-height: 1.6; }
+.tip-num { width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 0; display: flex; align-items: center; justify-content: center; font-family: 'EB Garamond', serif; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 13px; line-height: 1.8; color: var(--text-muted); }
 
-.rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.rel-card { padding: 18px; background: #f8fafc; border-radius: 12px; text-align: center; }
-.rel-card .emoji { font-size: 28px; margin-bottom: 10px; }
-.rel-card h5 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.rel-card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.rel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.rel-card { padding: 20px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; text-align: center; }
+.rel-card .emoji { font-size: 24px; margin-bottom: 12px; }
+.rel-card h5 { font-size: 13px; font-weight: 500; margin-bottom: 8px; letter-spacing: 1px; }
+.rel-card p { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
 
-.summary-box { padding: 28px; background: var(--gradient); border-radius: 16px; color: white; text-align: center; }
-.summary-box h3 { font-size: 18px; margin-bottom: 14px; }
-.summary-box p { font-size: 14px; line-height: 1.8; opacity: 0.95; max-width: 550px; margin: 0 auto; }
+.summary-box { padding: 40px; background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.15); border-radius: 0; color: var(--text); text-align: center; position: relative; overflow: hidden; }
+.summary-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); pointer-events: none; animation: none; }
+@keyframes shimmer { 0%, 100% { transform: translateX(-30%) translateY(-30%); } 50% { transform: translateX(10%) translateY(10%); } }
+.summary-box h3 { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 300; margin-bottom: 20px; letter-spacing: 4px; position: relative; z-index: 1; }
+.summary-box p { font-size: 14px; line-height: 2; opacity: 0.7; max-width: 550px; margin: 0 auto; position: relative; z-index: 1; }
 
-.disclaimer { padding: 18px; background: #f1f5f9; border-radius: 12px; margin-top: 20px; }
-.disclaimer h5 { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-.disclaimer p { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+.disclaimer { padding: 20px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; margin-top: 16px; }
+.disclaimer h5 { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 2px; text-transform: uppercase; }
+.disclaimer p { font-size: 11px; color: var(--text-muted); line-height: 1.7; }
 
 .download-section { text-align: center; padding-top: 16px; }
-.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.35); }
-.download-btn:disabled { opacity: 0.7; cursor: wait; }
-.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: var(--primary); color: white; border: none; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+.download-btn:hover { background: var(--primary-dark); box-shadow: 0 0 20px rgba(139,92,246,0.2); }
+.download-btn:disabled { opacity: 0.5; cursor: wait; }
+.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 0; font-size: 12px; letter-spacing: 1px; color: var(--text-muted); cursor: pointer; transition: all 0.3s; }
 .restart-btn:hover { border-color: var(--primary); color: var(--primary); }
 
 /* 加载 */
-.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .loading.show { opacity: 1; visibility: visible; }
-.loading-box { background: white; padding: 36px; border-radius: 16px; text-align: center; }
-.spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+.loading-box { background: #111; border: 1px solid var(--border); padding: 40px; border-radius: 0; text-align: center; }
+.spinner { width: 40px; height: 40px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-box p { font-size: 15px; color: var(--text); }
+.loading-box p { font-size: 13px; color: var(--text-muted); letter-spacing: 1px; }
 
 /* 更多测试弹窗 */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: white; padding: 36px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { background: #111; border: 1px solid var(--border); padding: 40px; border-radius: 0; max-width: 400px; width: 90%; text-align: center; transform: scale(0.95); transition: transform 0.3s; }
 .modal-overlay.show .modal-content { transform: scale(1); }
-.modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-.modal-tests { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-.modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
+.modal-icon { font-size: 40px; margin-bottom: 20px; }
+.modal-content h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 600; margin-bottom: 12px; background: linear-gradient(135deg, #c4b5fd, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+.modal-content > p { color: var(--text-muted); font-size: 13px; line-height: 1.7; margin-bottom: 24px; }
+.modal-tests { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; padding: 16px; margin-bottom: 16px; }
+.modal-test-item { padding: 10px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); }
 .modal-test-item:last-child { border-bottom: none; }
-.modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
+.modal-tip { font-size: 12px; color: var(--primary); font-weight: 500; margin-bottom: 20px; letter-spacing: 1px; }
 .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
-.modal-btn { padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-.modal-btn.primary { background: var(--gradient); color: white; }
-.modal-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
-.modal-btn.secondary { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
+.modal-btn { padding: 14px 24px; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; border: none; }
+.modal-btn.primary { background: var(--primary); color: white; }
+.modal-btn.primary:hover { background: var(--primary-dark); box-shadow: 0 0 20px rgba(139,92,246,0.2); }
+.modal-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
 .modal-btn.secondary:hover { border-color: var(--primary); color: var(--primary); }
-.more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
-.more-tests-btn:hover { border-color: #d97706; color: #78350f; }
+.more-tests-btn { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.2); color: rgba(251,191,36,0.7); }
+.more-tests-btn:hover { border-color: rgba(245,158,11,0.4); color: #fbbf24; }
 
 @media (max-width: 640px) {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .rel-grid { grid-template-columns: 1fr; }
   .celeb-box { flex-direction: column; text-align: center; }
-  .question-card { padding: 28px 20px; }
+  .question-card { padding: 32px 20px; }
   .q-text { font-size: 18px; }
 }
 </style>
 </head>
 <body>
+<div class="noise"></div>
 
 <div class="loading" id="loading">
   <div class="loading-box">
@@ -250,77 +261,165 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 <script>
 // 题目数据
 const questions = [
-  "我能够清晰表达自己在关系中的需求和想法",
-  "即使伴侣不同意，我也能坚持自己认为重要的事",
-  "我在关系中很少为了迎合对方而改变自己的核心价值观",
-  "我能够独立做出重要决定，而不过度依赖伴侣的认可",
-  "我对自己在关系中的角色有清晰的认知",
-  "当伴侣的期望与我的目标冲突时，我能找到平衡",
-  "我不会因为害怕失去关系而放弃自己的梦想",
-  "我在关系中保持着自己的兴趣爱好和社交圈",
-  "我能够在关系中表达不同意见而不感到内疚",
-  "我在关系中能够平衡妥协与原则之间的张力",
-  "我很少因为伴侣的看法而怀疑自己的判断",
-  "我在关系中能够保持情感上的独立性",
-  "我能够对伴侣说'不'而不感到过度愧疚",
-  "我能够识别哪些关系行为符合我的价值观，哪些不符合",
-  "当边界被侵犯时，我能够及时表达不满",
-  "我不会为了取悦伴侣而牺牲自己的基本需求",
-  "我能够在给予和接受之间保持平衡",
-  "我不会过度介入伴侣的个人事务或空间",
-  "我尊重伴侣的隐私，也期望对方尊重我的隐私",
-  "我能够区分自己的情绪和伴侣的情绪",
-  "我不会因为伴侣的问题而过度承担责任",
-  "我能够在亲密关系中保留属于自己的爱好和兴趣",
-  "我能够拒绝不合理的要求而不感到害怕",
-  "我不会为了关系而过度牺牲自己的身心健康",
-  "当与伴侣发生冲突时，我能够保持相对冷静",
-  "我能够识别并命名自己在关系中的情绪",
-  "我不会在情绪激动时做出冲动的决定或行为",
-  "我能够以健康的方式表达负面情绪",
-  "当感到受伤时，我能够自我安抚而不完全依赖伴侣",
-  "我能够接受关系中的不确定性而不过度焦虑",
-  "我不会通过压抑或否认来处理关系中的负面情绪",
-  "我能够从关系挫折中相对快速地恢复",
-  "我在关系中的情绪反应与实际情况相匹配",
-  "我能够在关系紧张时使用有效的放松技巧",
-  "我不会让过去的关系创伤过度影响现在的关系",
-  "我能够在情绪低落时寻求适当的支持",
-  "我相信伴侣会在我需要时给予支持",
-  "我不会过度担心伴侣是否真的爱我",
-  "当伴侣需要独处时，我不会感到被抛弃",
-  "我能够舒适地依赖伴侣，也让伴侣依赖我",
-  "我不会因为短暂的分离而过度焦虑",
-  "我能够在关系遇到挫折时仍保持对自己的肯定",
-  "我不会过度监控伴侣的行为或行踪",
-  "当关系出现问题时，我不会立即想到最坏的结果",
-  "我能够在亲密和独立之间找到舒适的平衡",
-  "我不会因为害怕亲密而推开伴侣",
-  "我能够坦诚地与伴侣讨论关系中的问题",
-  "我相信通过沟通和努力可以解决关系中的大多数问题"
+  // === agency（主体性）1-12 ===
+  "在一段重要的关系里，你的声音更像什么——是回声，总在重复对方说过的话；还是一段属于自己的独立旋律？",
+  "想象你和伴侣站在十字路口，方向完全相反。你是那个能够安静地说出「我要走这条路」的人吗？",
+  "如果关系是一面镜子，你在里面看到的更多是自己的轮廓，还是已经被对方的影子完全覆盖？",
+  "做一个重要决定时，你更像一棵有自己根系的树，还是一株需要缠绕在别人身上才能站稳的藤蔓？",
+  "闭上眼睛想一想：在「恋人」这个角色之外，你是否仍然清楚地知道自己是谁？",
+  "当对方的期望和你内心深处的渴望发生冲突时，你能否听见自己心跳的节奏，而不只是对方呼吸的声音？",
+  "如果恋爱是一场远行，你会不会为了让同伴高兴，把自己最想去的目的地从地图上擦掉？",
+  "你的生活里是否有一些房间，是只属于你自己的——关上门，里面有你的书、你的朋友、你的独处？",
+  "当你在关系里说出一个不同的观点，身体里升起的是表达的畅快，还是一种隐隐的负罪感？",
+  "妥协和坚守之间有一条细细的线。你是否感觉自己大多数时候站在线的哪一边，不至于迷失？",
+  "如果伴侣对你的某个判断摇了摇头，你的内心是否还能稳稳地站着，像风中不倒的烛火？",
+  "在最亲密的关系里，你是否仍然拥有一颗独立跳动的心——它爱着对方，却不因此失去自己的韵律？",
+  // === boundary（边界感）13-24 ===
+  "当你说「不」的时候，身体里发生了什么——是平静的呼气，还是胃部一阵紧缩和愧疚的浪潮？",
+  "想象你的价值观是一盏灯。在关系的种种行为中，你是否能清晰地分辨哪些行为在灯光之内，哪些已经落入阴影？",
+  "当有人越过了你心里那条线，你是那个能立刻说「请退后」的人，还是会默默吞下不适，假装线不存在？",
+  "如果伴侣的快乐需要用你的基本需求来交换，你是否愿意做这笔交易？",
+  "在给予和接受之间，你是否像潮汐一样自然地来回流动，而不是永远只朝一个方向涌去？",
+  "你是否能在伴侣的世界门口停下脚步，尊重那扇关着的门，而不是忍不住推开每一扇？",
+  "如果隐私是一座小花园，你和伴侣是否各自拥有自己的花园，并且不会不请自入？",
+  "当伴侣低落时，你是否能分清哪些是对方天空的乌云，哪些才是飘到你上方的那一片？",
+  "别人的问题像一个沉重的包裹递过来的时候，你是否能辨认出哪些该帮忙提，哪些从一开始就不属于你？",
+  "你的世界里是否保留了一些只属于自己的颜色——那些不会因为恋爱而褪去的爱好和热情？",
+  "面对一个不合理的要求时，你的「不」是否能像石头一样稳稳落地，而不是像气球一样飘走？",
+  "你是否曾经注意到，自己正在用健康和精力为关系支付一张越来越昂贵的账单？",
+  // === emotion（情绪调节）25-36 ===
+  "当争吵的风暴来临时，你是否能像灯塔一样保持相对的稳定，而不是被卷进海浪里？",
+  "如果每种情绪都有名字，你是否认识关系里那些来访的客人——知道哪位叫「委屈」，哪位叫「失望」？",
+  "情绪最汹涌的时刻，你是否拥有一个内在的「暂停键」——可以在冲动行动之前按下它？",
+  "当负面情绪像烟雾一样升起，你是否有一扇能打开的窗户，以健康的方式让它流通出去？",
+  "如果受伤是一场突如其来的雨，你身上是否有自己的伞，而不是只能站在对方的伞下才不会淋湿？",
+  "面对关系里那些悬而未决的不确定，你是否能像等待日出的人一样安静，而不是在黑暗中反复点火？",
+  "你处理关系里的痛苦时，更像是把它放进抽屉锁起来假装看不见，还是把它拿到光线下仔细端详？",
+  "关系里的一次挫折，在你的世界里停留多久——是一场很快散去的雾，还是一个久久不退的冬天？",
+  "你的情绪反应和实际发生的事情之间，是否像合身的衣服——不会小三号让你喘不过气，也不会大三号空空荡荡？",
+  "当关系变得紧张时，你是否有一套属于自己的「着陆程序」——深呼吸、散步、或某种让自己回到地面的方法？",
+  "过去关系里的伤痕，是否仍然在此刻的关系里隐隐作痛——像一面裂了的旧镜子，扭曲着你看到的画面？",
+  "在低谷时刻，你是否知道可以向谁伸出手——不一定是伴侣，而是任何一个安全的港湾？",
+  // === attachment（依恋反应）37-48 ===
+  "如果信任是一座桥，你是否相信走到桥中间的时候，对面的人不会突然抽走木板？",
+  "半夜醒来的时候，你的脑海里是否会浮现「对方真的爱我吗」这个问题，像一盏不肯熄灭的灯？",
+  "当伴侣说「我想一个人待一会儿」，你听到的是一句平常的话，还是一扇突然关上的门和被遗弃的回声？",
+  "你是否能舒适地让自己倚靠在另一个人身上——同时也允许对方倚靠过来——像两棵靠在一起却各自扎根的树？",
+  "短暂的分离对你来说更像什么——一个正常的逗号，还是一个让人恐慌的省略号？",
+  "当关系遭遇风浪时，你对自己的肯定是否还在那里——像海底的锚，不会因为海面的波涛而消失？",
+  "你是否需要时刻知道伴侣在哪里、在做什么，才能让内心那个不安的声音安静下来？",
+  "关系出了问题的时候，你脑海里第一个浮现的画面是什么——是「我们可以解决」的路，还是「一切都完了」的悬崖？",
+  "在亲密和独立之间，你是否找到了那个让两者共存的温度——不过热到灼伤，也不过冷到冻僵？",
+  "当有人走近你的内心，你更像是打开一扇门，还是本能地筑起一堵墙？",
+  "你是否能坐在伴侣对面，把那些让关系隐隐作痛的事情说出来，而不是把它们藏在沉默的角落里发霉？",
+  "你是否相信，两个人之间大多数的结，都可以被耐心和真诚慢慢解开？"
 ];
 
 const dims = [...Array(12).fill("agency"), ...Array(12).fill("boundary"), ...Array(12).fill("emotion"), ...Array(12).fill("attachment")];
 const dimInfo = {
-  agency: { name: "主体性", icon: "🧭", color: "#8b5cf6", bg: "#ede9fe" },
-  boundary: { name: "边界感", icon: "🛡", color: "#3b82f6", bg: "#dbeafe" },
-  emotion: { name: "情绪调节", icon: "🌊", color: "#10b981", bg: "#d1fae5" },
-  attachment: { name: "依恋反应", icon: "🔗", color: "#f59e0b", bg: "#ffedd5" }
+  agency: { name: "主体性", icon: "🧭", color: "#a78bfa", bg: "rgba(139,92,246,0.2)" },
+  boundary: { name: "边界感", icon: "🛡", color: "#60a5fa", bg: "rgba(59,130,246,0.2)" },
+  emotion: { name: "情绪调节", icon: "🌊", color: "#34d399", bg: "rgba(16,185,129,0.2)" },
+  attachment: { name: "依恋反应", icon: "🔗", color: "#fbbf24", bg: "rgba(245,158,11,0.2)" }
 };
 
 const RESULT_MAP = {
-  anxious_low: { name: "轻度焦虑型依恋", celeb: "玛丽莲·梦露", celebDesc: "情感敏感、渴望连接，对亲密回应高度在意。", desc: "你对关系较为敏感，但仍保有一定自我稳定能力。你渴望亲密连接，同时能够在大多数情况下保持情绪稳定。", tips: ["觉察情绪再行动：当感到不安时，给自己几分钟冷静期，区分真实威胁和过度担忧", "减少过度确认：练习在不确定时保持稳定，而不是反复寻求伴侣的保证", "建立自我支持：发展独立的情绪调节能力，如冥想、运动或与朋友倾诉"] },
-  anxious_high: { name: "高度焦虑型依恋", celeb: "戴安娜王妃", celebDesc: "高度情感投入，极度重视被爱与被回应。", desc: "你对关系安全感需求极高，容易陷入情绪拉扯。关系中的微小波动可能引发强烈的情绪反应。", tips: ["暂停反应：在冲动行动前，给自己设定一个等待期（如24小时），让情绪自然消退", "降低关系唯一性：发展关系之外的生活重心，如事业、兴趣、友谊", "增强边界意识：学会区分自己的情绪和伴侣的责任，不把所有安全感寄托于一人"] },
-  avoidant_low: { name: "轻度回避型依恋", celeb: "克林特·伊斯特伍德", celebDesc: "独立、自持，倾向保持情感距离。", desc: "你偏好独立，但仍能在安全时靠近关系。你重视个人空间，但这并不妨碍你建立有意义的连接。", tips: ["练习表达需求：尝试每天向伴侣表达一个小需求或感受", "区分独立与疏离：反思你的距离是出于健康的自主还是防御性的回避", "允许依赖：在安全的关系中练习接受帮助和支持"] },
-  avoidant_high: { name: "高度回避型依恋", celeb: "史蒂夫·乔布斯", celebDesc: "高度理性，回避情感脆弱性。", desc: "你通过疏离关系来维持安全感。亲密可能让你感到不适或受到威胁，你倾向于用理性处理情感问题。", tips: ["觉察防御：注意自己在什么情况下会退缩，这些模式往往与早期经历有关", "逐步暴露情感：从小的情感分享开始，逐渐增加亲密程度", "建立信任：选择一个安全的人，练习展示脆弱的一面"] },
-  secure: { name: "安全型依恋", celeb: "巴拉克·奥巴马", celebDesc: "稳定、自洽，能平衡亲密与自我。", desc: "你在关系中具备较强稳定性与调节能力。你既能舒适地亲近他人，也能保持健康的自我边界。", tips: ["保持觉察：继续关注自己的情绪变化和关系动态", "持续沟通：保持开放和诚实的沟通习惯", "稳定投入：在关系中保持一致的情感投入和支持"] },
-  mixed_anxious: { name: "混合型（焦虑主导）", celeb: "泰勒·斯威夫特", celebDesc: "情感细腻，关系中易受波动影响。", desc: "你在靠近与防御间摇摆。你渴望亲密但又害怕受伤，这种矛盾可能让你在关系中感到疲惫。", tips: ["识别触发点：了解什么情况会触发你的焦虑或回避反应", "暂停关系行动：在情绪激动时避免做重要决定", "自我安抚：发展独立于伴侣的情绪调节策略"] },
-  mixed_avoidant: { name: "混合型（回避主导）", celeb: "基努·里维斯", celebDesc: "温和克制，情感表达内敛。", desc: "你渴望亲密又害怕失控。你可能在关系初期表现得热情，但随着亲密加深而开始退缩。", tips: ["允许脆弱：接受脆弱是亲密关系的必要部分", "分阶段靠近：设定小的亲密目标，逐步增加情感投入", "增强信任：记录伴侣支持你的时刻，建立信任的证据库"] },
-  low_attachment: { name: "低依恋反应型", celeb: "查理·芒格", celebDesc: "情绪稳定，对关系波动不敏感。", desc: "你对关系依赖度较低。这可能表现为情绪稳定，但也可能意味着你与伴侣的情感连接不够深入。", tips: ["理解情感需求：反思你是真的不需要亲密，还是学会了压抑这种需求", "适度回应：练习对伴侣的情感表达给予更多回应", "增强共情：尝试理解伴侣对亲密的需求可能与你不同"] },
-  high_emotion: { name: "高情绪反应型", celeb: "阿黛尔", celebDesc: "情绪深刻，情感体验强烈。", desc: "你对情绪变化高度敏感。你的情感体验丰富而深刻，但有时可能难以调节强烈的情绪波动。", tips: ["情绪分离：学会区分情绪和事实，不让情绪完全主导判断", "节奏放缓：在情绪高涨时有意识地放慢反应速度", "自我调节：发展多种情绪调节技巧，如深呼吸、正念、书写"] },
-  low_boundary: { name: "低边界型", celeb: "特蕾莎修女", celebDesc: "高度付出，易忽略自我。", desc: "你容易为关系牺牲自我。你可能过度关注伴侣的需求而忽视自己，导致疲惫或怨恨。", tips: ["练习拒绝：每天至少对一个不合理的要求说'不'", "明确责任：区分你的责任和伴侣的责任", "保护精力：设定个人时间和空间，这不是自私而是必要的自我照顾"] },
-  high_boundary: { name: "高边界型", celeb: "安吉丽娜·朱莉", celebDesc: "边界清晰，重视自我主权。", desc: "你对自我界限非常清楚。你善于保护自己，但有时可能因为过于坚固的边界而阻碍了亲密连接。", tips: ["保持柔软：在安全的关系中尝试适度放松边界", "增强情感交流：练习分享更多内心世界和脆弱时刻", "平衡控制：区分健康的边界和防御性的隔离"] },
-  balanced: { name: "结构均衡型", celeb: "米歇尔·奥巴马", celebDesc: "自洽稳健，情感与理性平衡。", desc: "你的关系心理结构整体平衡。你在各个维度都表现出相对健康的模式，能够灵活应对关系中的挑战。", tips: ["持续觉察：保持对自己情绪和行为模式的关注", "稳定关系投入：继续在关系中保持一致的付出和参与", "自我成长：把关系作为个人成长的契机，而不仅仅是满足需求的工具"] }
+  anxious_low: {
+    name: "轻度焦虑型依恋",
+    celeb: "玛丽莲·梦露",
+    celebDesc: "梦露一生都在寻找一个不会离开的人。她的情感雷达极其敏锐，能捕捉到关系中最细微的温度变化——这种敏感既是她魅力的来源，也是她痛苦的根源。你与她共享这种对爱的高度觉知：你不是不够强大，而是感受力太过丰沛。",
+    theory: "鲍尔比认为，焦虑型依恋源于早期「不稳定的回应」——养育者时而在场时而缺席，让孩子学会了用更大的声音去呼唤爱。你的焦虑不是缺陷，而是一个还在等待稳定回应的内在小孩。",
+    desc: "你像一个灵敏的地震仪，能感知到关系地表之下最轻微的震动。这份敏感让你成为细腻的爱人——你记得对方的每一个表情变化，每一次语气的起伏。但硬币的另一面是，这根天线有时会把远方的雷声误读为头顶的暴风雨。你渴望深层的亲密连接，同时在大多数时候仍能保持一颗稳定的心，这是你内在力量的证明。",
+    tips: ["觉察情绪再行动：当不安涌来时，把它想象成一位急匆匆的信使——先让它坐下，听它说完，再决定是否需要回应", "减少过度确认：安全感不是一个需要反复点击的按钮。练习在不确定中保持平静，像学习在微微摇晃的船上站稳", "建立自我支持：在心里种一棵自己的树——冥想、运动、与朋友的深谈——让它长出足够的枝叶为你遮风挡雨"]
+  },
+  anxious_high: {
+    name: "高度焦虑型依恋",
+    celeb: "戴安娜王妃",
+    celebDesc: "戴安娜曾说：「在这段婚姻里有三个人，太拥挤了。」她的痛苦不仅来自背叛，更来自一种根深蒂固的感觉——自己永远无法被完整地看见和选择。她把全部的自我投入了「被爱」这件事，当这件事崩塌时，她的世界也跟着倾覆。你身上有她那种燃烧般的深情，也有那种对回应近乎饥渴的需要。",
+    theory: "温尼科特曾说，「被看见」是人最原始的需求。高度焦虑型依恋者心中住着一个不断呼喊「你看到我了吗？」的孩子。这不是软弱——这是你最早的爱的记忆留下的回声，它只是需要被重新谱写。",
+    desc: "你对关系安全感的渴求像一团永远嫌不够暖的火焰。关系中的每一个微小波动——一条晚回的消息、一个敷衍的语气——都可能在你内心掀起海啸。你爱得浓烈、全然、不留退路，但这种没有保护的投入也让你成为关系中最容易受伤的那个人。你心里有一个永远在等回复的窗口，它消耗着你大量的能量。",
+    tips: ["暂停反应：在冲动行动前设一个「24小时沙漏」——让情绪像沙子一样自然落下，你会发现很多紧急感只是幻觉", "降低关系唯一性：不要把所有的鸡蛋放进「被爱」这一个篮子里。事业、友谊、创造——让你的价值感有多个支点", "增强边界意识：学会分辨「我的不安」和「对方的责任」。不是所有的恐惧都需要对方来平息，有些风暴需要你自己穿越"]
+  },
+  avoidant_low: {
+    name: "轻度回避型依恋",
+    celeb: "克林特·伊斯特伍德",
+    celebDesc: "伊斯特伍德在银幕上的形象是沉默寡言的独行侠——他不是不在乎，只是习惯了把在乎藏在沉默的行动里。私下里他有深沉的柔情，但永远不会是第一个说出口的人。你和他一样，拥有深厚的内在世界，只是通往那个世界的门需要特别的钥匙。",
+    theory: "科胡特的自体心理学认为，回避并非不需要爱，而是早期经验教会了你「靠近是危险的」。你的独立是一种聪明的适应策略——只是现在，你也许可以开始问自己：这座堡垒是保护，还是也成了某种形式的监禁？",
+    desc: "你像一座有着美丽花园的房子，但大门通常只开一条缝。你珍视独立和自主，这让你在关系中保有难得的清醒与从容。你不会在爱情里迷失自己，这是一种珍贵的品质。然而在安全的时候，你也愿意把门开得更大一些，让阳光和另一个人的温度照进来。你的课题不是「学会爱」，而是「允许自己被爱」。",
+    tips: ["练习表达需求：每天试着对伴侣说出一件小事——你的疲惫、你的开心、你的需要。每一次开口都是在给那扇门抹润滑油", "区分独立与疏离：问自己一个诚实的问题——「我此刻的距离是因为我需要空间，还是因为靠近让我害怕？」", "允许依赖：在安全的关系里练习接受帮助。依赖不是软弱，而是对另一个人的信任投票"]
+  },
+  avoidant_high: {
+    name: "高度回避型依恋",
+    celeb: "史蒂夫·乔布斯",
+    celebDesc: "乔布斯能用直觉改变世界，却在亲密关系中反复受挫。他曾否认自己的女儿，后来又为此深深后悔。他不是冷酷无情——他是一个在「脆弱」这件事上从未学会安全着陆的人。你与他共享那种用理性和成就筑起的高墙，以及墙后面那个不被允许柔软的自己。",
+    theory: "荣格说，「你抗拒的，会持续存在。」回避型依恋的核心悖论在于：你越是逃避亲密，亲密的缺失就越深刻地塑造着你。被压抑的渴望不会消失，它只是以另一种形式——空虚感、莫名的烦躁、无法解释的疲惫——敲打着你的门。",
+    desc: "你在关系中像一个穿着盔甲的旅人——盔甲保护了你不受伤害，却也让你无法感受到拥抱的温度。亲密让你本能地后退，不是因为你不渴望它，而是因为某个深处的声音在说「靠近是危险的」。你善于用理性分析情感问题，但情感并不总是能被分析。你最大的勇气，也许不是独自面对世界，而是允许自己在另一个人面前卸下铠甲。",
+    tips: ["觉察防御：注意你在什么时候开始「关机」——是伴侣哭泣的时候？是话题变得深入的时候？这些时刻是理解自己的入口", "逐步暴露情感：把情感分享想象成一个调光旋钮——不必一下子拧到最亮，从微微的光开始就足够了", "建立信任：选择一个安全的人，做一个小实验——分享一件让你不舒服的事，然后观察：天，真的没有塌下来"]
+  },
+  secure: {
+    name: "安全型依恋",
+    celeb: "巴拉克·奥巴马",
+    celebDesc: "奥巴马在公开场合对米歇尔的注视里有一种罕见的东西：不占有的深情。他能够在世界级的压力下保持情绪稳定，在婚姻中保持坦诚脆弱，在分歧中保持尊重对话。这不是天赋，而是一种通过自我觉察和关系实践磨练出的能力——你的心理结构与此相似。",
+    theory: "鲍尔比的依恋理论指出，安全型依恋来自早期「足够好的回应」——不是完美的，而是一致的、可预测的。温尼科特称之为「足够好的母亲」——你内心的安全基地已经建成，它允许你自由地探索世界，也自由地回到爱人身边。",
+    desc: "你在亲密关系中拥有一种珍贵的平衡感——像一棵根系深厚的树，既能在风中自在摇摆，也能为另一个人提供荫凉。你不会因为爱而失去自己，也不会因为保护自己而拒绝爱。你能够舒适地在脆弱和力量之间流动，在亲密和独立之间呼吸。这并不意味着你没有困难，而是你拥有面对困难的内在资源。",
+    tips: ["保持觉察：安全感不是一劳永逸的，它像花园需要持续照料。继续关注你的情绪地图，注意那些细微的变化", "持续沟通：你最大的优势是开放沟通的能力——把它当作一种日常练习，而不仅是问题出现时的工具", "稳定投入：在关系中保持一致性——这种可预测的温暖，是你能给伴侣的最珍贵的礼物"]
+  },
+  mixed_anxious: {
+    name: "混合型（焦虑主导）",
+    celeb: "泰勒·斯威夫特",
+    celebDesc: "泰勒的每一首情歌都是一次对爱的解剖——她既渴望全然的亲密，又时刻准备着写一首分手歌。她在「用力抓住」和「提前放手」之间反复横跳，每一段关系都像一个她既想走进又想逃离的房间。你和她一样，在靠近与后退的拉扯中消耗着巨大的能量。",
+    theory: "鲍尔比将此称为「矛盾型依恋」——当早期的养育者既是安慰的来源又是焦虑的来源时，孩子便学会了同时伸手和退缩。荣格会说，你内在的矛盾不是需要消除的敌人，而是需要整合的两极。",
+    desc: "你的内心像一扇旋转门——一半想冲进关系的温暖里，一半想退回安全的距离外。你渴望亲密却又害怕受伤，这种矛盾不是因为你优柔寡断，而是因为你内心住着两个声音：一个在说「靠近」，一个在说「小心」。这种拉扯让你在关系中感到疲惫，因为你永远在做一道没有标准答案的选择题。",
+    tips: ["识别触发点：画一张「触发地图」——什么情况让你想靠近，什么情况让你想逃离？当你能预见风暴，就不会被它淹没", "暂停关系行动：在情绪的旋转门里按下暂停键。告诉自己和伴侣：「我需要时间，不是因为我不在乎，而是因为我太在乎」", "自我安抚：发展一套不依赖伴侣的「情绪急救箱」——呼吸练习、安全的朋友、一个能让你着陆的仪式"]
+  },
+  mixed_avoidant: {
+    name: "混合型（回避主导）",
+    celeb: "基努·里维斯",
+    celebDesc: "基努经历了常人难以承受的丧失——女友去世、孩子夭折——却始终保持着一种温柔的在场感。他不是冷漠，而是把最深的情感收进了一个只有在安全时才会打开的抽屉。你和他一样，拥有深厚的情感容量，只是开启它的条件比别人更苛刻。",
+    theory: "温尼科特提出了「假我」的概念——当真实的自我在早期未被安全接纳时，人会发展出一个符合外界期望的外壳。你的克制可能就是这样一个精心维护的外壳，而里面那个渴望连接的真我，正在等待一个足够安全的时刻走出来。",
+    desc: "你像一个在关系中使用了变速器的人——起步时可以很快很热烈，但一旦速度到了某个临界点，你就会本能地踩下刹车。你渴望亲密又害怕失控，害怕在另一个人面前变得太过柔软以至于失去自己。你的温和克制是一种保护机制，但它有时也会成为一堵透明的墙，让你和深层的连接隔着咫尺天涯。",
+    tips: ["允许脆弱：脆弱不是弱点，而是通往真正亲密的唯一入口。正如莱昂纳德·科恩唱的：「万物皆有裂痕，那是光照进来的地方」", "分阶段靠近：给亲密设一个「音量旋钮」——不必一步到位，从1调到2就是巨大的勇气", "增强信任：准备一个本子，记下伴侣让你感到安全的每个瞬间。当恐惧来袭时，翻开它——那些是真实发生过的事"]
+  },
+  low_attachment: {
+    name: "低依恋反应型",
+    celeb: "查理·芒格",
+    celebDesc: "芒格以冷静著称——他能在市场恐慌时纹丝不动，用理性穿透情绪的迷雾。但他的合伙人巴菲特说，芒格其实是一个深情的人，只是他表达爱的方式是「在你需要时给你最诚实的建议」。你和他一样，爱的方式更接近灯塔而非篝火——稳定、持久，但可能缺少让人感到温暖的近距离光芒。",
+    theory: "科胡特认为，当一个人学会了「去情感化」的生存策略，往往是因为早期环境中情感表达未被镜映或被视为负担。你的平静不一定是真正的宁静——它也可能是一片结了冰的湖面，冰下面仍有水在流动。",
+    desc: "你在关系的温度计上显示的数值总是偏低——不是因为你内心真的没有温度，而是因为你把恒温器调得很低。你对关系波动的不敏感可能让你在伴侣眼中显得像一面不会起波澜的湖，清澈却让人不确定是否足够深。这种平静是一种力量，也可能是一种伪装。你的成长方向不是变得更激烈，而是允许自己感受到更多。",
+    tips: ["理解情感需求：问自己一个诚实的问题——「我是真的不需要温暖，还是已经忘记了被温暖是什么感觉？」", "适度回应：当伴侣分享情绪时，不必提供解决方案——有时候，一句「我听到你了」比任何建议都重要", "增强共情：尝试在观看一部电影时，允许自己被角色的感情打动。感受力是一种可以被重新唤醒的能力"]
+  },
+  high_emotion: {
+    name: "高情绪反应型",
+    celeb: "阿黛尔",
+    celebDesc: "阿黛尔的歌声之所以能让全世界落泪，是因为她不害怕情感的深度。她允许自己被失恋完全击溃，然后又从废墟中唱出最美的旋律。你和她共享这种对情感的深度体验能力——你的感受不是经过过滤的涓涓细流，而是未经稀释的原液。",
+    theory: "荣格称高度敏感的人为「情感的炼金术士」——他们能将原始的情绪体验转化为深刻的理解和创造力。但炼金术需要容器，没有容器的火焰只会灼伤自己。你的成长课题是为自己的情感找到一个足够坚固、足够宽敞的容器。",
+    desc: "你活在情感的高清模式里——当别人感受到微风，你感受到的是飓风；当别人看到涟漪，你看到的是海啸。这种丰沛的感受力让你成为深情的爱人、敏锐的倾听者、和充满共情力的伙伴。但代价是，情绪的潮汐有时会让你失去脚下的土地。你不需要变得麻木，你需要的是学会在情感的大海里游泳，而不是被每一个浪头吞没。",
+    tips: ["情绪分离：想象你的情绪是天气，你是观测天气的人。暴风雨确实在发生，但你不必站在雨里——你可以在窗内观察它", "节奏放缓：给自己一个「情绪减速带」——在做出反应之前数到十，或者写下来再说出口。文字会帮你过滤冲动", "自我调节：建造你的「情绪工具箱」——深呼吸是扳手，正念是螺丝刀，书写是万能钥匙。不同的情绪需要不同的工具"]
+  },
+  low_boundary: {
+    name: "低边界型",
+    celeb: "特蕾莎修女",
+    celebDesc: "特蕾莎修女将自己完全交付给了使命和他人，她的日记后来揭示了长达数十年的「灵魂的黑暗之夜」——持续的空虚、怀疑和耗竭。无限制的给予最终掏空了给予者本身。你与她共享那颗想要为爱牺牲一切的心，但请记住：一盏不断倒出油的灯，终究会熄灭。",
+    theory: "温尼科特强调「客体使用」的概念——在健康的关系中，你需要被当作一个独立的主体来对待，而不是一个满足他人需求的工具。当你的边界模糊时，你正在允许自己被「使用」而不是被「遇见」。",
+    desc: "你的心像一扇没有锁的门——任何人都可以推门而入，把行李放下，然后住在你的空间里。你把「无条件的爱」误解为了「无条件的给予」，把「包容」等同于了「没有底线」。你的善良是真实的，但没有边界的善良最终会变成一种慢性自我伤害。你不是不知道自己在消耗，而是觉得如果不这样做，就不配被爱。这个信念，是你需要温柔而坚定地拆解的。",
+    tips: ["练习拒绝：「不」不是一个粗鲁的字，而是一条保护你花园的栅栏。每天练习对一件小事说「不」，然后观察——世界并没有因此崩塌", "明确责任：画一条线，线的这边是「我的事」，那边是「你的事」。你可以关心对方的那边，但你不必走过去替他们扛", "保护精力：自我照顾不是自私。给自己充电是为了能够更持久地爱——你无法从一个空杯里倒出水来"]
+  },
+  high_boundary: {
+    name: "高边界型",
+    celeb: "安吉丽娜·朱莉",
+    celebDesc: "朱莉在公众面前展现的是一个掌控力极强的女性——她知道自己要什么，不要什么，底线在哪里。但她在收养孩子和人道主义工作中展现的温柔表明，她的高墙不是因为内心冰冷，而是因为她太清楚不被保护是什么感觉。你和她一样，用清晰的边界建筑了一座安全的城堡。",
+    theory: "科胡特指出，过度坚固的边界有时是一种「代偿性自我结构」——当核心自我曾经受到严重威胁时，人会建立起超常强度的防御。你的边界是你智慧的结晶，但也许现在可以问：有些门是否可以装上门把手，而不仅仅是锁？",
+    desc: "你为自己建造了一座边界分明的城堡——护城河清澈见底，城墙坚固可靠，每一扇窗都有百叶。你清楚地知道什么该进来、什么该留在外面，这种清晰让你在关系中很少受到不必要的伤害。但城堡的悖论在于：它在阻挡风雨的同时，有时也挡住了阳光。过于坚固的边界可能成为一种精致的孤独。你的成长方向不是拆掉城墙，而是在合适的时候开几扇窗。",
+    tips: ["保持柔软：在你确认安全的关系中，试着让边界从石墙变成篱笆——它仍然是边界，但允许花朵从缝隙中伸出来", "增强情感交流：分享脆弱不等于失去控制。试着每周对伴侣说一件让你感到不安或柔软的事", "平衡控制：反思一个问题——「我的边界是在保护我，还是在隔离我？」两者之间的区别很细微，但至关重要"]
+  },
+  balanced: {
+    name: "结构均衡型",
+    celeb: "米歇尔·奥巴马",
+    celebDesc: "米歇尔的力量在于她的完整性——她能够在白宫的聚光灯下保持真实，在全球关注中保持脚踏实地，在超级成功的婚姻中保持自我。她曾坦言自己和丈夫也需要婚姻咨询，这种坦诚恰恰是心理成熟的标志。你与她共享这种珍贵的自洽——不是没有裂缝，而是知道如何与裂缝共处。",
+    theory: "温尼科特的「真我」概念在你身上得到了较好的体现——你能够在关系中展现真实的自我，既不过度迎合也不过度防御。荣格会说你正走在「个体化」的道路上——整合内在的各种力量，成为更完整的自己。",
+    desc: "你的关系心理结构像一个调音准确的乐器——各个音符之间保持着和谐的关系，既有高音的激昂也有低音的沉稳。你能在亲密和独立之间自如切换，在给予和接受之间保持流动，在脆弱和力量之间找到平衡。这不意味着你没有困难的时刻，而是你拥有一套相对成熟的内在系统来应对这些时刻。你是关系中那种稀有的存在——让人感到安全，也让人感到被尊重。",
+    tips: ["持续觉察：均衡不是一个终点，而是一个需要持续校准的状态。像园丁一样定期检查你的内在花园，修剪需要修剪的，浇灌需要浇灌的", "稳定关系投入：你最大的优势是一致性——继续做那个伴侣可以依赖的存在，但也记得偶尔让自己被照顾", "自我成长：把每段关系视为一面镜子——不是为了照见完美，而是为了照见那些还可以更深入探索的角落"]
+  }
 };
 
 let idx = 0;
@@ -439,10 +538,10 @@ function getLevel(score) {
 
 function getDimAnalysis(dim, score) {
   const a = {
-    agency: { high: "你在关系中展现出强烈的自我认同感和独立决策能力。你清楚自己的价值观和需求，能够在保持关系和谐的同时坚守自我。这种特质让你在亲密关系中不易迷失自我。", medium: "你在关系中具有一定的自主性，但有时可能会在自我需求和关系需求之间产生摇摆。建议在重要决策时更多倾听内心的声音。", low: "你可能在关系中过度迎合伴侣，忽视了自己的需求和想法。长期如此可能导致自我价值感降低。建议开始练习表达自己的观点和需求。" },
-    boundary: { high: "你具有清晰的个人边界意识，能够有效地区分自己和他人的责任与情绪。你善于保护自己的身心健康，同时尊重伴侣的独立空间。这是建立健康关系的重要基础。", medium: "你对边界有基本的认知，但在某些情况下可能难以坚守。建议识别那些让你感到不适的情境，并练习在这些情境中表达自己的界限。", low: "你可能存在边界模糊的问题，容易承担不属于自己的责任或允许他人侵入你的私人空间。学会说「不」是你当前最重要的成长课题。" },
-    emotion: { high: "你具有出色的情绪调节能力，能够在关系冲突中保持相对冷静，并以建设性的方式处理负面情绪。这种能力让你在亲密关系中更具稳定性和可靠性。", medium: "你能够在大多数情况下管理自己的情绪，但在压力或冲突加剧时可能会出现情绪失控。建议发展更多的情绪调节策略。", low: "你可能经常被情绪所主导，在关系中容易出现冲动反应或情绪化行为。优先发展情绪觉察和自我安抚能力将大大改善你的关系质量。" },
-    attachment: { high: "你展现出安全型依恋的特征，对关系有基本的信任感，能够舒适地与伴侣建立亲密连接。你相信自己值得被爱，也相信伴侣会在需要时给予支持。", medium: "你对关系有一定的信任，但可能偶尔会出现不安全感或担忧。这些感受是正常的，关键是不让它们主导你的行为模式。", low: "你可能对关系缺乏基本的安全感，经常担心被抛弃或不被爱。理解这些模式的根源，并在安全的关系中练习信任，是你的成长方向。" }
+    agency: { high: "你在关系中像一棵根系深厚的树——无论风从哪个方向吹来，你都知道自己的根在哪里。你清楚自己的价值观和需求，能够在和伴侣跳双人舞时保持自己的节奏。这种内在的锚定感让你不会在爱情的洋流中漂失方向，是一种珍贵的心理资产。", medium: "你在关系中有自己的声音，但这个声音有时会被对方的音量盖过。像一个偶尔会迷路的指南针——大部分时候指向真北，但在磁场干扰下会摇摆不定。建议在重要决策时给自己一个独处的时刻，听听内心最安静处的那个回答。", low: "你可能在关系中变成了一面回声壁——反射的都是对方的声音，而你自己的话语越来越小声。长期如此，你可能某天醒来会发现镜子里站着的是一个陌生人。主体性不是自私，它是你作为一个独立个体存在的基石。" },
+    boundary: { high: "你的内在领地有着清晰的地图和标记——你知道哪些是你的领土，哪些是对方的，哪些是共享的花园。你能够温柔而坚定地在这些线上站稳，既保护自己也尊重伴侣。温尼科特会说，你拥有健康的「客体使用」能力——你允许伴侣做独立的个体，也要求同样的待遇。", medium: "你对边界有基本的感知，但在某些情境下——尤其是面对强烈的情感压力时——那条线可能会变得模糊。你有时候会答应不想答应的事，或者在应该说「不」的时候选择了沉默。建议留意那些让你事后感到后悔或疲惫的时刻——它们往往是边界被越过的信号。", low: "你的内心像一座没有围墙的花园——任何人都可以自由进出，踩过你的花丛。你可能习惯性地承担不属于自己的责任，把别人的需求放在自己前面，直到某天发现花园里已经没有属于自己的空间。学会说「不」，是你当前最勇敢也最温柔的功课。" },
+    emotion: { high: "你的内在拥有一套出色的气象系统——能够感知情绪的风向变化，但不会被每一阵风吹倒。在关系的冲突时刻，你像一座灯塔，保持着相对的稳定和清晰。这种能力让你成为关系中可靠的「情绪锚点」，伴侣在你身边会感到安全。", medium: "你在情绪的海面上大多数时候能平稳航行，但偶尔的大浪仍然会让你失去平衡。压力叠加的时刻——工作和关系同时出问题时——可能是你最脆弱的窗口。建议为这些时刻准备一个「情绪急救方案」，就像船上备着救生衣。", low: "你的情绪像一匹未被驯服的马——充满力量但难以控制方向。在关系中，你可能会说出事后后悔的话，做出事后懊恼的事。这不是因为你不好，而是因为你的情绪引擎太过强大，而刹车系统还在发育中。优先投资于情绪觉察和自我安抚的能力，它会改变你关系的整个面貌。" },
+    attachment: { high: "你的内心有一个温暖的「安全基地」——鲍尔比所描述的那种让你能自由探索世界又随时可以回来的港湾。你相信自己值得被爱，也相信对方会在你需要时伸出手。这种信任不是天真，而是你内心深处安全感的自然流露，它让你能够在亲密关系中既靠近又自在。", medium: "你对关系的信任像一面有些裂纹的窗户——大部分时候它是透明的，但某些角度会让光线扭曲。偶尔的不安全感是人之常情，关键在于不让这些裂纹蔓延到整面窗户。当焦虑浮现时，试着把它当作一位有些焦急的信使——听听它在说什么，但不必照单全收。", low: "你心里可能有一扇很久以前就关上的门——门后面写着「相信别人是危险的」。也许是因为某些早期经历教会了你这个信念，也许是过往的关系留下了太深的印记。鲍尔比会说，你的依恋系统还在等待一个「足够好的回应」来修复它。好消息是，大脑是可塑的——在安全的关系中，信任可以被重新学习。" }
   };
   const k = score >= 36 ? "high" : score >= 28 ? "medium" : "low";
   return a[dim][k];
@@ -450,30 +549,30 @@ function getDimAnalysis(dim, score) {
 
 function getPatterns(s) {
   const p = [];
-  if (s.attachment < 30 && s.emotion > 36) p.push({ icon: "🌀", title: "焦虑-抗议循环", desc: "当感到关系不安全时，你可能会通过抗议行为（如频繁联系、质问）来测试伴侣的在意程度。这种模式虽然出于寻求安全感的需要，但可能适得其反地推远伴侣。" });
-  if (s.boundary < 30 && s.agency < 30) p.push({ icon: "🪞", title: "过度融合倾向", desc: "你可能倾向于与伴侣过度融合，模糊自我与他人的界限。在关系中，你可能会不自觉地放弃自己的需求、兴趣甚至身份，以获得连接感。" });
-  if (s.attachment > 36 && s.boundary > 36) p.push({ icon: "🏰", title: "情感自足模式", desc: "你在情感上相对独立，能够自我满足大部分情感需求。这种模式让你在关系中更加稳定，但也需要注意不要因此而关闭与伴侣深度连接的可能性。" });
-  if (s.emotion < 30 && s.boundary < 30) p.push({ icon: "🎭", title: "情绪蔓延模式", desc: "你可能容易受伴侣情绪的影响，难以区分自己的情绪和对方的情绪。当伴侣不开心时，你也会感到痛苦，即使这与你无关。" });
-  if (p.length === 0) p.push({ icon: "⚖️", title: "适应性关系模式", desc: "你的关系模式相对灵活，能够根据情境和伴侣的需要进行调整。你在亲密和独立之间取得了较好的平衡，这是健康关系的重要基础。" });
+  if (s.attachment < 30 && s.emotion > 36) p.push({ icon: "🌀", title: "焦虑-抗议循环", desc: "你的内心像一个不断旋转的陀螺——越不安就转得越快，越快就越难停下来。当感到关系不安全时，你可能会通过抗议行为来测试伴侣的在意程度：频繁的消息、反复的追问、甚至有意的冷落。这像是在对方的窗户上不断敲击，希望他们探出头来证明「你还在」。讽刺的是，你越用力敲，对方越可能关上窗。" });
+  if (s.boundary < 30 && s.agency < 30) p.push({ icon: "🪞", title: "过度融合倾向", desc: "你和伴侣之间像两杯倒在一起的水——彼此渗透到了无法分辨「哪些是你的，哪些是我的」。你不自觉地把对方的喜好变成自己的喜好，把对方的情绪当成自己的天气。温尼科特会说，你正在用「假我」来换取连接感。但真正的亲密不是两个人变成一个人，而是两个完整的人选择靠在一起。" });
+  if (s.attachment > 36 && s.boundary > 36) p.push({ icon: "🏰", title: "情感自足模式", desc: "你在情感上像一座自给自足的岛屿——有自己的淡水、自己的食物、自己的风景。大部分时候，你不需要另一座岛的补给就能过得很好。这种内在的丰盈让你在关系中从容不迫，但也请时不时向海面望去：那些试图靠岸的船，也许带来的不是入侵，而是你未曾品尝过的果实。" });
+  if (s.emotion < 30 && s.boundary < 30) p.push({ icon: "🎭", title: "情绪蔓延模式", desc: "你的内心像一块没有边框的水彩画——伴侣的颜色很容易渗透过来，把你原本的色调染成他们的。当对方下雨，你也跟着淋湿；当对方生气，你的胃也跟着紧缩。这种高度的共情能力让你成为敏感的伴侣，但如果不给自己加上一层透明的保护膜，你可能会在别人的风暴里耗尽自己。" });
+  if (p.length === 0) p.push({ icon: "⚖️", title: "适应性关系模式", desc: "你的关系模式像水——能够根据容器的形状灵活改变，却始终保持着自己的本质。你在亲密和独立之间像一个经验丰富的走钢丝者，大部分时候都能保持平衡。这种适应性是一种难得的心理弹性，它让你能够在不同的关系情境中找到舒适的位置。" });
   return p;
 }
 
 function getRisks(s) {
   const r = [];
-  if (s.boundary < 24) r.push("边界感严重不足可能导致关系中的过度付出和情感耗竭。你可能正在以牺牲自我的方式维持关系，这种模式长期来看是不可持续的。");
-  if (s.emotion < 24) r.push("情绪调节能力不足可能导致关系中的频繁冲突和冲动行为。强烈的情绪反应可能让伴侣感到压力，也可能让你在事后感到后悔。");
-  if (s.attachment < 24 && s.emotion > 36) r.push("高度焦虑型依恋模式可能让你陷入「越在意越焦虑，越焦虑越抓紧，越抓紧越推开」的恶性循环。");
-  if (s.agency < 24) r.push("过低的主体性可能导致你在关系中逐渐失去自我。你可能会发现自己越来越不知道「我是谁」「我想要什么」。");
+  if (s.boundary < 24) r.push("你的边界像一座正在消融的冰川——每一次退让都让它缩小一点，直到有一天你发现脚下已经没有立足之地。过度付出不是爱的证明，而是一种慢性的自我侵蚀。当你把自己掏空去填满别人的缺口，最终剩下的只有疲惫和无声的愤怒。");
+  if (s.emotion < 24) r.push("你的情绪像一座没有泄洪口的水库——表面看起来平静，但水位一直在涨。当它终于溢出时，可能会以冲动的言语、后悔的行为、或者突然的崩溃的形式出现。给自己的情绪找到健康的出口，是当前最紧迫的课题。");
+  if (s.attachment < 24 && s.emotion > 36) r.push("你可能正陷入一个痛苦的漩涡：越在意就越焦虑，越焦虑就越紧抓，越紧抓对方越后退，对方越后退你就越在意。这个循环像一个自我实现的预言——你最害怕的结局，正在被你的应对方式一步步制造出来。打破它的钥匙不在对方手里，在你自己手里。");
+  if (s.agency < 24) r.push("你在关系中正在经历一种缓慢的「自我消融」——像一块盐慢慢溶解在水里。你可能越来越不知道自己喜欢什么、想要什么、是谁。当一个人为了维持关系而放弃自我，最终失去的不只是自我，往往也包括那段关系本身。");
   return r;
 }
 
 function getGrowthPath(s) {
   const lowest = Object.entries(s).reduce((a, b) => a[1] < b[1] ? a : b)[0];
   const paths = {
-    agency: [{ phase: "第一阶段", title: "自我觉察", desc: "开始关注自己的需求、感受和想法。每天花5分钟问自己：「我今天真正想要的是什么？」" }, { phase: "第二阶段", title: "小步表达", desc: "从小事开始练习表达自己的偏好和意见，即使与伴侣不同。例如，主动选择今天吃什么、看什么电影。" }, { phase: "第三阶段", title: "坚守价值", desc: "识别自己的核心价值观，并在关系中坚守这些不可协商的底线。学会在爱对方的同时也爱自己。" }],
-    boundary: [{ phase: "第一阶段", title: "识别边界", desc: "觉察哪些行为让你感到不适或被侵犯。记录这些情境，了解自己的边界在哪里。" }, { phase: "第二阶段", title: "练习表达", desc: "学习用「我」的陈述方式表达边界：「我感到...」「我需要...」「我不接受...」" }, { phase: "第三阶段", title: "一致执行", desc: "在识别和表达边界后，最重要的是一致性地执行。当边界被试探时，坚定而温和地重申。" }],
-    emotion: [{ phase: "第一阶段", title: "情绪命名", desc: "学习识别和命名自己的情绪。不是简单的「好」或「不好」，而是具体的「失望」「委屈」「担忧」等。" }, { phase: "第二阶段", title: "暂停机制", desc: "当情绪升起时，建立暂停机制。可以是深呼吸、离开现场几分钟、或者告诉伴侣「我需要时间冷静」。" }, { phase: "第三阶段", title: "自我安抚", desc: "发展独立于伴侣的情绪调节能力。可能是运动、写作、与朋友倾诉，或者专业的心理咨询。" }],
-    attachment: [{ phase: "第一阶段", title: "模式觉察", desc: "了解自己的依恋模式是如何形成的，它与早期经历有什么关系。觉察是改变的第一步。" }, { phase: "第二阶段", title: "挑战信念", desc: "识别那些驱动不安全感的核心信念（如「我不值得被爱」），并开始用现实证据挑战它们。" }, { phase: "第三阶段", title: "安全实验", desc: "在当前关系中进行「安全实验」：表达脆弱、请求支持，观察伴侣的真实反应，而非你想象的反应。" }]
+    agency: [{ phase: "觉醒之冬", title: "重新听见自己的声音", desc: "苏格拉底说「认识你自己」。每天花5分钟安静地问：「如果不考虑任何人的期待，我此刻真正想要的是什么？」把答案写下来。这些纸片上的字，就是你自己的轮廓在慢慢浮现。" }, { phase: "萌芽之春", title: "让声音穿透沉默", desc: "从最小的事情开始说出自己的偏好——今天想吃什么、想去哪里、想看什么。每一次表达，都是在告诉自己：「我的声音值得被听见。」不要等到完美的时刻，笨拙的开口也是勇气。" }, { phase: "扎根之夏", title: "在爱中保持完整", desc: "识别你不可协商的核心价值观——那些定义「你是谁」的东西。荣格说，个体化是一个人最重要的心理任务。在爱里保持自我，不是不爱对方，而是确保你献出的爱来自一个完整的人，而非一个空壳。" }],
+    boundary: [{ phase: "觉醒之冬", title: "绘制你的领地地图", desc: "花一周时间记录所有让你感到不适、委屈或被侵犯的时刻。不要评判，只是记录。这些记录就像考古学家的笔记——它们会帮你发现那条一直存在但从未被标记的边界线。" }, { phase: "萌芽之春", title: "学习边界的语言", desc: "温尼科特说，健康的关系需要「足够好的距离」。学习用「我」开头的句子画线：「我感到不舒服」「我需要时间」「这个我不能接受」。边界不是墙，而是门——你选择什么时候打开，什么时候关闭。" }, { phase: "扎根之夏", title: "像潮汐一样一致", desc: "边界最难的部分不是设定，而是坚守。当有人试探你的底线时，做潮汐——温柔但不可阻挡地回到自己的位置。一致性是边界的灵魂，没有一致性的边界只是偶尔的抗议。" }],
+    emotion: [{ phase: "觉醒之冬", title: "给每种情绪一个名字", desc: "荣格说，「直到你让潜意识变成意识，它将一直指导你的生活，而你称之为命运。」学会给情绪命名是第一步——不是笼统的「不好」，而是具体的「被忽视的委屈」「害怕失去的焦虑」「不被理解的愤怒」。当你能叫出它的名字，它就不再是暗处的怪兽。" }, { phase: "萌芽之春", title: "在火焰与行动之间插入一个呼吸", desc: "情绪的升起到行为的做出之间，有一个微小的间隙。维克多·弗兰克尔称之为「人最后的自由」。练习在这个间隙里做一次深呼吸、离开房间走三分钟、或者简单地说：「我现在需要一点时间。」这个间隙，就是你重获自由的地方。" }, { phase: "扎根之夏", title: "成为自己的安全港", desc: "发展一套不依赖任何人的情绪调节系统——运动是你的锚，书写是你的灯塔，呼吸是你的救生圈。科胡特说，成熟的自我能够自我安抚。这不是不需要别人，而是在别人到来之前，你已经能给自己一个温暖的拥抱。" }],
+    attachment: [{ phase: "觉醒之冬", title: "回溯河流的源头", desc: "鲍尔比说，我们在关系中的模式是童年依恋经验的回声。花时间回顾：你最早关于「被爱」和「被忽视」的记忆是什么？不是为了责怪谁，而是为了理解——你今天的反应，有一部分根系深扎在很久以前。觉察本身就是疗愈的开始。" }, { phase: "萌芽之春", title: "质疑那些古老的信念", desc: "你心里可能有一些很旧很旧的句子：「我不配被爱」「靠近别人会受伤」「没有人会真正留下来」。把它们写出来，然后像一个温和的侦探一样审视：这些是事实，还是一个受伤的小孩得出的结论？用现在的证据去检验过去的判决。" }, { phase: "扎根之夏", title: "在安全中重新学习信任", desc: "温尼科特说，疗愈发生在「足够安全的关系」中。在你信任的关系里做一个小实验——表达一个脆弱的感受、提出一个需要帮助的请求——然后睁开眼睛看看对方真实的反应。你会发现，现实往往比恐惧温柔得多。每一次安全的体验，都在你大脑里铺设一条新的神经通路。" }]
   };
   return paths[lowest] || paths.attachment;
 }
@@ -563,6 +662,13 @@ function showResult() {
     </div>
 
     <div class="card">
+      <div class="card-title"><span class="icon icon-blue">📖</span>心理学视角</div>
+      <div style="padding: 20px; background: linear-gradient(135deg, rgba(96,165,250,0.1) 0%, rgba(139,92,246,0.1) 100%); border-radius: 14px; border-left: 4px solid #60a5fa;">
+        <p style="font-size: 14px; color: var(--text); line-height: 1.8; font-style: italic;">${result.theory}</p>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-title"><span class="icon icon-green">🌱</span>个性化成长路径</div>
       <div class="timeline">
         ${growth.map(g => `
@@ -600,6 +706,10 @@ function showResult() {
         <h3>写给你的话</h3>
         <p>亲密关系是我们认识自己、成长自己的一面镜子。无论你目前处于什么样的依恋模式，这都不是固定不变的标签，而是一个起点。每一种模式都有其存在的原因和价值，也都有成长的空间。重要的不是成为「完美」的伴侣，而是在关系中保持觉察、真诚和成长的意愿。你值得拥有健康、滋养的亲密关系。</p>
       </div>
+      <div style="margin-top: 24px; padding: 24px; background: linear-gradient(135deg, rgba(15,23,42,0.8) 0%, rgba(30,41,59,0.9) 100%); border-radius: 14px; border: 1px solid rgba(167,139,250,0.15);">
+        <p style="font-size: 15px; color: var(--primary-light); text-align: center; font-weight: 600; margin-bottom: 16px; letter-spacing: 2px;">关于爱与依恋的哲思</p>
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 2; text-align: center; max-width: 520px; margin: 0 auto;">鲍尔比说，依恋是「从摇篮到坟墓」的需求。<br>温尼科特说，「独处的能力建立在有人在场的经验上」。<br>荣格说，「与另一个人的相遇，就像接触一种化学物质——如果有任何反应发生，双方都会被改变」。<br><br>也许爱的终极形态不是完美的融合，<br>而是两个不完美的人，<br>在彼此的不完美中看见了自己，<br>然后选择留下来。</p>
+      </div>
       <div class="disclaimer">
         <h5>专业声明</h5>
         <p>本测评基于依恋理论和关系心理学研究设计，旨在帮助个人进行自我探索和反思。测评结果仅供参考，不构成心理诊断或医学建议。如果您正在经历严重的情绪困扰或关系问题，建议寻求专业心理咨询师的帮助。</p>
@@ -634,7 +744,7 @@ function showResult() {
         }]
       },
       options: {
-        scales: { r: { beginAtZero: true, max: 48, ticks: { stepSize: 12 } } },
+        scales: { r: { beginAtZero: true, max: 48, ticks: { stepSize: 12, color: '#94a3b8', backdropColor: 'transparent' }, grid: { color: '#334155' }, angleLines: { color: '#334155' }, pointLabels: { color: '#e2e8f0' } } },
         plugins: { legend: { display: false } }
       }
     });
@@ -667,7 +777,7 @@ async function downloadPDF() {
     // 创建PDF专用容器
     const pdfContainer = document.createElement('div');
     pdfContainer.id = 'pdfContent';
-    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#0f172a;padding:40px;font-family:"Noto Sans SC",sans-serif;color:#e2e8f0;';
 
     pdfContainer.innerHTML = `
       <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
@@ -676,72 +786,72 @@ async function downloadPDF() {
         <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
       </div>
 
-      <div style="background:#f8fafc;border-radius:16px;padding:30px;margin-bottom:25px;">
-        <div style="color:#667eea;font-size:14px;margin-bottom:8px;">你的依恋类型</div>
-        <div style="font-size:28px;font-weight:700;color:#1e293b;margin-bottom:12px;">${result.name}</div>
-        <div style="color:#64748b;font-size:14px;line-height:1.8;">${result.desc}</div>
+      <div style="background:#1e293b;border-radius:16px;padding:30px;margin-bottom:25px;">
+        <div style="color:#a78bfa;font-size:14px;margin-bottom:8px;">你的依恋类型</div>
+        <div style="font-size:28px;font-weight:700;color:#e2e8f0;margin-bottom:12px;">${result.name}</div>
+        <div style="color:#94a3b8;font-size:14px;line-height:1.8;">${result.desc}</div>
       </div>
 
       <div style="display:flex;gap:15px;margin-bottom:25px;">
-        <div style="flex:1;background:#f0fdf4;border-radius:12px;padding:20px;text-align:center;">
-          <div style="font-size:28px;font-weight:700;color:#22c55e;">${total}</div>
-          <div style="font-size:12px;color:#64748b;">综合得分 /192</div>
+        <div style="flex:1;background:rgba(34,197,94,0.1);border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#4ade80;">${total}</div>
+          <div style="font-size:12px;color:#94a3b8;">综合得分 /192</div>
         </div>
-        <div style="flex:1;background:#eff6ff;border-radius:12px;padding:20px;text-align:center;">
-          <div style="font-size:28px;font-weight:700;color:#3b82f6;">${avg}</div>
-          <div style="font-size:12px;color:#64748b;">平均维度 /48</div>
+        <div style="flex:1;background:rgba(59,130,246,0.1);border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#60a5fa;">${avg}</div>
+          <div style="font-size:12px;color:#94a3b8;">平均维度 /48</div>
         </div>
-        <div style="flex:1;background:#fef3c7;border-radius:12px;padding:20px;text-align:center;">
-          <div style="font-size:18px;font-weight:700;color:#f59e0b;">${dimInfo[highest].name}</div>
-          <div style="font-size:12px;color:#64748b;">最强维度</div>
+        <div style="flex:1;background:rgba(245,158,11,0.1);border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fbbf24;">${dimInfo[highest].name}</div>
+          <div style="font-size:12px;color:#94a3b8;">最强维度</div>
         </div>
-        <div style="flex:1;background:#fce7f3;border-radius:12px;padding:20px;text-align:center;">
-          <div style="font-size:18px;font-weight:700;color:#ec4899;">${dimInfo[lowest].name}</div>
-          <div style="font-size:12px;color:#64748b;">成长方向</div>
+        <div style="flex:1;background:rgba(236,72,153,0.1);border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#f472b6;">${dimInfo[lowest].name}</div>
+          <div style="font-size:12px;color:#94a3b8;">成长方向</div>
         </div>
       </div>
 
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">四维度深度分析</div>
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">四维度深度分析</div>
         ${['agency', 'boundary', 'emotion', 'attachment'].map(d => {
           const info = dimInfo[d], lv = getLevel(s[d]), pct = Math.round(s[d]/48*100);
           return `
-            <div style="background:#f8fafc;border-radius:12px;padding:20px;margin-bottom:12px;">
+            <div style="background:#1e293b;border-radius:12px;padding:20px;margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <div style="font-size:16px;font-weight:600;color:#1e293b;">${info.icon} ${info.name}</div>
+                <div style="font-size:16px;font-weight:600;color:#e2e8f0;">${info.icon} ${info.name}</div>
                 <div style="display:flex;align-items:center;gap:10px;">
                   <span style="background:${lv.color};color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;">${lv.level}</span>
-                  <span style="font-weight:700;color:#667eea;">${s[d]}/48</span>
+                  <span style="font-weight:700;color:#a78bfa;">${s[d]}/48</span>
                 </div>
               </div>
-              <div style="background:#e2e8f0;height:8px;border-radius:4px;margin-bottom:10px;">
+              <div style="background:#334155;height:8px;border-radius:4px;margin-bottom:10px;">
                 <div style="background:linear-gradient(90deg,#667eea,#764ba2);height:100%;border-radius:4px;width:${pct}%;"></div>
               </div>
-              <div style="color:#64748b;font-size:13px;line-height:1.7;">${getDimAnalysis(d, s[d])}</div>
+              <div style="color:#94a3b8;font-size:13px;line-height:1.7;">${getDimAnalysis(d, s[d])}</div>
             </div>
           `;
         }).join('')}
       </div>
 
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">实践行动建议</div>
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">实践行动建议</div>
         ${result.tips.map((t, i) => `
           <div style="display:flex;gap:12px;margin-bottom:12px;">
             <div style="width:28px;height:28px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">${i+1}</div>
-            <div style="color:#475569;font-size:14px;line-height:1.7;padding-top:4px;">${t}</div>
+            <div style="color:#94a3b8;font-size:14px;line-height:1.7;padding-top:4px;">${t}</div>
           </div>
         `).join('')}
       </div>
 
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">关系互动模式</div>
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">关系互动模式</div>
         ${patterns.map(p => `
-          <div style="background:linear-gradient(135deg,#ede9fe 0%,#e0e7ff 100%);border-radius:12px;padding:20px;margin-bottom:12px;">
+          <div style="background:linear-gradient(135deg,rgba(139,92,246,0.15) 0%,rgba(102,126,234,0.15) 100%);border-radius:12px;padding:20px;margin-bottom:12px;">
             <div style="display:flex;gap:14px;align-items:flex-start;">
-              <div style="width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${p.icon}</div>
+              <div style="width:44px;height:44px;background:#1e293b;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${p.icon}</div>
               <div>
-                <div style="font-size:15px;font-weight:600;color:#1e293b;margin-bottom:6px;">${p.title}</div>
-                <div style="font-size:13px;color:#64748b;line-height:1.7;">${p.desc}</div>
+                <div style="font-size:15px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">${p.title}</div>
+                <div style="font-size:13px;color:#94a3b8;line-height:1.7;">${p.desc}</div>
               </div>
             </div>
           </div>
@@ -750,12 +860,12 @@ async function downloadPDF() {
 
       ${risks.length > 0 ? `
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">需要关注的信号</div>
-        <div style="background:linear-gradient(135deg,#fef2f2 0%,#fff7ed 100%);border-radius:12px;padding:20px;border:1px solid #fecaca;">
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">需要关注的信号</div>
+        <div style="background:linear-gradient(135deg,rgba(239,68,68,0.1) 0%,rgba(245,158,11,0.1) 100%);border-radius:12px;padding:20px;border:1px solid rgba(254,202,202,0.2);">
           ${risks.map(r => `
             <div style="display:flex;gap:10px;margin-bottom:12px;">
               <div style="width:8px;height:8px;background:#f59e0b;border-radius:50%;margin-top:6px;flex-shrink:0;"></div>
-              <div style="font-size:13px;color:#78350f;line-height:1.7;">${r}</div>
+              <div style="font-size:13px;color:#fca5a5;line-height:1.7;">${r}</div>
             </div>
           `).join('')}
         </div>
@@ -763,58 +873,68 @@ async function downloadPDF() {
       ` : ''}
 
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">个性化成长路径</div>
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">个性化成长路径</div>
         ${growth.map((g, i) => `
           <div style="display:flex;gap:14px;margin-bottom:16px;">
             <div style="width:32px;height:32px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;font-size:14px;">${i+1}</div>
             <div style="flex:1;">
-              <div style="font-size:12px;color:#667eea;font-weight:600;margin-bottom:4px;">${g.phase}</div>
-              <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">${g.title}</div>
-              <div style="font-size:13px;color:#64748b;line-height:1.7;">${g.desc}</div>
+              <div style="font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:4px;">${g.phase}</div>
+              <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">${g.title}</div>
+              <div style="font-size:13px;color:#94a3b8;line-height:1.7;">${g.desc}</div>
             </div>
           </div>
         `).join('')}
       </div>
 
       <div style="margin-bottom:25px;">
-        <div style="font-size:18px;font-weight:600;color:#1e293b;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">关系经营建议</div>
+        <div style="font-size:18px;font-weight:600;color:#e2e8f0;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #334155;">关系经营建议</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+          <div style="background:#1e293b;border-radius:12px;padding:18px;text-align:center;">
             <div style="font-size:24px;margin-bottom:8px;">💬</div>
-            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">沟通方式</div>
-            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.emotion >= 36 ? '你适合直接、坦诚的沟通方式。在情绪稳定时主动表达需求。' : '建议在沟通前先进行自我觉察，避免情绪化表达。使用「我」陈述而非指责。'}</div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">沟通方式</div>
+            <div style="font-size:12px;color:#94a3b8;line-height:1.6;">${s.emotion >= 36 ? '你适合直接、坦诚的沟通方式。在情绪稳定时主动表达需求。' : '建议在沟通前先进行自我觉察，避免情绪化表达。使用「我」陈述而非指责。'}</div>
           </div>
-          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+          <div style="background:#1e293b;border-radius:12px;padding:18px;text-align:center;">
             <div style="font-size:24px;margin-bottom:8px;">⏰</div>
-            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">相处节奏</div>
-            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.boundary >= 36 ? '你需要足够的个人空间和独处时间。与伴侣建立「在一起的独处」模式。' : '尝试在亲密和独立之间找到平衡，不要害怕要求属于自己的时间。'}</div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">相处节奏</div>
+            <div style="font-size:12px;color:#94a3b8;line-height:1.6;">${s.boundary >= 36 ? '你需要足够的个人空间和独处时间。与伴侣建立「在一起的独处」模式。' : '尝试在亲密和独立之间找到平衡，不要害怕要求属于自己的时间。'}</div>
           </div>
-          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+          <div style="background:#1e293b;border-radius:12px;padding:18px;text-align:center;">
             <div style="font-size:24px;margin-bottom:8px;">🎯</div>
-            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">冲突处理</div>
-            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.emotion >= 36 && s.agency >= 36 ? '你能够建设性地处理冲突。保持这种能力，同时注意倾听伴侣的感受。' : '冲突时给自己冷静期，避免在情绪高涨时做决定或说伤人的话。'}</div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">冲突处理</div>
+            <div style="font-size:12px;color:#94a3b8;line-height:1.6;">${s.emotion >= 36 && s.agency >= 36 ? '你能够建设性地处理冲突。保持这种能力，同时注意倾听伴侣的感受。' : '冲突时给自己冷静期，避免在情绪高涨时做决定或说伤人的话。'}</div>
           </div>
-          <div style="background:#f8fafc;border-radius:12px;padding:18px;text-align:center;">
+          <div style="background:#1e293b;border-radius:12px;padding:18px;text-align:center;">
             <div style="font-size:24px;margin-bottom:8px;">🌟</div>
-            <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">信任建立</div>
-            <div style="font-size:12px;color:#64748b;line-height:1.6;">${s.attachment >= 36 ? '你有建立信任的基础能力。继续保持开放和一致性，让伴侣感到安全。' : '信任需要时间和一致性。从小的承诺开始，逐步建立对关系的信心。'}</div>
+            <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:6px;">信任建立</div>
+            <div style="font-size:12px;color:#94a3b8;line-height:1.6;">${s.attachment >= 36 ? '你有建立信任的基础能力。继续保持开放和一致性，让伴侣感到安全。' : '信任需要时间和一致性。从小的承诺开始，逐步建立对关系的信心。'}</div>
           </div>
         </div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:20px;margin-bottom:25px;">
-        <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:8px;">心理特征对标</div>
-        <div style="font-size:16px;font-weight:700;color:#78350f;margin-bottom:6px;">${result.celeb}</div>
-        <div style="font-size:13px;color:#92400e;line-height:1.6;">${result.celebDesc}</div>
-        <div style="font-size:11px;color:#a16207;margin-top:8px;">名人对标仅用于心理结构特征的直观理解，不代表你的人格、命运或生活轨迹。</div>
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(253,230,138,0.1));border-radius:12px;padding:20px;margin-bottom:25px;">
+        <div style="font-size:14px;font-weight:600;color:#fbbf24;margin-bottom:8px;">心理特征对标</div>
+        <div style="font-size:16px;font-weight:700;color:#fcd34d;margin-bottom:6px;">${result.celeb}</div>
+        <div style="font-size:13px;color:#fbbf24;line-height:1.6;">${result.celebDesc}</div>
+        <div style="font-size:11px;color:#d97706;margin-top:8px;">名人对标仅用于心理结构特征的直观理解，不代表你的人格、命运或生活轨迹。</div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:28px;margin-bottom:25px;color:#fff;text-align:center;">
+      <div style="background:linear-gradient(135deg,rgba(96,165,250,0.1),rgba(139,92,246,0.1));border-radius:12px;padding:20px;margin-bottom:25px;border-left:4px solid #60a5fa;">
+        <div style="font-size:14px;font-weight:600;color:#60a5fa;margin-bottom:8px;">心理学视角</div>
+        <div style="font-size:13px;color:#94a3b8;line-height:1.8;font-style:italic;">${result.theory}</div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:28px;margin-bottom:15px;color:#fff;text-align:center;">
         <div style="font-size:18px;font-weight:600;margin-bottom:14px;">写给你的话</div>
         <div style="font-size:14px;line-height:1.8;opacity:0.95;">亲密关系是我们认识自己、成长自己的一面镜子。无论你目前处于什么样的依恋模式，这都不是固定不变的标签，而是一个起点。每一种模式都有其存在的原因和价值，也都有成长的空间。重要的不是成为「完美」的伴侣，而是在关系中保持觉察、真诚和成长的意愿。你值得拥有健康、滋养的亲密关系。</div>
       </div>
 
-      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+      <div style="background:#1e293b;border-radius:12px;padding:20px;margin-bottom:25px;text-align:center;border:1px solid rgba(167,139,250,0.15);">
+        <div style="font-size:13px;color:#c4b5fd;font-weight:500;margin-bottom:12px;letter-spacing:2px;">关于爱与依恋的哲思</div>
+        <div style="font-size:12px;color:#94a3b8;line-height:2;">鲍尔比说，依恋是「从摇篮到坟墓」的需求。<br>温尼科特说，「独处的能力建立在有人在场的经验上」。<br>荣格说，「与另一个人的相遇，如同接触一种化学物质——双方都会被改变」。<br><br>也许爱的终极形态不是完美的融合，<br>而是两个不完美的人，在彼此的不完美中看见了自己，然后选择留下来。</div>
+      </div>
+
+      <div style="background:#1e293b;border-radius:12px;padding:20px;text-align:center;color:#64748b;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
         <div>本报告仅供参考，不构成心理诊断或医学建议。如果您正在经历严重的情绪困扰或关系问题，建议寻求专业心理咨询师的帮助。</div>
       </div>
@@ -830,7 +950,7 @@ async function downloadPDF() {
     const canvas = await html2canvas(pdfContainer, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0f172a',
       logging: false,
       height: pdfContainer.scrollHeight,
       windowHeight: pdfContainer.scrollHeight

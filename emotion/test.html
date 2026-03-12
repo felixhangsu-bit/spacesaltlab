@@ -7,131 +7,180 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-:root { --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #a5b4fc; --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; --shadow: 0 4px 20px rgba(0,0,0,0.08); --radius: 16px; }
+:root {
+  --primary: #8b5cf6; --primary-dark: #7c3aed; --primary-light: #a78bfa;
+  --bg: #0a0a0a; --card: rgba(255,255,255,0.025); --card-border: rgba(255,255,255,0.07);
+  --text: rgba(255,255,255,0.88); --text-muted: rgba(255,255,255,0.38);
+  --border: rgba(255,255,255,0.07); --accent: rgba(139,92,246,0.55);
+  --gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-.page { display: none; min-height: 100vh; }
+.noise { position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .page.active { display: block; }
 #testPage { background: var(--bg); padding: 20px; }
 .test-container { max-width: 700px; margin: 0 auto; }
 .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
-.back-btn:hover { background: white; color: var(--text); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 16px; border-radius: 0; transition: all 0.2s; letter-spacing: 1px; }
+.back-btn:hover { border-color: rgba(139,92,246,0.4); color: var(--text); }
 .progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
-.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
-.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
-.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
+.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 0; transition: width 0.3s; }
+.question-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 40px; position: relative; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 0; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-family: 'EB Garamond', serif; font-size: 14px; color: var(--accent); margin-bottom: 10px; letter-spacing: 3px; }
+.q-text { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 32px; color: var(--text); }
 .options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: var(--primary-light); background: #fafaff; }
-.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
-.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.03); }
+.opt.selected { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.08); }
+.opt-radio { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
 .opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
 .opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
 .opt-text { font-size: 15px; }
 .nav-btns { display: flex; justify-content: space-between; margin-top: 28px; }
-.nav-btn { padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
-.nav-btn.secondary:hover { border-color: var(--primary); color: var(--primary); }
-.nav-btn.primary { background: var(--primary); border: none; color: white; }
-.nav-btn.primary:hover { background: var(--primary-dark); }
+.nav-btn { padding: 12px 28px; border-radius: 0; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; letter-spacing: 2px; }
+.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.nav-btn.secondary:hover { border-color: rgba(139,92,246,0.4); color: var(--primary-light); }
+.nav-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); }
+.nav-btn.primary:hover { background: rgba(139,92,246,0.25); }
 .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+#resultPage { background: var(--bg); }
 .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-.result-header { text-align: center; color: white; padding: 20px 0 60px; }
-.result-header h1 { font-size: 28px; margin-bottom: 8px; }
-.result-header p { opacity: 0.9; }
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.section-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
-.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-.eq-score { font-size: 64px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
-.eq-level { text-align: center; padding: 8px 24px; background: var(--gradient); color: white; border-radius: 20px; display: inline-block; margin: 16px auto; font-weight: 600; }
+.result-header { text-align: center; color: var(--text); padding: 40px 0 40px; }
+.result-header h1 { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; margin-bottom: 8px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.result-header p { color: var(--text-muted); font-size: 13px; letter-spacing: 3px; }
+.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 32px; margin-bottom: 20px; position: relative; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.section-icon { width: 44px; height: 44px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+.section-title { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.eq-score { font-family: 'EB Garamond', serif; font-size: 64px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; }
+.eq-level { text-align: center; padding: 8px 24px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); border-radius: 0; display: inline-block; margin: 16px auto; font-weight: 600; letter-spacing: 2px; }
 .eq-desc { text-align: center; color: var(--text-muted); font-size: 15px; line-height: 1.8; }
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
-.stat-card { padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; }
-.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-card { padding: 16px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; text-align: center; }
+.stat-value { font-family: 'EB Garamond', serif; font-size: 24px; font-weight: 700; color: var(--primary); }
 .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 .dim-item { margin-bottom: 20px; }
 .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .dim-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-.dim-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-icon { width: 28px; height: 28px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .dim-score { font-weight: 600; color: var(--primary); }
-.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-.dim-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-.level-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.level-high { background: #d1fae5; color: #059669; }
-.level-medium { background: #fef3c7; color: #d97706; }
-.level-low { background: #fee2e2; color: #dc2626; }
-.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; }
-.tip-item { display: flex; gap: 14px; padding: 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
-.tip-num { width: 26px; height: 26px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; margin-bottom: 12px; }
+.dim-bar-fill { height: 100%; border-radius: 0; transition: width 0.5s; }
+.level-badge { padding: 4px 12px; border-radius: 0; font-size: 12px; font-weight: 500; }
+.level-high { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+.level-medium { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.level-low { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+.dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; }
+.tip-item { display: flex; gap: 14px; padding: 16px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; border-left: 2px solid var(--primary); }
+.tip-num { font-family: 'EB Garamond', serif; width: 26px; height: 26px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
 .tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 .download-section { text-align: center; padding: 32px; }
-.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.download-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.35); }
-.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-.restart-btn:hover { border-color: var(--primary); color: var(--primary); }
-.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; }
+.download-btn:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
+.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 0; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+.restart-btn:hover { border-color: rgba(139,92,246,0.4); color: var(--primary-light); }
+.loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .loading.show { opacity: 1; visibility: visible; }
-.loading-box { background: white; padding: 36px; border-radius: 16px; text-align: center; }
-.spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+.loading-box { background: #111; padding: 36px; border-radius: 0; text-align: center; border: 1px solid var(--border); }
+.spinner { width: 44px; height: 44px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: white; padding: 36px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { background: #111; padding: 36px; border-radius: 0; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; border: 1px solid var(--border); }
 .modal-overlay.show .modal-content { transform: scale(1); }
 .modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.modal-content h3 { font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-.modal-tests { background: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.modal-tests { background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; padding: 16px; margin-bottom: 16px; }
 .modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
 .modal-test-item:last-child { border-bottom: none; }
 .modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
 .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
-.modal-btn { padding: 14px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-.modal-btn.primary { background: var(--gradient); color: white; }
-.modal-btn.secondary { background: transparent; border: 2px solid var(--border); color: var(--text-muted); }
-.more-tests-btn { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e; }
+.modal-btn { padding: 14px 24px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; letter-spacing: 2px; }
+.modal-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); }
+.modal-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.more-tests-btn { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3); color: var(--primary-light); }
 .chart-container { max-width: 350px; margin: 20px auto; }
-@media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .question-card { padding: 28px 20px; } .q-text { font-size: 18px; } }
+/* 装饰分隔线 */
+.section-divider { text-align: center; padding: 24px 0; color: var(--text-muted); font-size: 14px; letter-spacing: 12px; opacity: 0.2; }
+.section-divider::before { content: '· · ·'; }
+
+/* 渐变数字 */
+.gradient-num { font-family: 'EB Garamond', serif; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+
+/* 哲学引言卡片 */
+.philosophy-quote { position: relative; padding: 28px 32px; background: rgba(255,255,255,0.015); border-radius: 0; margin: 20px 0; border-left: 2px solid var(--primary); border: 1px solid var(--border); border-left: 2px solid var(--primary); }
+.philosophy-quote::before { content: '\201C'; position: absolute; top: 8px; left: 16px; font-size: 48px; color: var(--primary); opacity: 0.2; font-family: 'EB Garamond', Georgia, serif; }
+.philosophy-quote .quote-text { font-family: 'Noto Serif SC', serif; font-size: 15px; color: var(--text); line-height: 1.8; font-style: italic; padding-left: 8px; }
+.philosophy-quote .quote-source { font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: right; letter-spacing: 1px; }
+
+/* 代表人物标签 */
+.thinker-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(139,92,246,0.08); border-radius: 0; font-size: 13px; color: var(--primary-light); margin-top: 12px; border: 1px solid rgba(139,92,246,0.2); }
+
+/* 增强心理年龄主卡片 */
+.psych-age-main { position: relative; overflow: hidden; }
+.psych-age-main::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%); border-radius: 50%; }
+.psych-age-main::after { content: ''; position: absolute; bottom: -30%; left: -10%; width: 160px; height: 160px; background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%); border-radius: 50%; }
+
+/* 情绪哲学卡片 */
+.philosophy-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(139,92,246,0.15); }
+.philosophy-primary { padding: 24px; background: rgba(139,92,246,0.05); border-radius: 0; margin-bottom: 16px; border: 1px solid rgba(139,92,246,0.1); }
+.philosophy-school { font-size: 12px; color: var(--text-muted); margin-top: 8px; letter-spacing: 2px; }
+
+/* 闭幕卡片 */
+.closing-card { background: rgba(255,255,255,0.02); text-align: center; padding: 40px 32px; border: 1px solid rgba(139,92,246,0.15); position: relative; overflow: hidden; }
+.closing-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.closing-card .closing-icon { font-size: 36px; margin-bottom: 16px; }
+.closing-card .closing-title { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 600; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.closing-card .closing-text { font-size: 14px; color: var(--text-muted); line-height: 1.8; max-width: 500px; margin: 0 auto; }
+.closing-card .closing-sig { margin-top: 20px; font-size: 12px; color: var(--text-muted); letter-spacing: 3px; }
+
+/* 维度分析增强 */
+.dim-score-enhanced { font-family: 'EB Garamond', serif; font-size: 28px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+@media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .question-card { padding: 28px 20px; } .q-text { font-size: 18px; } .philosophy-quote { padding: 20px 24px; } }
 
 /* 年龄输入页面样式 */
-.age-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
-.age-card { background: white; border-radius: 24px; padding: 48px 40px; max-width: 450px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.age-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 20px; }
+.age-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 48px 40px; max-width: 450px; width: 100%; text-align: center; position: relative; }
+.age-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
 .age-icon { font-size: 64px; margin-bottom: 20px; }
-.age-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.age-title { font-family: 'Noto Serif SC', serif; font-size: 24px; font-weight: 700; margin-bottom: 12px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .age-desc { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin-bottom: 32px; }
 .age-input-wrap { margin-bottom: 32px; }
-.age-input { width: 100%; padding: 16px 20px; font-size: 18px; border: 2px solid var(--border); border-radius: 12px; text-align: center; outline: none; transition: all 0.2s; }
-.age-input:focus { border-color: var(--primary); }
-.age-input::placeholder { color: #cbd5e1; }
+.age-input { width: 100%; padding: 16px 20px; font-size: 18px; font-family: 'EB Garamond', serif; border: 1px solid var(--border); border-radius: 0; text-align: center; outline: none; transition: all 0.2s; }
+.age-input:focus { border-color: rgba(139,92,246,0.6); }
+.age-input { color: var(--text); background: rgba(255,255,255,0.015); }
+.age-input::placeholder { color: rgba(255,255,255,0.2); }
 .age-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
-.age-start-btn { width: 100%; padding: 16px; background: var(--gradient); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.age-start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.35); }
-.age-start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.age-start-btn { width: 100%; padding: 16px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--primary-light); border-radius: 0; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; }
+.age-start-btn:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
+.age-start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* 心理年龄卡片样式 */
 .psych-age-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px; }
-.psych-age-card { padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; text-align: center; border: 1px solid var(--border); }
+.psych-age-card { padding: 20px; background: rgba(255,255,255,0.015); border-radius: 0; text-align: center; border: 1px solid var(--border); }
 .psych-age-icon { font-size: 32px; margin-bottom: 8px; }
 .psych-age-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-.psych-age-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+.psych-age-value { font-family: 'EB Garamond', serif; font-size: 28px; font-weight: 700; color: var(--primary); }
 .psych-age-suffix { font-size: 14px; color: var(--text-muted); }
 .psych-age-desc { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
-.psych-age-main { padding: 32px; background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); border-radius: 20px; text-align: center; margin-bottom: 20px; }
+.psych-age-main { padding: 32px; background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.15); border-radius: 0; text-align: center; margin-bottom: 20px; }
 .psych-age-main-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.psych-age-main-value { font-size: 56px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.psych-age-main-type { font-size: 18px; font-weight: 600; color: var(--primary); margin-top: 8px; }
+.psych-age-main-value { font-family: 'EB Garamond', serif; font-size: 56px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.psych-age-main-type { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 600; color: var(--primary-light); margin-top: 8px; }
 .psych-age-main-desc { font-size: 14px; color: var(--text-muted); margin-top: 12px; line-height: 1.7; }
 </style>
 </head>
 <body>
+<div class="noise"></div>
 
 <div id="agePage" class="page active">
   <div class="age-page">
@@ -311,70 +360,70 @@ function getPsychologicalAges(scores, realAge) {
   };
 }
 
-// 40道情绪智力测评题目（基于Mayer-Salovey模型）
+// 40道情绪智力测评题目（基于Mayer-Salovey模型，情境化哲学重写）
 const questions = [
   // 情绪感知 Perceiving (10题)
-  { dim: 'perceive', text: '与人交谈时，我能够通过对方的面部表情判断他们的真实感受', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我能够准确识别自己当前的情绪状态', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我能从他人的语气中察觉到他们隐藏的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '看到一幅艺术作品时，我能感受到其中蕴含的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我能注意到他人的呼吸节奏或声音变化中透露的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '当我感到不舒服时，我能准确说出是什么情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我能察觉到环境中的情绪氛围变化', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '听音乐时，我能感受到音乐所表达的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我能分辨出真诚的微笑和礼貌性的微笑', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'perceive', text: '我很容易被他人的情绪所感染', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'perceive', text: '朋友说「没事」的时候，你内心的雷达会？', options: ['几乎立刻捕捉到他声音里藏着的东西', '大多时候能感觉到哪里不太对', '偶尔会觉得话里有话，但不确定', '一般不会多想，除非对方明说', '通常会信以为真，毕竟他说了没事'] },
+  { dim: 'perceive', text: '深夜独处时，你胸口涌上一阵说不清的感觉。你通常会——', options: ['安静地辨认出它：是遗憾、是怀念、还是某种期待', '大致能给它一个名字，虽然未必精确', '知道自己"不太对劲"，但很难说清是什么', '不太在意，刷刷手机就过去了', '几乎不曾注意过这种模糊的感受'] },
+  { dim: 'perceive', text: '你走进一间会议室，所有人都在微笑，但空气好像有点凝固。你的第一反应是？', options: ['立刻感知到表面客套下隐藏的紧张', '觉得气氛有些微妙，会留心观察', '可能会注意到，也可能专注于自己的事', '通常等别人提起才意识到', '完全不会察觉到这种氛围上的暗流'] },
+  { dim: 'perceive', text: '一首陌生的钢琴曲在咖啡馆响起，你发现自己——', options: ['几乎本能地被音符中的悲伤或喜悦所触动', '能感受到旋律传递的大致情绪', '觉得好听或不好听，但不太深入感受', '更关注节奏和技巧，情感上较少波动', '只把它当作背景音乐，很少留意'] },
+  { dim: 'perceive', text: '和伴侣或好友视频时，你留意到对方的呼吸比平时稍快，眼神有些飘忽。你会——', options: ['心里已经有了判断，温柔地主动问一句', '隐约感觉到了什么，会继续观察', '可能注意到，但未必会联想到情绪变化', '很少关注这些身体层面的细节', '完全不会注意到呼吸和眼神的变化'] },
+  { dim: 'perceive', text: '庄子说「鱼之乐」可以由观鱼者感知。你觉得自己辨识内心天气的能力——', options: ['像一张精密气象图，时刻可以读取', '大部分时候知道是晴是雨', '阴天和多云有时分不太清', '常常到暴风雨来了才发现', '内心天气对我来说是个陌生概念'] },
+  { dim: 'perceive', text: '你走进朋友的新家，主人笑着招呼，但整个空间弥漫着一种你说不出的低气压。你倾向于——', options: ['几乎用"第六感"就读懂了这个空间的情绪底色', '会隐约觉得不太舒服，猜测可能发生了什么', '注意力更多在装修和布置上', '不太会被环境中的情绪影响', '完全不会注意到所谓的"低气压"'] },
+  { dim: 'perceive', text: '一个孩子在公园里蹲着看蚂蚁，嘴角带着笑。你从他脸上读到的是——', options: ['一种混合着好奇、满足和纯粹快乐的复杂情感', '能感受到孩子那种简单的快乐', '觉得是个有趣的画面，但不太会深入解读', '可能不会特别注意一个陌生孩子的表情', '几乎不会关注路人的面部表情'] },
+  { dim: 'perceive', text: '同事在汇报时嘴角上扬，但眼睛没有跟着笑。你注意到了吗？', options: ['这种"嘴笑眼不笑"对我来说非常明显', '大概率会觉得这个笑有点不自然', '有时能分辨，有时会忽略', '一般不会注意到笑容之间的这种差别', '完全分辨不出来，笑就是笑'] },
+  { dim: 'perceive', text: '你在电梯里，一个陌生人看起来眼眶微红。你的内心会——', options: ['不由自主地感受到一阵轻微的触动或不安', '会注意到，心里默默关注一下', '可能看到了，但不会特别有感触', '几乎不会被陌生人的状态影响', '不太会注意陌生人的这些细节'] },
 
   // 情绪运用 Facilitating (10题)
-  { dim: 'facilitate', text: '我会利用积极的心情来激发创造力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '当需要做重要决定时，我会考虑自己的感受', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '我能利用情绪来帮助自己集中注意力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '心情好的时候，我的问题解决能力会更强', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '我会根据任务性质调整自己的情绪状态', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '情绪会影响我看待问题的角度', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '我会在情绪低落时选择适合反思的任务来完成', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '在需要同理心的情况下，我能调动相应的情感', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '我会利用情绪来增强记忆力', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'facilitate', text: '我能通过想象来激发特定的情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'facilitate', text: '你需要写一段有创意的文案。你发现阳光正好，刚听完一首很燃的歌。你会——', options: ['趁着这股好心情立刻开工，让灵感顺势而来', '意识到心情不错，觉得现在写挺合适', '不太会把心情和工作效率联系起来', '可能会先做别的事，创意嘛随缘', '心情好不好跟写东西关系不大'] },
+  { dim: 'facilitate', text: '面对一个重大人生选择，你的「直觉」在跟你说话。你对待它的方式是——', options: ['把它当作重要的决策信号，与理性分析并行', '会认真倾听，但最终还是看逻辑', '偶尔会参考，但觉得不够靠谱', '基本忽略，决策应该纯理性', '从不觉得直觉跟决策有什么关系'] },
+  { dim: 'facilitate', text: '你正在准备一场考试，感到适度紧张。你对这种紧张感的态度是——', options: ['把它转化为专注的燃料，让自己进入最佳状态', '觉得这种紧张有好处，帮助我集中精力', '不太确定紧张对自己有没有帮助', '紧张就是紧张，只想消除它', '紧张会让我完全无法集中注意力'] },
+  { dim: 'facilitate', text: '你注意到自己心情特别好的那些天，解决问题时——', options: ['明显感觉思路更开阔，能想到平时想不到的角度', '确实更高效，虽然不确定是不是因为心情', '没太注意过心情和解决问题之间的关系', '好心情反而让我有点飘，不够严谨', '心情跟问题解决能力完全是两回事'] },
+  { dim: 'facilitate', text: '你接到一个需要极度冷静的分析任务，但你刚看完一部感人电影。你会——', options: ['先让自己切换到合适的状态再开始工作', '意识到情绪不太对，稍微调整一下', '直接开始做，情绪影响不了我', '完全没想过要切换什么状态', '不理解为什么要根据任务调整心情'] },
+  { dim: 'facilitate', text: '苏轼在黄州写出了最好的作品。你觉得低落的情绪——', options: ['是一面镜子，让我看到平时看不到的深层真相', '确实有时候能带来一些不同的思考', '低落就是低落，很难从中获得什么', '只想尽快摆脱低落，看不到其中的价值', '从没想过低落情绪还能有什么用处'] },
+  { dim: 'facilitate', text: '朋友深夜痛哭着打来电话，你需要进入「共情模式」。你的做法是——', options: ['几乎不需要切换，很自然地就感同身受了', '深呼吸一下，调动自己的感受去理解对方', '想安慰但不太知道怎么让自己"感受到"对方的痛', '会提供理性建议，但进入情感共鸣有点困难', '很难让自己真正感受到别人的情绪'] },
+  { dim: 'facilitate', text: '你准备一次重要的演讲，需要充满激情。你靠什么"点燃"自己？', options: ['回忆某个让我热血沸腾的时刻，立刻就能调动起来', '会用音乐或者想象来慢慢酝酿状态', '偶尔能成功激发，偶尔不太行', '很难靠主动想象来改变自己的情绪', '没有这种主动调动情绪的能力'] },
+  { dim: 'facilitate', text: '学生时代，有些知识点你至今记得，因为当时学的时候有很强的情绪体验。你对此——', options: ['深有同感，情绪是我记忆的最强粘合剂', '确实有过这种体验，但不算频繁', '没太注意过情绪和记忆的关系', '记忆主要靠重复，跟情绪无关', '完全不认同情绪能加强记忆'] },
+  { dim: 'facilitate', text: '你闭上眼睛想象自己站在悬崖边，脚下是翻涌的大海——', options: ['心跳加速，几乎能感受到风和浪的冲击', '能感觉到一丝紧张和兴奋', '有一点画面感，但身体没什么反应', '想象归想象，情绪上无感', '很难通过想象引发任何情绪变化'] },
 
   // 情绪理解 Understanding (10题)
-  { dim: 'understand', text: '我了解不同情绪之间的关系和变化规律', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我能理解为什么某些情况会引发特定的情绪反应', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我能预测某个事件可能引起的情绪反应', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我理解复杂情绪（如又爱又恨）是如何产生的', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我能区分类似但不同的情绪（如愤怒和失望）', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我了解情绪会如何随时间变化', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我能理解他人情绪背后的深层原因', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我知道哪些因素会加剧或缓解特定情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我能用准确的词汇描述细微的情绪差异', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'understand', text: '我理解文化背景如何影响情绪表达', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
+  { dim: 'understand', text: '悲伤和愤怒经常像双胞胎一样同时出现。你觉得这是因为——', options: ['愤怒常常是悲伤的外壳，保护我们不去面对更深的伤痛', '它们有时会同时出现，但原因比较复杂', '知道会同时出现，但说不清楚为什么', '没想过它们之间有什么关联', '不理解为什么两种不同的情绪会同时出现'] },
+  { dim: 'understand', text: '你的朋友在升职当天却闷闷不乐。最可能的原因是——', options: ['升职带来了更大的责任焦虑，或者触发了冒充者综合征', '可能是因为压力变大了', '挺奇怪的，升职应该开心才对', '搞不懂为什么好事也能不开心', '不太会去分析别人的情绪原因'] },
+  { dim: 'understand', text: '一位同事在会议上被批评后，下午对每个人都特别热情。你对此的理解是——', options: ['他可能在用过度补偿来修复受损的自我价值感', '可能在掩饰被批评后的不安', '也许只是下午心情变好了', '没觉得这两件事有什么关联', '不太会关注别人行为前后的变化'] },
+  { dim: 'understand', text: '你对「又爱又恨」这种矛盾情感的理解是——', options: ['这是人类情感最真实的状态，爱得越深矛盾可能越强', '能理解这种复杂情感的存在', '觉得应该选一个，不能又爱又恨', '很少体验到这么复杂的情绪', '不太理解怎么可能同时有两种相反的感受'] },
+  { dim: 'understand', text: '「失望」和「愤怒」看起来很像，但它们之间的核心区别是——', options: ['失望是期望落空的悲伤，愤怒是感到被侵犯的反击', '一个更偏向难过，一个更偏向生气', '知道它们不同，但说不清具体区别', '感觉差不多，都是不高兴', '没想过情绪还需要区分得这么细'] },
+  { dim: 'understand', text: '你失恋第一天痛不欲生，一个月后偶尔想起还有点难过，半年后成了一段平静的回忆。你觉得这个变化——', options: ['完全可以预见，情绪有它自身的消退和转化规律', '知道时间会疗伤，但不太清楚具体的变化机制', '每次都被情绪变化搞得措手不及', '情绪变化对我来说很随机', '不太关注情绪怎样随时间变化'] },
+  { dim: 'understand', text: '一个总是笑呵呵的人突然崩溃大哭，你认为——', options: ['长期的情绪压抑终于达到了承受的临界点', '可能是最近压力太大了', '挺突然的，不太理解', '有些人就是情绪化', '没法理解一个开朗的人怎么会崩溃'] },
+  { dim: 'understand', text: '斯多葛学派认为「不是事情本身让你痛苦，而是你对事情的看法」。你能想到——', options: ['很多例子：同一件事换个角度想，情绪就完全不同', '大致认同，但实践中不太容易', '道理是对的，但跟情绪管理有什么关系呢', '理性上理解，但情绪上做不到', '不太理解这句话跟情绪有什么关系'] },
+  { dim: 'understand', text: '让你用语言精确描述此刻的感受，你能做到——', options: ['非常精确，比如"带着一丝期待的平静中夹杂着微微倦意"', '可以说出一两个情绪词，比如"还好"或"有点累"', '只能说"挺好的"或"一般"', '很难用语言描述感受', '觉得没必要用那么精确的词来描述情绪'] },
+  { dim: 'understand', text: '日本人在葬礼上微笑，这件事你怎么看？', options: ['不同文化对情绪表达有完全不同的规则，这很正常', '能理解文化差异，但还是觉得不太习惯', '听说过文化差异，但没深想过', '觉得有点奇怪，葬礼应该悲伤', '不理解为什么要在葬礼上微笑'] },
 
   // 情绪管理 Managing (10题)
-  { dim: 'manage', text: '当感到愤怒时，我能够让自己冷静下来', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能有效地安慰处于负面情绪中的朋友', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '面对压力时，我能保持情绪稳定', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能调节自己的情绪以适应不同场合', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '当感到焦虑时，我有有效的方法让自己放松', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能够识别他人需要的是倾听还是建议，并做出恰当回应', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '遇到挫折后，我能较快恢复情绪', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能控制自己不在情绪激动时做决定', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能在团队中营造积极的情绪氛围', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] },
-  { dim: 'manage', text: '我能将负面情绪转化为建设性的行动', options: ['非常符合', '比较符合', '一般', '不太符合', '完全不符合'] }
+  { dim: 'manage', text: '有人在公共场合当面羞辱了你。在那个瞬间，你内心的"操作系统"会——', options: ['先暂停愤怒的自动反应，选择最恰当的回应方式', '深吸一口气，强忍住怒火再慢慢回应', '当时会很生气，可能说出一些气话', '怒火几乎不受控制地爆发', '完全被情绪淹没，之后会非常后悔'] },
+  { dim: 'manage', text: '你最亲近的朋友刚经历了分手，在你面前哭得不能自已。你会——', options: ['安静地陪伴，在对方需要的时候给出恰到好处的回应', '努力安慰，但有时不确定说什么最合适', '想帮忙但不太会处理别人的强烈情绪', '会觉得手足无措，尽量讲道理让对方好起来', '内心也被对方的情绪搅乱了，不知如何是好'] },
+  { dim: 'manage', text: '连续加班一周后，老板临时加了一个紧急任务。你的情绪处理方式是——', options: ['承认自己的疲惫和不满，但能迅速切入执行状态', '会有点烦躁，但深呼吸后还是接受了', '内心翻涌着抱怨，但表面上不太表露', '忍不住跟同事吐槽或对老板表达不满', '整个人心态崩了，很难继续工作'] },
+  { dim: 'manage', text: '你参加一个社交场合，在场的人有些让你不太舒服。你的表现是——', options: ['像水一样适应，不卑不亢地找到自己舒适的位置', '稍微调整一下情绪就能正常社交', '会有点不自在，但勉强能维持', '很难掩饰自己的不舒服', '不自在到想立刻离开'] },
+  { dim: 'manage', text: '凌晨三点，你脑子里翻来覆去想着明天的面试，越想越焦虑。你的应对策略是——', options: ['已经有一套自己的助眠仪式，能主动让大脑安静下来', '会尝试深呼吸或者数绵羊来缓解', '知道焦虑没用，但就是停不下来', '完全被焦虑控制，一整夜难以入眠', '经常被焦虑困住，没什么好的办法'] },
+  { dim: 'manage', text: '你的伴侣/室友跟你抱怨工作上的事。你能感觉到，此刻对方需要的是——', options: ['精准判断出TA要的是倾听还是建议，然后给出相应回应', '大概能判断，但有时候会猜错', '不太确定，通常直接给建议', '一般都是讲道理和提供解决方案', '不太理解为什么抱怨不是为了要建议'] },
+  { dim: 'manage', text: '人生中遇到一次重大打击——比如失业或者被背叛。一个月后的你——', options: ['虽然还有余痛，但已经开始重建生活的秩序', '还在消化中，但比最初好了不少', '情绪反复波动，好一天坏一天', '可能还深陷其中，很难走出来', '这种打击可能让我很长时间都无法恢复'] },
+  { dim: 'manage', text: '你和最好的朋友因为一件事争吵得很激烈，TA说了很伤人的话。当下你会——', options: ['意识到情绪正在失控，主动按下暂停键', '努力克制自己不说出会后悔的话', '一边争吵一边后悔，但停不下来', '以同样伤人的话回击', '被情绪完全接管，可能做出极端反应'] },
+  { dim: 'manage', text: '你是团队负责人，项目进展不顺，成员们情绪低落。你的做法是——', options: ['先稳定自己，然后用行动和氛围带动团队重新振作', '尝试鼓励大家，虽然自己也有点焦虑', '保持沉默，不想让自己的焦虑影响别人', '跟大家一起焦虑，但不知道怎么扭转氛围', '自己的情绪都管不好，更别说影响团队了'] },
+  { dim: 'manage', text: '尼采说「凡是不能杀死你的，都会使你更强大」。当负面情绪袭来时，你能把它变成——', options: ['成长的燃料，几乎每一次痛苦都让我学到了什么', '有时能从中获得力量，但不是每次', '道理都懂，但做起来很难', '负面情绪就是负面的，很难看到积极面', '不相信负面情绪能转化为任何好的东西'] }
 ];
 
 const dimInfo = {
-  'perceive': { name: '情绪感知', icon: '👁️', bg: '#dbeafe', color: '#3b82f6' },
-  'facilitate': { name: '情绪运用', icon: '⚡', bg: '#d1fae5', color: '#10b981' },
-  'understand': { name: '情绪理解', icon: '💡', bg: '#fef3c7', color: '#f59e0b' },
-  'manage': { name: '情绪管理', icon: '🎯', bg: '#fce7f3', color: '#ec4899' }
+  'perceive': { name: '情绪感知', icon: '👁️', bg: '#1e3a5f', color: '#60a5fa' },
+  'facilitate': { name: '情绪运用', icon: '⚡', bg: '#134e4a', color: '#34d399' },
+  'understand': { name: '情绪理解', icon: '💡', bg: '#78350f', color: '#fbbf24' },
+  'manage': { name: '情绪管理', icon: '🎯', bg: '#701a75', color: '#f472b6' }
 };
 
 const EQ_LEVELS = [
-  { min: 160, level: '卓越', desc: '你拥有非常出色的情绪智力，在情绪感知、运用、理解和管理四个维度上都表现优异。你能够敏锐地察觉到自己和他人情绪的细微变化，并准确理解这些情绪背后的原因和意义。你善于利用情绪来促进思考和决策，同时能够有效地调节自己的情绪状态，在压力下保持冷静。在人际交往中，你的高情商让你能够与各种性格的人建立良好的关系，成为朋友和同事信赖的倾听者和支持者。你的情绪管理能力让你在冲突中能够保持理性，找到双赢的解决方案。继续保持这种优势，你将在领导力、人际关系和个人幸福感方面获得更大的成就。' },
-  { min: 130, level: '优秀', desc: '你的情绪智力水平较高，在情绪感知和管理方面具备良好的能力。你通常能够准确识别自己和他人的情绪状态，理解情绪产生的原因，并采取适当的应对策略。在人际交往中，你展现出较强的同理心，能够理解他人的处境和感受，这让你在团队中受到欢迎。你的情绪调节能力让你能够在大多数情况下保持情绪稳定，即使面对压力也能够保持相对的平静。在某些高压或复杂的情绪情境中，继续练习将帮助你保持最佳状态。建议继续有意识地培养情绪觉察能力，这将帮助你在各个方面取得更大的成功。' },
-  { min: 100, level: '良好', desc: '你具备良好的基础情绪智力，能够处理大多数日常生活中的情绪情境。你对自己的情绪有一定的认识，能够在大多数时候识别出自己的情绪状态，虽然有时可能需要一些时间来理清复杂的情感。在与他人互动时，你通常能够感知到对方的情绪，偶尔可能会忽略一些细微的信号。你的情绪调节能力让你在日常生活中能够保持相对稳定的情绪状态。好消息是，情绪智力是可以通过学习和练习来提升的。建议你开始关注自己的情绪变化，尝试用语言描述自己的感受，这将帮助你更好地理解和管理情绪。' },
-  { min: 70, level: '成长中', desc: '你的情绪智力正处于积极发展的阶段，在某些方面有着广阔的成长空间。你可能有时需要更多时间来准确识别自己正在经历的情绪，或者在理解他人情绪方面需要更多练习。在压力下，你的情绪可能会有较大的变化幅度。在人际关系中，有时可能因为对情绪信号的理解不同而产生误解。情绪智力是一种可以培养的能力。建议你开始建立每日的情绪觉察习惯，比如每天记录三种情绪及其触发因素。同时，学习一些基本的情绪调节技巧，如深呼吸、正念冥想等，这些都将帮助你提升情绪智力。' },
-  { min: 0, level: '探索期', desc: '你的情绪智力目前正处于探索阶段，这意味着你在情绪感知、理解和管理方面有着丰富的学习机会。你可能正在逐步了解自己的情绪反应模式，以及如何更好地理解他人的情感表达。在压力情境下，你正在学习如何更好地管理情绪。在人际关系中，你有机会发展更深入的情感连接。请相信情绪智力是完全可以通过学习和练习来提升的。每个人都有能力发展更高的情绪智力。建议你从最基础开始：首先学会识别和命名自己的基本情绪（快乐、悲伤、愤怒、恐惧、惊讶、厌恶）。同时，考虑阅读一些情商相关的书籍或参加情绪管理课程，这将为你打开一扇新的大门。' }
+  { min: 160, level: '卓越', thinker: '达赖喇嘛的情绪智慧', quote: '「认识你自己。」—— 德尔菲神谕', desc: '你的情绪智力如同一面磨砺千年的铜镜，清澈地映照着内心与外界的每一丝波澜。你像佛陀所说的那样——"觉知"本身就是你的状态。你不仅能感知到情绪世界中最微妙的风向变化，还能将这些无形的力量转化为推动生活前进的帆。在你身上，我们看到了斯多葛学派所追求的那种境界：不是消除情绪，而是与情绪共舞，让理性和感性在同一首曲子里和谐共鸣。你是朋友眼中的定海神针，团队里的情绪灯塔。你理解庄子所说的"齐物"——所有情绪都有其存在的意义，而你已经学会了聆听它们每一个的声音。' },
+  { min: 130, level: '优秀', thinker: '马可·奥勒留的内心堡垒', quote: '「你的心灵可以是一座堡垒。」—— 马可·奥勒留《沉思录》', desc: '你就像罗马皇帝马可·奥勒留一样，在内心建造了一座坚固而温暖的堡垒。外界的风暴你看得见、听得到，但你有能力选择——是让它进来，还是在城墙上安静地观察它。你的情绪感知力犹如一张精细的网，大多数情绪的鱼都逃不过你的捕捉。你懂得情绪是人生的调色板，悲伤让你深刻，快乐让你发光，而你正在学习让每一种颜色都用在最恰当的地方。佛教心理学中有一个概念叫"正念"——你已经在实践它了，只是有时候可能还会在暴风雨中短暂迷失方向。没关系，即使最熟练的水手也偶尔需要重新校准罗盘。' },
+  { min: 100, level: '良好', thinker: '苏格拉底的追问精神', quote: '「未经审视的人生不值得过。」—— 苏格拉底', desc: '你正处在一个美妙的位置——就像苏格拉底站在雅典广场上，你已经开始对情绪世界提出问题了。你不再只是被情绪推着走，而是开始好奇：这种感受从哪里来？它想告诉我什么？你的情绪感知力就像一盏正在调亮的灯——大部分时候能照亮房间里的主要物件，偶尔会遗漏角落里的阴影。庄子说"吾生也有涯，而知也无涯"，在情绪的宇宙里，你已经踏上了探索之旅，正在建立属于自己的情绪地图。每一次你停下来问"我现在感觉怎样"，你都在为这张地图添上新的标注。' },
+  { min: 70, level: '成长中', thinker: '加缪笔下的西西弗斯', quote: '「真正严肃的哲学问题只有一个。」—— 阿尔贝·加缪', desc: '你现在的状态，有一点像加缪笔下的西西弗斯——面对情绪这块巨石，你正在学习如何与它相处。有时候石头很重，你推不动它；有时候它突然滚下来，把你砸得措手不及。但加缪说了，"应该想象西西弗斯是幸福的"——因为推石头的过程本身就是意义所在。你的情绪世界目前可能像一片半开发的原始森林：有些路径已经被踩出来了，但更多的区域还覆盖着迷雾。当你开始每天花几分钟觉察自己的内心天气时，你就是在一点一点驱散那些迷雾。尼采说"那些杀不死你的"——对，你正在变得更强大。' },
+  { min: 0, level: '探索期', thinker: '年轻时的叔本华', quote: '「人可以做他想做的，但不能要他想要的。」—— 叔本华', desc: '你正站在一扇门前，门后面是一整个你尚未充分探索过的情绪宇宙。年轻的叔本华曾经也困惑于人类情绪的汹涌和混乱——那些看似不受控制的感受，那些突如其来的情绪洪流，到底意味着什么？别担心，对情绪世界感到陌生和困惑，本身就是觉醒的第一步。禅宗有一句话："初学者的心态中有无限可能。"你现在拥有的正是这种珍贵的"初心"——没有固化的模式、没有僵硬的习惯，一切都是新鲜的。情绪智力不是天赋，而是一种可以修炼的能力。每一位情绪大师都曾经是初学者。你的旅程，从此刻才真正开始。' }
 ];
 
 let idx = 0;
@@ -450,30 +499,59 @@ function getEQLevel(total) {
 function getDimAnalysis(dim, score) {
   const analyses = {
     perceive: {
-      high: '你具有非常敏锐的情绪感知能力，这是情绪智力的重要基础。你能够像一台精密的情绪雷达一样，准确捕捉到自己和他人情绪的细微变化。无论是面部表情、语气语调还是肢体语言，你都能从中读出丰富的情绪信息。这种能力让你在人际交往中占据优势，因为你总能在第一时间感知到对方的情绪状态，从而做出恰当的回应。你对艺术、音乐等作品中蕴含的情感也有敏锐的感受力。继续保持这种敏感度，它将成为你建立深度人际关系的重要资产。',
-      medium: '你的情绪感知能力处于中等水平，在大多数情况下能够识别出自己和他人的主要情绪，但对一些细微的情绪变化可能会有所忽略。你有时可能会错过他人表达的微妙情绪信号，比如礼貌性微笑背后的疲惫，或者平静语气中隐藏的不满。建议你在日常生活中多练习情绪觉察：当与人交谈时，有意识地观察对方的面部表情、语气和肢体语言；每天花几分钟反思自己当天经历的情绪变化。这些练习将帮助你提升情绪感知的敏锐度。',
-      low: '你的情绪感知能力目前还有较大的提升空间。你可能经常对自己正在经历的情绪感到困惑，不太确定自己是生气、失望还是只是疲惫。在理解他人情绪方面，你可能会忽略很多重要的情绪线索，有时会误解他人的意图或感受。这种情况可能会导致一些人际关系中的误会。好消息是，情绪感知是可以训练的。建议你开始写情绪日记，每天记录你经历的三种情绪，以及触发这些情绪的事件。同时，可以尝试正念冥想，它能帮助你更加关注当下的内心体验，逐步提升情绪觉察能力。'
+      high: '你拥有一种近乎"通感"的情绪觉察力——像一面灵敏的湖水，他人内心的风吹草动都能在你的水面上泛起涟漪。佛教心理学称这种能力为"观"：不带评判地、清晰地看见。你能读懂一个微笑背后是喜悦还是疲惫，能从一句"我没事"里听出三种不同的弦外之音。这不仅是技能，更是一种存在方式——你与世界的关系，始终带着一层温柔的觉知。这份敏锐是你所有情绪智力的根基，就像一棵大树最深的根。',
+      medium: '你的情绪天线已经在工作了，但信号接收有时清晰、有时带着雪花。你能捕捉到大多数情绪的"主旋律"，但偶尔会错过那些在低音区悄悄进行的"副旋律"——比如礼貌微笑下的疲倦，或者平静语气里藏着的失落。老子说"大音希声"，最重要的情绪信号往往藏在沉默里。试着在下次和人交谈时，不仅听对方说了什么，还注意对方"没有说什么"。那些留白里，住着最真实的情感。',
+      low: '你的情绪世界目前有点像一个开着静音的收音机——信号其实一直在发射，只是你还没有找到调频的旋钮。你可能经常在事后才意识到"哦，原来我当时是生气了"，或者对朋友的情绪变化后知后觉。这不是缺陷，而是一种尚未被唤醒的潜能。禅修大师铃木俊隆说过："在初学者的心里，有无限可能。"试着从每天一个小练习开始——闭上眼睛，问自己：此刻，我的身体里住着什么情绪？慢慢地，那个沉睡的感知力就会醒来。'
     },
     facilitate: {
-      high: '你非常善于利用情绪来促进思考、决策和行动，这是一种高级的情绪智力能力。你懂得情绪不仅仅是需要管理的东西，更是可以利用的宝贵资源。当你心情愉快时，你会利用这种积极状态来进行创造性工作；当你感到焦虑时，你能将这种能量转化为行动的动力。你理解不同的情绪适合不同的任务：快乐适合创意工作，适度的紧张有助于集中注意力。你还善于通过回忆或想象来调动需要的情绪状态，这让你在各种情境下都能保持最佳表现。',
-      medium: '你在利用情绪促进思考方面有一定的能力，但还有进一步发展的空间。你可能已经意识到情绪会影响你的思维和工作效率，但还没有系统地学会如何主动利用这种影响。有时候，你可能会让不适合的情绪影响你的工作，比如在需要细致分析时却处于过度兴奋的状态。建议你开始有意识地观察情绪与思维之间的关系：注意什么样的情绪状态下你的创造力最高，什么时候你的逻辑分析最清晰。然后，学会在需要时通过听音乐、运动或回忆等方式调动相应的情绪状态。',
-      low: '你在利用情绪促进思考方面还需要加强学习。目前，你可能更多地把情绪视为干扰因素，而不是可以利用的资源。你可能会在情绪波动时感到难以集中注意力或做出决策，却不知道如何将这些情绪转化为积极的力量。事实上，每一种情绪都有其独特的价值：愤怒可以激发行动的勇气，悲伤可以带来深入的反思，快乐可以激发创造力。建议你开始学习情绪与认知之间的关系，了解不同情绪如何影响思维方式。尝试在心情好的时候进行创意工作，在平静时处理需要精确分析的任务。'
+      high: '你深谙情绪的炼金术——把悲伤熬成深度思考的养料，把兴奋蒸馏为创造力的燃料，把适度焦虑锻造为专注的利刃。庄子说"乘天地之正，御六气之辩"，你正在做的就是驾驭内心的六种气象。你明白，苏轼在黄州最绝望的时候写出了最伟大的诗句——情绪本身不分好坏，关键在于你如何转化它。这种能力让你成为了自己情绪能量的指挥家，而不只是被动的听众。',
+      medium: '你已经隐约意识到情绪与思维之间存在着神秘的化学反应，但你还没有完全掌握配方。有时候你能顺势而为——心情好的时候顺手解决了一个难题，低落的时候写出了一段感人的文字。但更多时候，情绪对你来说更像是天气而不是工具——你在被动适应，而不是主动调度。亚里士多德提出"中道"的概念，在情绪运用上也是如此：不是压抑，不是放纵，而是恰如其分地引导。学会把情绪的能量看作一条河流，你可以修建水渠，让它流向你需要灌溉的田地。',
+      low: '目前，你可能把情绪和理性看成两个互不相干甚至互相对立的领域——工作归工作，感受归感受。但笛卡尔的"我思故我在"只说对了一半：我们不仅在思考中存在，也在感受中存在。每一种情绪都携带着独特的认知价值：焦虑是未来的预警系统，愤怒是边界被侵犯的报警器，喜悦是方向正确的指南针。试着重新审视那些被你忽略的情绪信号——它们不是噪音，而是你内在智慧正在发言。'
     },
     understand: {
-      high: '你对情绪有非常深入的理解，能够洞察情绪产生的原因、变化规律和复杂的情绪组合。你理解情绪不是凭空产生的，而是有其内在逻辑和触发机制。你能够准确区分相似但不同的情绪，比如愤怒与失望、焦虑与恐惧、喜悦与满足之间的细微差别。你也理解复杂情绪的存在，比如一个人可以同时感到骄傲和内疚，或者爱与恨交织。这种深度的情绪理解让你能够更好地预测他人的情绪反应，也能更有效地帮助他人处理情绪困扰。',
-      medium: '你对情绪有基本的理解，能够识别主要的情绪类型及其常见的触发因素，但对情绪的复杂性和变化规律的认识还可以更深入。你可能有时会困惑于为什么某个事件会引发如此强烈的情绪反应，或者为什么情绪会突然变化。你对一些复杂的情绪组合（如爱恨交织、又期待又害怕）可能还难以完全理解。建议你深入学习情绪心理学的基础知识，了解不同情绪的功能和进化意义。多反思自己情绪变化的规律，尝试找出情绪反应背后的深层原因。',
-      low: '你对情绪的理解目前还停留在比较表面的层次，这可能会影响你处理复杂情绪情境的能力。你可能经常对自己或他人的情绪反应感到困惑，不理解为什么一件"小事"会引发如此大的情绪反应，或者为什么情绪会以某种方式变化。你可能难以用准确的词汇描述细微的情绪差异，比如焦虑、担心和恐惧之间的区别。建议你系统地学习情绪的基础知识：了解基本情绪的种类及其功能，学习情绪词汇来更准确地描述感受，理解情绪产生的认知理论。推荐阅读《情绪的解析》等科普书籍，这将帮助你建立对情绪的系统认识。'
+      high: '你对情绪拥有一种哲学家般的洞察力——你不仅感受到情绪，还能看透它的结构、追溯它的源头、预判它的走向。你懂得"嫉妒"是"渴望"穿上了"愤怒"的外衣，你明白"无聊"可能是"意义感缺失"发出的求救信号。斯宾诺莎说过，情绪被理解的那一刻就不再是被动的激情，而是变成了主动的力量。你正在实践这种古老的智慧——通过理解情绪来超越情绪。你不仅是自己内心的观察者，也是他人情绪迷宫里值得信赖的导航员。',
+      medium: '你对情绪有了一张基本的地图，但这张地图上有些区域还标着"未知领域"。你能分辨快乐和悲伤、愤怒和恐惧这些"大洲"，但对于"失望和受伤的区别""内疚和羞耻的边界"这些"小岛"可能还不够清晰。维特根斯坦说"我的语言的边界就是我的世界的边界"——当你能用更精确的词汇描述情绪时，你对情绪的理解也会更加深入。试着在下次感受到复杂情绪时，像拆礼物一样一层层打开它，看看最里面裹着的是什么。',
+      low: '你的情绪理解目前还像是在用黑白照片看一个彩色的世界——你能看到大致的轮廓，但丰富的色彩层次还没有被呈现出来。面对自己或他人强烈的情绪反应时，你可能会困惑："不就是一件小事吗？为什么反应这么大？"但柏拉图在两千多年前就提醒过我们：水面之下的冰山，远比水面之上的巨大。每一个看似"小题大做"的情绪反应背后，都藏着一个更深的故事。试着开始学习情绪的"语言"——就像学一门外语，一旦你能听懂它在说什么，整个世界都会变得不同。'
     },
     manage: {
-      high: '你具有出色的情绪管理能力，能够有效地调节自己的情绪状态，同时也能积极影响他人的情绪。当面对压力和负面情绪时，你有丰富的策略库可以调用：深呼吸、转移注意力、认知重构、寻求社会支持等。你不会被情绪淹没，也不会压抑情绪，而是能够以健康的方式表达和处理情绪。在团队中，你经常扮演着情绪稳定器的角色，能够在紧张的氛围中保持冷静，帮助他人平复情绪。你的情绪管理能力让你在高压环境下也能保持良好的判断力和决策能力。',
-      medium: '你的情绪管理能力处于中等水平，在大多数日常情境下能够较好地控制自己的情绪，但在面对重大压力或强烈情绪时可能会感到力不从心。你可能有一些情绪调节的方法，但策略还不够丰富或熟练。有时候，你可能会在情绪激动时说出或做出后悔的事情。你在帮助他人管理情绪方面可能也感到有些困难。建议你扩展你的情绪调节策略库：学习认知重构技术，当情绪强烈时能够从不同角度看问题；练习正念冥想，提升对情绪的觉察和接纳能力；建立健康的情绪宣泄渠道，如运动、写作或与信任的人交流。',
-      low: '你的情绪管理能力目前还需要较大的提升。你可能经常感到被情绪所控制，而不是你在控制情绪。当负面情绪出现时，你可能缺乏有效的策略来平复自己，导致情绪持续的时间过长或强度过大。你可能会在情绪激动时做出冲动的决定，事后感到后悔。在面对他人的负面情绪时，你可能也感到不知所措，不知道该如何安慰或帮助对方。建议你从最基础的情绪调节技术开始学习：首先学会深呼吸和身体放松技术，这是在情绪激动时最快速有效的方法；其次学习"暂停"技术，在情绪强烈时给自己一些时间冷静下来再做反应；同时建议考虑阅读情绪管理相关书籍或参加相关课程。'
+      high: '你就像一位内心的太极大师——面对情绪的冲击，你不是硬挡，也不是逃避，而是顺势化解、四两拨千斤。当愤怒来袭时，你能让它穿过身体而不停留；当悲伤降临时，你能给它一个拥抱然后温柔地放手。爱比克泰德说"我们无法控制发生了什么，但可以控制自己的回应"——你已经把这句话活成了一种本能。更难得的是，你不仅能管理自己的情绪，还能成为他人情绪风暴中的避风港。你的存在本身，就是一种疗愈。',
+      medium: '你已经建起了一些情绪管理的"防线"，在日常生活中大体能守住阵脚。但当压力骤然加大——就像海浪突然变成了海啸——你的防线偶尔会被冲破。也许你曾在争吵中说出后悔的话，或者在压力下做出冲动的决定。塞涅卡曾说"愤怒是短暂的疯狂"——你需要的是在这种"短暂的疯狂"中给自己加一个缓冲区。试着学习"STOP技术"：停下来(Stop)、呼吸(Take a breath)、观察(Observe)、继续前行(Proceed)。这四步简单的仪式，能在关键时刻为你争取到理性回归的时间。',
+      low: '此刻的你，可能觉得情绪像一匹脱缰的野马——你坐在马背上，却抓不住缰绳。当负面情绪涌来时，你可能感到被完全淹没，像是在情绪的海洋里不会游泳。但请记住叔本华的洞见：意识到自己"被情绪控制"这件事本身，就是觉醒的第一步。你不需要一下子成为情绪大师，只需要学会一个最基础的动作：暂停。当情绪的洪水来袭时，给自己三秒钟的呼吸空间。这三秒，就是你从被动反应走向主动选择的桥梁。每一个新的选择，都是一次小小的胜利。'
     }
   };
   const pct = score / 40;
   if (pct >= 0.7) return analyses[dim].high;
   if (pct >= 0.5) return analyses[dim].medium;
   return analyses[dim].low;
+}
+
+// 根据得分计算"情绪哲学"类型
+function getEmotionPhilosophy(scores) {
+  const total = scores.perceive + scores.facilitate + scores.understand + scores.manage;
+  const maxDim = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const minDim = Object.entries(scores).sort((a, b) => a[1] - b[1])[0][0];
+
+  const philosophies = {
+    perceive: { name: '现象学路径', icon: '🌊', school: '胡塞尔 · 梅洛-庞蒂', desc: '你的情绪智力以"感知"为核心引擎。你像现象学家一样，先回到事物本身——先感受，再思考。你的世界是鲜活的、感性的、充满质感的。' },
+    facilitate: { name: '实用主义路径', icon: '🔥', school: '威廉·詹姆斯 · 杜威', desc: '你的情绪智力以"运用"为核心动力。你像实用主义哲学家一样，关心的不是情绪"是什么"，而是它"能做什么"。对你而言，情绪是工具箱里的锤子和螺丝刀。' },
+    understand: { name: '理性主义路径', icon: '💎', school: '斯宾诺莎 · 黑格尔', desc: '你的情绪智力以"理解"为核心优势。你像理性主义哲学家一样，相信理解即解放——当你看透一种情绪的结构和来源时，它就失去了控制你的力量。' },
+    manage: { name: '斯多葛路径', icon: '🏛️', school: '爱比克泰德 · 塞涅卡', desc: '你的情绪智力以"管理"为核心能力。你像斯多葛学派的贤者一样，追求的是面对一切波澜时的内心宁静。你的力量不在于感受得多深，而在于站得多稳。' }
+  };
+
+  const primary = philosophies[maxDim];
+  const secondary = philosophies[minDim];
+
+  let balanceNote = '';
+  const range = Math.max(...Object.values(scores)) - Math.min(...Object.values(scores));
+  if (range <= 5) {
+    balanceNote = '你的四个维度非常均衡，像一个完美的正方形。你没有明显的短板，这意味着你可以在不同情境下灵活调用不同的情绪能力。在哲学上，这接近亚里士多德所说的"中庸之道"——不偏不倚，恰到好处。';
+  } else if (range <= 12) {
+    balanceNote = '你的情绪智力呈现出有趣的"高低起伏"。你在某些方面特别突出，在另一些方面还有成长空间。这种不平衡并非坏事——它赋予了你独特的情绪"人格"，让你在擅长的领域成为专家。';
+  } else {
+    balanceNote = '你的情绪智力维度之间存在较大的落差，这可能会造成一种内在的张力——比如你能深刻理解情绪却难以管理它，或者能管理自己的情绪却不太能感知他人。这种张力本身就是一个邀请，邀请你去探索和发展那些尚未被开发的区域。';
+  }
+
+  return { primary, secondary, balanceNote };
 }
 
 function showResult() {
@@ -485,26 +563,37 @@ function showResult() {
   const eqLevel = getEQLevel(total);
   const psychAges = getPsychologicalAges(scores, userAge);
 
+  const philosophy = getEmotionPhilosophy(scores);
+
   const html = `
     <div class="card" style="text-align:center;">
       <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;">你的情绪智力分数</div>
       <div class="eq-score">${total}</div>
-      <div class="eq-level">${eqLevel.level}</div>
-      <div class="eq-desc">${eqLevel.desc}</div>
+      <div style="display:flex;justify-content:center;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div class="eq-level">${eqLevel.level}</div>
+        <div class="thinker-badge">🧠 ${eqLevel.thinker}</div>
+      </div>
+      <div class="philosophy-quote" style="margin-top:20px;">
+        <div class="quote-text">${eqLevel.quote}</div>
+      </div>
+      <div class="eq-desc" style="margin-top:16px;">${eqLevel.desc}</div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-value">${scores.perceive}</div><div class="stat-label">情绪感知</div></div>
-        <div class="stat-card"><div class="stat-value">${scores.facilitate}</div><div class="stat-label">情绪运用</div></div>
-        <div class="stat-card"><div class="stat-value">${scores.understand}</div><div class="stat-label">情绪理解</div></div>
-        <div class="stat-card"><div class="stat-value">${scores.manage}</div><div class="stat-label">情绪管理</div></div>
+        <div class="stat-card"><div class="stat-value gradient-num">${scores.perceive}</div><div class="stat-label">情绪感知</div></div>
+        <div class="stat-card"><div class="stat-value gradient-num">${scores.facilitate}</div><div class="stat-label">情绪运用</div></div>
+        <div class="stat-card"><div class="stat-value gradient-num">${scores.understand}</div><div class="stat-label">情绪理解</div></div>
+        <div class="stat-card"><div class="stat-value gradient-num">${scores.manage}</div><div class="stat-label">情绪管理</div></div>
       </div>
     </div>
 
+    <div class="section-divider"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fce7f3">🎂</div>你的心理年龄分析</div>
+      <div class="section-title"><div class="section-icon" style="background:#701a75">🎂</div>你的心理年龄分析</div>
       <div class="psych-age-main">
-        <div class="psych-age-main-label">实际年龄 ${psychAges.realAge} 岁 · 综合心理年龄</div>
+        <div class="psych-age-main-label">实际年龄 <span class="gradient-num" style="font-size:18px;">${psychAges.realAge}</span> 岁 · 综合心理年龄</div>
         <div class="psych-age-main-value">${psychAges.avgPsychAge}<span style="font-size:24px;"> 岁</span></div>
-        <div class="psych-age-main-type">🌟 ${psychAges.mainType}</div>
+        <div class="psych-age-main-type" style="font-size:20px;">🌟 ${psychAges.mainType}</div>
+        <div style="width:60px;height:2px;background:var(--gradient);margin:12px auto;border-radius:1px;"></div>
         <div class="psych-age-main-desc">${psychAges.mainDesc}</div>
       </div>
 
@@ -514,22 +603,24 @@ function showResult() {
           <div class="psych-age-card">
             <div class="psych-age-icon">${scene.icon}</div>
             <div class="psych-age-label">${scene.label}</div>
-            <div class="psych-age-value">${scene.age}<span class="psych-age-suffix"> 岁</span></div>
+            <div class="psych-age-value gradient-num">${scene.age}<span class="psych-age-suffix" style="background:none;-webkit-text-fill-color:var(--text-muted);"> 岁</span></div>
             <div class="psych-age-desc">${scene.desc}</div>
           </div>
         `).join('')}
       </div>
 
-      <div style="margin-top:20px;padding:16px;background:linear-gradient(135deg,#fef3c7 0%,#fce7f3 100%);border-radius:12px;">
+      <div style="margin-top:20px;padding:16px;background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.15);border-radius:0;">
         <div style="font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">💡 心理年龄解读</div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">
-          心理年龄反映的是你在情绪处理上的成熟程度。在职场上，你的心理年龄是 <strong>${psychAges.scenes.workplace.age}岁</strong>，说明你在工作中${psychAges.scenes.workplace.age >= psychAges.realAge ? '展现出超越年龄的成熟稳重' : '还有成长空间'}；在家庭关系中，你的心理年龄是 <strong>${psychAges.scenes.family.age}岁</strong>，${psychAges.scenes.family.age >= psychAges.realAge ? '你是家人眼中值得信赖的存在' : '你正在学习如何更好地处理家庭情感'}；在感情方面，你的心理年龄是 <strong>${psychAges.scenes.romance.age}岁</strong>，${psychAges.scenes.romance.age >= psychAges.realAge ? '你在情感关系中展现出智慧和深度' : '你正在探索如何更成熟地经营亲密关系'}；面对挫折时，你的心理年龄是 <strong>${psychAges.scenes.adversity.age}岁</strong>，${psychAges.scenes.adversity.age >= psychAges.realAge ? '你有着超越年龄的韧性和复原力' : '你正在积累应对困难的智慧和经验'}。
+          心理年龄反映的是你在情绪处理上的成熟程度。在职场上，你的心理年龄是 <strong style="color:var(--primary);">${psychAges.scenes.workplace.age}岁</strong>，说明你在工作中${psychAges.scenes.workplace.age >= psychAges.realAge ? '展现出超越年龄的成熟稳重' : '还有成长空间'}；在家庭关系中，你的心理年龄是 <strong style="color:var(--primary);">${psychAges.scenes.family.age}岁</strong>，${psychAges.scenes.family.age >= psychAges.realAge ? '你是家人眼中值得信赖的存在' : '你正在学习如何更好地处理家庭情感'}；在感情方面，你的心理年龄是 <strong style="color:var(--primary);">${psychAges.scenes.romance.age}岁</strong>，${psychAges.scenes.romance.age >= psychAges.realAge ? '你在情感关系中展现出智慧和深度' : '你正在探索如何更成熟地经营亲密关系'}；面对挫折时，你的心理年龄是 <strong style="color:var(--primary);">${psychAges.scenes.adversity.age}岁</strong>，${psychAges.scenes.adversity.age >= psychAges.realAge ? '你有着超越年龄的韧性和复原力' : '你正在积累应对困难的智慧和经验'}。
         </div>
       </div>
     </div>
 
+    <div class="section-divider"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>四维度详细分析</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e3a5f">📊</div>四维度详细分析</div>
       <div class="chart-container"><canvas id="radarChart"></canvas></div>
       ${Object.keys(dimInfo).map(d => {
         const info = dimInfo[d];
@@ -541,7 +632,7 @@ function showResult() {
               <div class="dim-name"><div class="dim-icon" style="background:${info.bg}">${info.icon}</div>${info.name}</div>
               <div style="display:flex;align-items:center;gap:10px;">
                 <span class="level-badge ${lv.class}">${lv.level}</span>
-                <span class="dim-score">${score}/40</span>
+                <span class="dim-score gradient-num" style="font-size:18px;">${score}<span style="font-size:13px;background:none;-webkit-text-fill-color:var(--text-muted);">/40</span></span>
               </div>
             </div>
             <div class="dim-bar"><div class="dim-bar-fill" style="width:${(score/40)*100}%;background:${info.color}"></div></div>
@@ -551,13 +642,46 @@ function showResult() {
       }).join('')}
     </div>
 
+    <div class="section-divider"></div>
+
+    <div class="card philosophy-card">
+      <div class="section-title"><div class="section-icon" style="background:linear-gradient(135deg,#312e81,#1e1b4b)">🌌</div>你的情绪哲学</div>
+      <div class="philosophy-primary">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <span style="font-size:32px;">${philosophy.primary.icon}</span>
+          <div>
+            <div style="font-size:18px;font-weight:700;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${philosophy.primary.name}</div>
+            <div class="philosophy-school">${philosophy.primary.school}</div>
+          </div>
+        </div>
+        <div style="font-size:14px;color:var(--text);line-height:1.8;">${philosophy.primary.desc}</div>
+      </div>
+      <div style="font-size:14px;color:var(--text-muted);line-height:1.8;padding:0 4px;">${philosophy.balanceNote}</div>
+      <div class="philosophy-quote" style="margin-top:20px;">
+        <div class="quote-text">情绪是灵魂的语言。听懂它，你就听懂了自己。听不懂也没关系——至少你已经开始倾听了。</div>
+        <div class="quote-source">—— 宇宙认知盐究所</div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>提升建议</div>
-      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">每天花5分钟写情绪日记，记录当天经历的主要情绪及其触发因素</div></div>
-      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">练习正念冥想，增强对当下情绪状态的觉察能力</div></div>
-      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">在感到强烈情绪时，尝试"暂停-呼吸-选择"的三步法</div></div>
-      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">阅读情绪智力相关书籍，如《情商》《非暴力沟通》等</div></div>
-      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">主动寻求反馈，了解自己的情绪表达对他人的影响</div></div>
+      <div class="section-title"><div class="section-icon" style="background:#134e4a">💡</div>提升建议</div>
+      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text"><strong>写情绪日记</strong>——每天花5分钟记录三种情绪，以及触发它们的事件。苏格拉底说"认识你自己"，日记是最诚实的镜子。</div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text"><strong>练习正念觉察</strong>——每天10分钟的呼吸冥想，不是为了清空头脑，而是为了看清头脑里有什么。佛陀的"观"，从一呼一吸开始。</div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text"><strong>"暂停-呼吸-选择"三步法</strong>——在情绪激动时给自己三秒钟。这三秒是从"被动反应"到"主动选择"的桥梁，也是斯多葛学派最核心的实践。</div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text"><strong>拓展情绪词汇</strong>——当你能区分"失落"和"空虚"、"感动"和"欣慰"时，你对情绪的掌控力就会质的飞跃。维特根斯坦说得对：语言的边界就是世界的边界。</div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text"><strong>读一本情绪经典</strong>——推荐《情商》《非暴力沟通》《被讨厌的勇气》。阿德勒、罗杰斯、马歇尔·卢森堡，他们都在用不同的方式说同一件事：理解情绪，就是理解人生。</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="card closing-card">
+      <div class="closing-icon">🧂</div>
+      <div class="closing-title">宇宙认知盐究所 · 测评寄语</div>
+      <div class="closing-text">庄子说，"天地有大美而不言"。你的情绪世界里也有一种不需要言说的美——那些细微的感知、复杂的理解、温柔的管理，都是你独一无二的存在方式。无论今天的分数如何，请记住：情绪智力不是终点，而是一条不断延伸的路。你已经在路上了。</div>
+      <div style="width:40px;height:2px;background:var(--gradient);margin:20px auto;border-radius:1px;"></div>
+      <div class="closing-sig">SPACE SALT LAB · 宇宙认知盐究所</div>
     </div>
 
     <div class="card download-section">
@@ -574,9 +698,9 @@ function showResult() {
       type: 'radar',
       data: {
         labels: ['情绪感知', '情绪运用', '情绪理解', '情绪管理'],
-        datasets: [{ data: [scores.perceive, scores.facilitate, scores.understand, scores.manage], backgroundColor: 'rgba(102, 126, 234, 0.2)', borderColor: 'rgba(102, 126, 234, 1)', borderWidth: 2, pointBackgroundColor: 'rgba(102, 126, 234, 1)' }]
+        datasets: [{ data: [scores.perceive, scores.facilitate, scores.understand, scores.manage], backgroundColor: 'rgba(139, 92, 246, 0.15)', borderColor: 'rgba(139, 92, 246, 0.8)', borderWidth: 2, pointBackgroundColor: 'rgba(139, 92, 246, 1)' }]
       },
-      options: { scales: { r: { beginAtZero: true, max: 40, ticks: { stepSize: 10 } } }, plugins: { legend: { display: false } } }
+      options: { scales: { r: { beginAtZero: true, max: 40, ticks: { stepSize: 10, color: 'rgba(255,255,255,0.38)' }, grid: { color: 'rgba(255,255,255,0.07)' }, angleLines: { color: 'rgba(255,255,255,0.07)' }, pointLabels: { color: 'rgba(255,255,255,0.88)' } } }, plugins: { legend: { display: false } } }
     });
   }, 100);
 }
@@ -594,7 +718,7 @@ async function downloadPDF() {
     const date = new Date().toLocaleDateString('zh-CN');
 
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;padding:40px;font-family:"Noto Sans SC",sans-serif;';
+    pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#0f172a;padding:40px;font-family:"Noto Sans SC",sans-serif;color:#e2e8f0;';
     pdfContainer.innerHTML = `
       <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:50px 40px;margin:-40px -40px 30px -40px;text-align:center;color:#fff;">
         <div style="font-size:16px;margin-bottom:10px;opacity:0.9;">宇宙认知盐究所 · Space Salt Lab</div>
@@ -602,17 +726,17 @@ async function downloadPDF() {
         <div style="font-size:14px;opacity:0.8;">测评日期：${date}</div>
       </div>
       <div style="text-align:center;margin-bottom:25px;">
-        <div style="font-size:14px;color:#64748b;margin-bottom:8px;">你的情绪智力分数</div>
-        <div style="font-size:56px;font-weight:700;color:#667eea;">${total}</div>
+        <div style="font-size:14px;color:#94a3b8;margin-bottom:8px;">你的情绪智力分数</div>
+        <div style="font-size:56px;font-weight:700;color:#a78bfa;">${total}</div>
         <div style="display:inline-block;padding:8px 24px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;font-weight:600;">${eqLevel.level}</div>
-        <div style="color:#64748b;font-size:14px;line-height:1.8;margin-top:16px;max-width:600px;margin-left:auto;margin-right:auto;">${eqLevel.desc}</div>
+        <div style="color:#94a3b8;font-size:14px;line-height:1.8;margin-top:16px;max-width:600px;margin-left:auto;margin-right:auto;">${eqLevel.desc}</div>
       </div>
       <div style="display:flex;gap:15px;margin-bottom:25px;">
         ${Object.keys(dimInfo).map(d => {
           const lv = getLevel(scores[d], 40);
-          return `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:20px;text-align:center;">
-            <div style="font-size:28px;font-weight:700;color:#667eea;">${scores[d]}</div>
-            <div style="font-size:12px;color:#64748b;">${dimInfo[d].name}</div>
+          return `<div style="flex:1;background:#1e293b;border-radius:12px;padding:20px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:#a78bfa;">${scores[d]}</div>
+            <div style="font-size:12px;color:#94a3b8;">${dimInfo[d].name}</div>
             <div style="font-size:11px;color:${lv.color};margin-top:4px;">${lv.level}</div>
           </div>`;
         }).join('')}
@@ -623,26 +747,26 @@ async function downloadPDF() {
           const info = dimInfo[d];
           const score = scores[d];
           const lv = getLevel(score, 40);
-          return `<div style="margin-bottom:16px;padding:16px;background:#f8fafc;border-radius:12px;">
+          return `<div style="margin-bottom:16px;padding:16px;background:#1e293b;border-radius:0;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-weight:600;">${info.icon} ${info.name}</span>
+              <span style="font-weight:600;color:#e2e8f0;">${info.icon} ${info.name}</span>
               <span style="color:${lv.color};font-weight:500;">${score}/40 · ${lv.level}</span>
             </div>
-            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+            <div style="height:8px;background:#334155;border-radius:4px;overflow:hidden;margin-bottom:10px;">
               <div style="height:100%;width:${(score/40)*100}%;background:${info.color};border-radius:4px;"></div>
             </div>
-            <div style="font-size:13px;color:#64748b;line-height:1.7;">${getDimAnalysis(d, score)}</div>
+            <div style="font-size:13px;color:#94a3b8;line-height:1.7;">${getDimAnalysis(d, score)}</div>
           </div>`;
         }).join('')}
       </div>
       <div style="margin-bottom:25px;">
         <div style="font-size:18px;font-weight:600;margin-bottom:15px;">💡 提升建议</div>
-        <div style="padding:12px 16px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:4px solid #667eea;font-size:14px;color:#64748b;">每天花5分钟写情绪日记，记录当天经历的主要情绪及其触发因素</div>
-        <div style="padding:12px 16px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:4px solid #667eea;font-size:14px;color:#64748b;">练习正念冥想，增强对当下情绪状态的觉察能力</div>
-        <div style="padding:12px 16px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:4px solid #667eea;font-size:14px;color:#64748b;">在感到强烈情绪时，尝试"暂停-呼吸-选择"的三步法</div>
-        <div style="padding:12px 16px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:4px solid #667eea;font-size:14px;color:#64748b;">阅读情绪智力相关书籍，如《情商》《非暴力沟通》等</div>
+        <div style="padding:12px 16px;background:#1e293b;border-radius:8px;margin-bottom:8px;border-left:4px solid #a78bfa;font-size:14px;color:#94a3b8;">每天花5分钟写情绪日记，记录当天经历的主要情绪及其触发因素</div>
+        <div style="padding:12px 16px;background:#1e293b;border-radius:8px;margin-bottom:8px;border-left:4px solid #a78bfa;font-size:14px;color:#94a3b8;">练习正念冥想，增强对当下情绪状态的觉察能力</div>
+        <div style="padding:12px 16px;background:#1e293b;border-radius:8px;margin-bottom:8px;border-left:4px solid #a78bfa;font-size:14px;color:#94a3b8;">在感到强烈情绪时，尝试"暂停-呼吸-选择"的三步法</div>
+        <div style="padding:12px 16px;background:#1e293b;border-radius:8px;margin-bottom:8px;border-left:4px solid #a78bfa;font-size:14px;color:#94a3b8;">阅读情绪智力相关书籍，如《情商》《非暴力沟通》等</div>
       </div>
-      <div style="background:#f8fafc;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
+      <div style="background:#1e293b;border-radius:12px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;">
         <div style="margin-bottom:8px;font-weight:500;">宇宙认知盐究所 · Space Salt Lab</div>
         <div>本报告仅供参考，不构成心理诊断</div>
       </div>
@@ -653,7 +777,7 @@ async function downloadPDF() {
     const canvas = await html2canvas(pdfContainer, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0f172a',
       height: pdfContainer.scrollHeight,
       windowHeight: pdfContainer.scrollHeight
     });

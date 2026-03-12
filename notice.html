@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试须知</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a0f08;
+  display: flex;
+  justify-content: center;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.card {
+  width: 750px;
+  min-height: 980px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1c0e06 0%, #110a04 40%, #0d0d12 100%);
+}
+
+/* ── 背景光晕 —— 模拟人形轮廓光 ── */
+.bg-glow-center {
+  position: absolute;
+  width: 480px; height: 700px;
+  top: 60px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 35%,
+    rgba(255,160,60,0.28) 0%,
+    rgba(255,100,20,0.14) 30%,
+    rgba(180,60,0,0.06) 60%,
+    transparent 80%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+.bg-glow-head {
+  position: absolute;
+  width: 200px; height: 200px;
+  top: 80px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle,
+    rgba(255,190,80,0.30) 0%,
+    rgba(255,140,40,0.14) 50%,
+    transparent 80%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+.bg-glow-bottom {
+  position: absolute;
+  width: 600px; height: 400px;
+  bottom: -100px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse,
+    rgba(100,60,200,0.12) 0%,
+    rgba(60,30,120,0.06) 50%,
+    transparent 80%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+/* ── SVG 人形轮廓（纯CSS模拟） ── */
+.silhouette {
+  position: absolute;
+  top: 90px; left: 50%;
+  transform: translateX(-50%);
+  width: 220px; height: 540px;
+  pointer-events: none;
+  opacity: 0.22;
+}
+/* 头 */
+.sil-head {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,160,80,0.9) 0%, rgba(255,120,40,0.4) 60%, transparent 100%);
+  margin: 0 auto 0;
+  filter: blur(6px);
+}
+/* 躯干 */
+.sil-body {
+  width: 100px; height: 220px;
+  background: linear-gradient(180deg, rgba(255,130,50,0.6) 0%, rgba(200,80,20,0.3) 60%, transparent 100%);
+  margin: -10px auto 0;
+  border-radius: 40px 40px 20px 20px;
+  filter: blur(8px);
+}
+/* 心形光点 */
+.sil-heart {
+  position: absolute;
+  width: 40px; height: 40px;
+  top: 180px; left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255,200,100,0.95) 0%, rgba(255,140,50,0.5) 50%, transparent 100%);
+  border-radius: 50%;
+  filter: blur(4px);
+}
+
+/* ── 整体内容层 ── */
+.content {
+  position: relative;
+  z-index: 2;
+  padding: 44px 48px 48px;
+}
+
+/* ── 顶部标题行 ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+.top-brand {
+  font-family: 'EB Garamond', serif;
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+}
+.top-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top-title-icon {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,160,60,0.55);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+/* 电源图标 */
+.top-title-icon::before {
+  content: '';
+  width: 10px; height: 10px;
+  border: 1.5px solid rgba(255,160,60,0.8);
+  border-radius: 50%;
+  border-top-color: transparent;
+  display: block;
+}
+.top-title-icon::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 50%;
+  transform: translateX(-50%);
+  width: 1.5px; height: 6px;
+  background: rgba(255,160,60,0.8);
+}
+.top-title-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.80);
+  letter-spacing: 3px;
+}
+
+/* ── 条目列表 ── */
+.items { display: flex; flex-direction: column; gap: 0; }
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.item:first-child { border-top: 1px solid rgba(255,255,255,0.05); }
+
+/* 序号徽章 */
+.item-num {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #4f6ef7, #3b56e0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 2px 10px rgba(79,110,247,0.35);
+}
+
+.item-body {}
+.item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 7px;
+  letter-spacing: 1px;
+}
+.item-text {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: rgba(255,255,255,0.46);
+  font-weight: 300;
+}
+.item-text em {
+  font-style: normal;
+  color: rgba(255,200,100,0.75);
+}
+
+/* ── 温馨提示 ── */
+.tip-box {
+  margin-top: 28px;
+  padding: 18px 20px;
+  background: rgba(255,160,50,0.06);
+  border-left: 2px solid rgba(255,160,50,0.45);
+}
+.tip-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,170,60,0.85);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.tip-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(255,170,60,0.7);
+}
+.tip-text {
+  font-size: 13px;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.40);
+  font-weight: 300;
+}
+
+/* ── 底部 ── */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.bottom-left {
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.14);
+  text-transform: uppercase;
+}
+.bottom-right {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.14);
+  font-weight: 300;
+}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- 背景光效 -->
+  <div class="bg-glow-center"></div>
+  <div class="bg-glow-head"></div>
+  <div class="bg-glow-bottom"></div>
+
+  <!-- 人形轮廓光 -->
+  <div class="silhouette">
+    <div class="sil-head"></div>
+    <div class="sil-body"></div>
+    <div class="sil-heart"></div>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="content">
+
+    <div class="top-bar">
+      <span class="top-brand">Spacesaltlab · 宇宙认知盐究所</span>
+      <div class="top-title">
+        <div class="top-title-icon"></div>
+        <span class="top-title-text">测试须知</span>
+      </div>
+    </div>
+
+    <div class="items">
+
+      <div class="item">
+        <div class="item-num">1</div>
+        <div class="item-body">
+          <div class="item-title">关于发货与使用</div>
+          <div class="item-text">订单购买成功后，测试链接将以<em>虚拟内容形式自动发放</em>，无需任何物流配送，不支持二次付费或重复领取。</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-num">2</div>
+        <div class="item-body">
+          <div class="item-title">关于测试权限</div>
+          <div class="item-text">测试链接<em>仅限在本店完成购买的用户本人使用</em>，仅用于个人测试与参考，所有测试内容及结果版权归平台所有，严禁转发、售卖或传播。</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-num">3</div>
+        <div class="item-body">
+          <div class="item-title">关于测试次数</div>
+          <div class="item-text">每一笔订单仅对应<em>一次完整测试机会</em>。<br>测试一经开始即视为使用，无法重测、补测或更换账号，请勿将链接分享给他人。</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-num">4</div>
+        <div class="item-body">
+          <div class="item-title">关于加载与网络环境</div>
+          <div class="item-text">由于测试题目数量较多，首次进入可能需要数秒加载。<br>建议在<em>网络稳定（Wi-Fi 或 4G/5G）</em>的环境下完成测试，以免中途中断影响结果。</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="item-num">5</div>
+        <div class="item-body">
+          <div class="item-title">关于作答要求</div>
+          <div class="item-text">为保证结果的专业性与可信度，请<em>根据真实想法作答</em>，尽量避免揣测"正确答案"。你的第一反应，往往才是最真实的数据。</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip-box">
+      <div class="tip-title">
+        <div class="tip-dot"></div>
+        温馨提示
+      </div>
+      <div class="tip-text">
+        心理特质具有一定复杂性，且测试工具本身存在客观边界，<br>
+        测试结果仅作为自我了解与参考使用，不构成诊断或绝对判断。<br>
+        如已理解并接受以上说明，欢迎开始测试。
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <span class="bottom-left">Spacesaltlab · 动物投射测试</span>
+      <span class="bottom-right">测评结果仅供参考，不构成心理诊断</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

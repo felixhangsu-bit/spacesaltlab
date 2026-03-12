@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>职业性格测评 · 商品页长图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+.page {
+  width: 750px;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+}
+.noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HERO */
+.hero {
+  position: relative;
+  width: 750px;
+  height: 540px;
+  background: #080808;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 64px;
+}
+.hero-orb-1 { position:absolute; width:500px; height:500px; top:-200px; left:-150px; background:radial-gradient(circle,#3b82f6,transparent 65%); opacity:0.20; border-radius:50%; filter:blur(80px); }
+.hero-orb-2 { position:absolute; width:400px; height:400px; bottom:-180px; right:-120px; background:radial-gradient(circle,#1d4ed8,transparent 65%); opacity:0.16; border-radius:50%; filter:blur(80px); }
+.hero-orb-3 { position:absolute; width:300px; height:300px; top:50%; left:55%; transform:translate(-50%,-50%); background:radial-gradient(circle,#60a5fa,transparent 65%); opacity:0.08; border-radius:50%; filter:blur(60px); }
+.hero-content { position: relative; z-index: 2; text-align: center; }
+.hero-label { font-family:'EB Garamond',serif; font-size:12px; letter-spacing:6px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:20px; }
+.hero-icon { font-size:64px; margin-bottom:20px; line-height:1; }
+.hero-title { font-family:'Noto Serif SC',serif; font-size:56px; font-weight:700; background:linear-gradient(135deg,#bfdbfe 0%,#3b82f6 50%,#1d4ed8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; letter-spacing:2px; }
+.hero-sub { font-size:15px; font-weight:300; color:rgba(255,255,255,0.40); letter-spacing:3px; margin-bottom:28px; }
+.hero-divider { width:48px; height:1px; background:linear-gradient(90deg,transparent,rgba(59,130,246,0.5),transparent); margin:0 auto 28px; }
+.hero-tagline { font-size:18px; font-weight:400; color:rgba(255,255,255,0.65); line-height:1.8; letter-spacing:1px; }
+.hero-tagline em { font-style:normal; background:linear-gradient(90deg,#bfdbfe,#3b82f6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:600; }
+.hero-stats { display:flex; gap:0; margin-top:36px; border-top:1px solid rgba(255,255,255,0.07); padding-top:28px; width:100%; justify-content:center; }
+.stat { flex:1; text-align:center; position:relative; }
+.stat+.stat::before { content:''; position:absolute; left:0; top:20%; height:60%; width:1px; background:rgba(255,255,255,0.08); }
+.stat-num { font-family:'EB Garamond',serif; font-size:36px; background:linear-gradient(135deg,#bfdbfe,#3b82f6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:6px; }
+.stat-label { font-size:12px; color:rgba(255,255,255,0.28); letter-spacing:2px; }
+
+/* 通用 section */
+.section { position:relative; padding:56px 64px; border-top:1px solid rgba(255,255,255,0.05); }
+.section-tag { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:5px; color:rgba(59,130,246,0.55); text-transform:uppercase; margin-bottom:12px; }
+.section-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:rgba(255,255,255,0.88); margin-bottom:20px; letter-spacing:1px; }
+.section-body { font-size:15px; line-height:2.0; color:rgba(255,255,255,0.45); font-weight:300; }
+
+/* 关于测试 */
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.about-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:24px 22px; position:relative; overflow:hidden; }
+.about-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#3b82f6,transparent); }
+.about-card-icon { font-size:24px; margin-bottom:12px; }
+.about-card-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:8px; letter-spacing:1px; }
+.about-card-text { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.8; font-weight:300; }
+
+/* 四维度展示 */
+.dims-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.dim-card { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); padding:24px 22px; position:relative; overflow:hidden; }
+.dim-card-accent { position:absolute; top:0; left:0; right:0; height:2px; }
+.dim-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.dim-emoji { font-size:28px; }
+.dim-name { font-family:'Noto Serif SC',serif; font-size:18px; font-weight:700; color:rgba(255,255,255,0.85); }
+.dim-en { font-size:11px; letter-spacing:2px; color:rgba(255,255,255,0.25); font-family:'EB Garamond',serif; }
+.dim-poles { display:flex; justify-content:space-between; font-size:12px; color:rgba(255,255,255,0.35); margin-bottom:8px; }
+.dim-bar-bg { height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; margin-bottom:10px; }
+.dim-bar-arrow { height:100%; background:linear-gradient(90deg,#3b82f6,#60a5fa); border-radius:3px; width:50%; }
+.dim-text { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.7; font-weight:300; }
+
+/* 16种类型 */
+.types-bg { background:rgba(59,130,246,0.03); }
+.types-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:28px; }
+.type-chip { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:14px 10px; text-align:center; position:relative; overflow:hidden; }
+.type-chip::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(59,130,246,0.4),transparent); }
+.type-code { font-family:'EB Garamond',serif; font-size:18px; font-weight:600; color:rgba(59,130,246,0.80); margin-bottom:4px; letter-spacing:1px; }
+.type-cname { font-size:11px; color:rgba(255,255,255,0.45); font-weight:500; margin-bottom:2px; }
+.type-trait { font-size:10px; color:rgba(255,255,255,0.22); line-height:1.4; }
+
+/* 样本结果 */
+.sample-bg { background:rgba(96,165,250,0.03); }
+.sample-result { background:rgba(255,255,255,0.02); border:1px solid rgba(59,130,246,0.15); margin-top:24px; overflow:hidden; }
+.sample-header { background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(29,78,216,0.08)); padding:28px 28px 24px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sample-header-top { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.sample-icon { font-size:44px; }
+.sample-label { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(59,130,246,0.6); text-transform:uppercase; margin-bottom:4px; }
+.sample-name { font-family:'Noto Serif SC',serif; font-size:28px; font-weight:700; color:#93c5fd; }
+.sample-subtitle { font-size:13px; color:rgba(255,255,255,0.35); letter-spacing:2px; }
+.sample-desc { font-size:14px; line-height:2.0; color:rgba(255,255,255,0.50); font-weight:300; }
+.sample-body { padding:24px 28px; }
+.sample-section-title { font-size:13px; font-weight:600; color:rgba(59,130,246,0.7); letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.sample-section-title::before { content:''; display:inline-block; width:16px; height:1px; background:rgba(59,130,246,0.5); }
+.trait-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.trait-tag { font-size:12px; padding:5px 14px; border:1px solid rgba(59,130,246,0.25); color:rgba(59,130,246,0.65); letter-spacing:1px; font-family:'EB Garamond',serif; background:rgba(59,130,246,0.05); }
+.career-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.career-item { background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); padding:8px 14px; font-size:13px; color:rgba(255,255,255,0.55); text-align:center; }
+
+/* 理论引用 */
+.theory-bg { background:rgba(59,130,246,0.03); }
+.theory-quote { border-left:2px solid rgba(59,130,246,0.4); padding:18px 24px; margin:24px 0; background:rgba(59,130,246,0.04); }
+.theory-quote-text { font-family:'Noto Serif SC',serif; font-size:16px; color:rgba(255,255,255,0.60); line-height:1.9; font-style:italic; }
+.theory-quote-author { font-size:12px; color:rgba(59,130,246,0.5); letter-spacing:2px; margin-top:10px; font-family:'EB Garamond',serif; }
+
+/* 流程 */
+.steps { display:flex; flex-direction:column; gap:0; margin-top:28px; }
+.step { display:flex; gap:20px; position:relative; padding-bottom:28px; }
+.step:last-child { padding-bottom:0; }
+.step-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.step-num { width:36px; height:36px; border-radius:50%; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.25); display:flex; align-items:center; justify-content:center; font-family:'EB Garamond',serif; font-size:16px; color:rgba(59,130,246,0.7); flex-shrink:0; }
+.step-line { flex:1; width:1px; background:linear-gradient(180deg,rgba(59,130,246,0.2),transparent); margin-top:8px; }
+.step-content { padding-top:6px; }
+.step-title { font-size:15px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:6px; letter-spacing:1px; }
+.step-text { font-size:13px; color:rgba(255,255,255,0.33); line-height:1.8; font-weight:300; }
+
+/* 适合人群 */
+.audience-list { display:flex; flex-direction:column; gap:14px; margin-top:24px; }
+.audience-item { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; background:rgba(255,255,255,0.02); border-left:2px solid rgba(59,130,246,0.25); }
+.audience-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.audience-text { font-size:14px; color:rgba(255,255,255,0.45); line-height:1.7; font-weight:300; }
+.audience-text strong { color:rgba(255,255,255,0.72); font-weight:500; }
+
+/* 品牌承诺 */
+.promise-bg { background:rgba(59,130,246,0.03); }
+.promise-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+.promise-item { text-align:center; padding:24px 16px; border:1px solid rgba(255,255,255,0.05); }
+.promise-icon { font-size:28px; margin-bottom:12px; }
+.promise-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); margin-bottom:8px; letter-spacing:1px; }
+.promise-text { font-size:12px; color:rgba(255,255,255,0.28); line-height:1.7; font-weight:300; }
+
+/* CTA */
+.cta { position:relative; padding:60px 64px; text-align:center; background:#080808; border-top:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+.cta-orb { position:absolute; width:400px; height:400px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#3b82f6,transparent 60%); opacity:0.08; border-radius:50%; filter:blur(60px); pointer-events:none; }
+.cta-content { position:relative; z-index:1; }
+.cta-title { font-family:'Noto Serif SC',serif; font-size:30px; font-weight:700; background:linear-gradient(135deg,#bfdbfe 0%,#3b82f6 60%,#1d4ed8 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:14px; }
+.cta-sub { font-size:14px; color:rgba(255,255,255,0.30); letter-spacing:3px; margin-bottom:32px; font-weight:300; }
+.cta-btn { display:inline-block; padding:14px 48px; border:1px solid rgba(59,130,246,0.40); color:rgba(59,130,246,0.80); font-size:14px; letter-spacing:4px; font-family:'Noto Sans SC',sans-serif; font-weight:300; background:rgba(59,130,246,0.06); }
+
+/* Footer */
+.footer { padding:28px 64px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); }
+.footer-brand { font-family:'EB Garamond',serif; font-size:13px; letter-spacing:4px; color:rgba(255,255,255,0.18); text-transform:uppercase; }
+.footer-note { font-size:11px; color:rgba(255,255,255,0.14); letter-spacing:1px; font-weight:300; }
+
+/* 分页线 */
+.page-break { width:100%; height:2px; background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent); margin:0; }
+.page-break-label { text-align:center; padding:8px; background:#111; font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(59,130,246,0.3); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PAGE 1 ═══════════════ -->
+<div class="page-break-label">— Page 1 of 4 —</div>
+<div class="page">
+<div class="noise"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-label">Career Personality · MBTI Professional</div>
+    <div class="hero-icon">💼</div>
+    <div class="hero-title">职业性格测评</div>
+    <div class="hero-sub">你的天赋适合哪条职业赛道？</div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">
+      不是「你能做什么」，<br>
+      而是「你<em>天生适合</em>做什么」——<br>
+      找到与你性格深度匹配的职业方向
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">60</div><div class="stat-label">测评题目</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">性格维度</div></div>
+      <div class="stat"><div class="stat-num">16</div><div class="stat-label">人格类型</div></div>
+      <div class="stat"><div class="stat-num">10</div><div class="stat-label">分钟完成</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 关于测试 -->
+<div class="section">
+  <div class="section-tag">About This Test</div>
+  <div class="section-title">这个测评在测什么</div>
+  <div class="section-body">
+    基于 MBTI 人格理论与霍兰德职业适配模型，通过 60 道专业题目，<strong style="color:rgba(255,255,255,0.72)">从四个维度精准定位你的性格类型</strong>，并给出与之深度匹配的职业方向与发展建议。
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-icon">🎯</div>
+      <div class="about-card-title">不是星座不是血型</div>
+      <div class="about-card-text">MBTI 基于心理学研究，已被全球 Fortune 500 企业广泛用于人才评估与岗位匹配。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🔬</div>
+      <div class="about-card-title">四维度交叉分析</div>
+      <div class="about-card-text">能量来源 × 信息获取 × 决策方式 × 生活态度，四个维度组合产生 16 种精准人格类型。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">💡</div>
+      <div class="about-card-title">看见天赋盲区</div>
+      <div class="about-card-text">很多人在「不适合自己」的职业上耗费多年。这份报告帮你看见那些被忽视的天然优势。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🗺️</div>
+      <div class="about-card-title">完整职业路线图</div>
+      <div class="about-card-text">报告包含推荐职业方向、优劣势分析、发展建议和你的「同类型名人」参考。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 四维度 -->
+<div class="section">
+  <div class="section-tag">Four Dimensions · MBTI Framework</div>
+  <div class="section-title">测评的四个维度</div>
+  <div class="section-body">每道题都在测量这四组对立倾向中，你天然偏向哪一端——没有好坏之分，只有适合与否。</div>
+  <div class="dims-grid">
+    <div class="dim-card">
+      <div class="dim-card-accent" style="background:linear-gradient(90deg,#3b82f6,transparent)"></div>
+      <div class="dim-header">
+        <div class="dim-emoji">⚡</div>
+        <div><div class="dim-name">能量来源</div><div class="dim-en">E · I</div></div>
+      </div>
+      <div class="dim-poles"><span>外倾 Extroversion</span><span>内倾 Introversion</span></div>
+      <div class="dim-bar-bg"><div class="dim-bar-arrow"></div></div>
+      <div class="dim-text">你从与人互动中获得能量，还是从独处中充电？这决定了你适合开放协作还是深度专注的环境。</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-card-accent" style="background:linear-gradient(90deg,#60a5fa,transparent)"></div>
+      <div class="dim-header">
+        <div class="dim-emoji">🔭</div>
+        <div><div class="dim-name">信息获取</div><div class="dim-en">S · N</div></div>
+      </div>
+      <div class="dim-poles"><span>感知 Sensing</span><span>直觉 iNtuition</span></div>
+      <div class="dim-bar-bg"><div class="dim-bar-arrow"></div></div>
+      <div class="dim-text">你更相信具体经验与细节，还是擅长抽象思维与模式发现？影响你在执行落地还是创新规划上的天赋。</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-card-accent" style="background:linear-gradient(90deg,#f97316,transparent)"></div>
+      <div class="dim-header">
+        <div class="dim-emoji">⚖️</div>
+        <div><div class="dim-name">决策方式</div><div class="dim-en">T · F</div></div>
+      </div>
+      <div class="dim-poles"><span>思考 Thinking</span><span>情感 Feeling</span></div>
+      <div class="dim-bar-bg"><div class="dim-bar-arrow"></div></div>
+      <div class="dim-text">你做决策时优先逻辑客观，还是优先人际和谐？决定了你是否适合需要硬性判断的管理或技术岗位。</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-card-accent" style="background:linear-gradient(90deg,#1d4ed8,transparent)"></div>
+      <div class="dim-header">
+        <div class="dim-emoji">🗓️</div>
+        <div><div class="dim-name">生活态度</div><div class="dim-en">J · P</div></div>
+      </div>
+      <div class="dim-poles"><span>判断 Judging</span><span>感知 Perceiving</span></div>
+      <div class="dim-bar-bg"><div class="dim-bar-arrow"></div></div>
+      <div class="dim-text">你倾向有序规划与按时完成，还是灵活应变与保持开放？影响你在结构化流程与创意自由度中的舒适度。</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="page-break"></div>
+<div class="page-break-label">— Page 2 of 4 —</div>
+
+<!-- ═══════════════ PAGE 2 ═══════════════ -->
+<div class="page">
+<div class="noise"></div>
+
+<!-- 16种类型 -->
+<div class="section types-bg">
+  <div class="section-tag">Result Types · 16 Personalities</div>
+  <div class="section-title">你会得到哪种结果？</div>
+  <div class="section-body">16 种人格类型，每种都有专属的职业天赋和发展路径。测完你才知道自己是哪个。</div>
+  <div class="types-grid">
+    <div class="type-chip"><div class="type-code">INTJ</div><div class="type-cname">策略家</div><div class="type-trait">战略眼光 独立思考</div></div>
+    <div class="type-chip"><div class="type-code">INTP</div><div class="type-cname">逻辑学家</div><div class="type-trait">创新思维 理论探索</div></div>
+    <div class="type-chip"><div class="type-code">ENTJ</div><div class="type-cname">指挥官</div><div class="type-trait">天生领袖 决策果断</div></div>
+    <div class="type-chip"><div class="type-code">ENTP</div><div class="type-cname">辩论家</div><div class="type-trait">创意无限 善于辩证</div></div>
+    <div class="type-chip"><div class="type-code">INFJ</div><div class="type-cname">提倡者</div><div class="type-trait">远见理想 深度洞察</div></div>
+    <div class="type-chip"><div class="type-code">INFP</div><div class="type-cname">调停者</div><div class="type-trait">理想主义 富有同理</div></div>
+    <div class="type-chip"><div class="type-code">ENFJ</div><div class="type-cname">主角</div><div class="type-trait">感染力强 善于引导</div></div>
+    <div class="type-chip"><div class="type-code">ENFP</div><div class="type-cname">竞选者</div><div class="type-trait">热情创意 激励他人</div></div>
+    <div class="type-chip"><div class="type-code">ISTJ</div><div class="type-cname">物流师</div><div class="type-trait">严谨可靠 注重细节</div></div>
+    <div class="type-chip"><div class="type-code">ISFJ</div><div class="type-cname">守卫者</div><div class="type-trait">忠诚奉献 温暖体贴</div></div>
+    <div class="type-chip"><div class="type-code">ESTJ</div><div class="type-cname">总经理</div><div class="type-trait">组织执行 规则维护</div></div>
+    <div class="type-chip"><div class="type-code">ESFJ</div><div class="type-cname">执政官</div><div class="type-trait">热心助人 团队凝聚</div></div>
+    <div class="type-chip"><div class="type-code">ISTP</div><div class="type-cname">鉴赏家</div><div class="type-trait">实操能力 冷静分析</div></div>
+    <div class="type-chip"><div class="type-code">ISFP</div><div class="type-cname">探险家</div><div class="type-trait">艺术感知 当下专注</div></div>
+    <div class="type-chip"><div class="type-code">ESTP</div><div class="type-cname">企业家</div><div class="type-trait">行动力强 风险偏好</div></div>
+    <div class="type-chip"><div class="type-code">ESFP</div><div class="type-cname">表演者</div><div class="type-trait">活力充沛 感染全场</div></div>
+  </div>
+</div>
+
+<!-- 结果示例 -->
+<div class="section sample-bg">
+  <div class="section-tag">Sample Result · 结果示例</div>
+  <div class="section-title">测试结果长这样</div>
+  <div class="section-body">以下为「INTJ 策略家」的示例结果，实际报告包含完整分析、职业推荐、成长建议与名人参照。</div>
+  <div class="sample-result">
+    <div class="sample-header">
+      <div class="sample-header-top">
+        <div class="sample-icon">🧠</div>
+        <div>
+          <div class="sample-label">Your Personality Type</div>
+          <div class="sample-name">INTJ · 策略家</div>
+        </div>
+      </div>
+      <div class="sample-subtitle">独立思考 · 战略远见 · 追求卓越</div>
+    </div>
+    <div class="sample-body">
+      <div class="sample-desc" style="margin-bottom:20px">
+        你是一个具有远见卓识的战略思考者，拥有罕见的逻辑分析能力。你善于将复杂的想法转化为可执行的长期计划，追求知识和能力的不断提升。在工作中，你往往能看到他人忽视的深层联系，并据此制定高效解决方案。
+      </div>
+      <div class="sample-section-title">核心特质</div>
+      <div class="trait-tags" style="margin-bottom:20px">
+        <span class="trait-tag">战略性思维</span>
+        <span class="trait-tag">独立自主</span>
+        <span class="trait-tag">追求卓越</span>
+        <span class="trait-tag">系统规划</span>
+        <span class="trait-tag">逻辑严密</span>
+      </div>
+      <div class="sample-section-title">适合职业方向</div>
+      <div class="career-list">
+        <div class="career-item">战略顾问</div>
+        <div class="career-item">系统架构师</div>
+        <div class="career-item">投资分析师</div>
+        <div class="career-item">科研工作者</div>
+        <div class="career-item">管理咨询师</div>
+        <div class="career-item">创业者</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 理论背景 -->
+<div class="section theory-bg">
+  <div class="section-tag">Theory Background</div>
+  <div class="section-title">这套理论从哪来</div>
+  <div class="section-body">
+    MBTI 源于荣格的心理类型理论，由 Isabel Briggs Myers 和 Katharine Cook Briggs 发展完善。全球超过 8800 万人次使用，被各大企业和院校广泛采纳。
+  </div>
+  <div class="theory-quote">
+    <div class="theory-quote-text">「真正的自我认知，是一切个人成长的起点。当你了解自己天然的思维方式，你才能找到与之共鸣的职业路径。」</div>
+    <div class="theory-quote-author">—— Isabel Briggs Myers</div>
+  </div>
+  <div class="section-body">
+    我们在原版框架基础上增加了<strong style="color:rgba(255,255,255,0.65)">霍兰德职业适配模型</strong>，将性格类型与实际职业方向精准对应，给出更具参考价值的发展路径建议。
+  </div>
+</div>
+</div>
+
+<div class="page-break"></div>
+<div class="page-break-label">— Page 3 of 4 —</div>
+
+<!-- ═══════════════ PAGE 3 ═══════════════ -->
+<div class="page">
+<div class="noise"></div>
+
+<!-- 测试流程 -->
+<div class="section">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">测评怎么做</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-left"><div class="step-num">01</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">进入测评页面</div>
+        <div class="step-text">输入平台密码后进入专属测评页，全程无需注册，数据不离开你的设备。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">02</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">完成 60 道性格题</div>
+        <div class="step-text">每题二选一，选择你最自然的反应。不要想「应该怎样」，只要选「通常是怎样」。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">03</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">获得完整报告</div>
+        <div class="step-text">立即生成你的 MBTI 类型、四维度得分分析、性格优劣势、推荐职业方向与发展建议，支持 PDF 导出。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">04</div></div>
+      <div class="step-content">
+        <div class="step-title">收藏与分享</div>
+        <div class="step-text">看完结果会忍不住想发给朋友——「我测出来是 INTJ，你觉得像吗？」才是最好玩的部分。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 适合人群 -->
+<div class="section">
+  <div class="section-tag">Who Is This For</div>
+  <div class="section-title">这个测评适合你吗</div>
+  <div class="audience-list">
+    <div class="audience-item">
+      <div class="audience-icon">🚀</div>
+      <div class="audience-text"><strong>正在考虑职业转型的人</strong>——在现有赛道走得越来越累，想知道自己的天赋到底在哪里</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">🎓</div>
+      <div class="audience-text"><strong>即将毕业的学生</strong>——面对众多选择不知如何决策，想要一个科学依据来支撑自己的职业选择</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">💭</div>
+      <div class="audience-text"><strong>感到职业迷茫的职场人</strong>——做的工作没什么问题，但就是不兴奋，怀疑自己是否在对的位置</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">✨</div>
+      <div class="audience-text"><strong>对自我认知感兴趣的人</strong>——想要更科学地了解自己的思维方式、决策风格和天然优势</div>
+    </div>
+  </div>
+</div>
+
+<!-- 品牌承诺 -->
+<div class="section promise-bg">
+  <div class="section-tag">Our Promise</div>
+  <div class="section-title">关于这份测评</div>
+  <div class="promise-grid">
+    <div class="promise-item">
+      <div class="promise-icon">🔒</div>
+      <div class="promise-title">数据不留存</div>
+      <div class="promise-text">所有计算在本地完成，服务器不记录任何答题数据</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">📖</div>
+      <div class="promise-title">理论有依据</div>
+      <div class="promise-text">基于 MBTI 与霍兰德双模型，专业级人格评估体系</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">💡</div>
+      <div class="promise-title">结果有深度</div>
+      <div class="promise-text">不是简单贴标签，是能指导实际决策的完整职业分析</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-orb"></div>
+  <div class="cta-content">
+    <div class="cta-title">你的职业天赋在哪里？</div>
+    <div class="cta-sub">10 分钟 · 60 题 · 立即查看结果</div>
+    <div class="cta-btn">开 始 测 评</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="footer-brand">宇宙认知盐究所 · Spacesaltlab</span>
+  <span class="footer-note">测评结果仅供参考，不构成职业建议</span>
+</div>
+</div>
+
+</body>
+</html>

@@ -7,122 +7,143 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #ec4899;
-  --primary-dark: #db2777;
-  --primary-light: #f9a8d4;
-  --gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --radius: 16px;
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: rgba(139,92,246,0.55);
+  --gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --bg: #0a0a0a;
+  --card: rgba(255,255,255,0.025);
+  --text: rgba(255,255,255,0.88);
+  --text-muted: rgba(255,255,255,0.38);
+  --border: rgba(255,255,255,0.07);
+  --shadow: none;
+  --radius: 0;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-.page { display: none; min-height: 100vh; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; position: relative; }
+.noise { position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .page.active { display: block; }
 #testPage { background: var(--bg); padding: 20px; }
 .test-container { max-width: 700px; margin: 0 auto; }
 .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
-.back-btn:hover { background: white; color: var(--text); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; font-size: 13px; letter-spacing: 1px; cursor: pointer; padding: 8px 12px; border-radius: 0; transition: all 0.2s; }
+.back-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
 .progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
-.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
-.dim-tag { display: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
-.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.progress-text { font-family: 'EB Garamond', serif; font-size: 14px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 2px; }
+.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 0; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: 0; padding: 40px; border: 1px solid var(--border); position: relative; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: linear-gradient(180deg, var(--primary), transparent); }
+.dim-tag { display: none; padding: 6px 14px; border-radius: 0; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-family: 'EB Garamond', serif; font-size: 13px; color: rgba(139,92,246,0.55); margin-bottom: 10px; letter-spacing: 3px; text-transform: uppercase; }
+.q-text { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.5; margin-bottom: 32px; }
 .options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: var(--primary-light); background: #fdf2f8; }
-.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); }
-.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.04); }
+.opt.selected { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.08); }
+.opt-radio { width: 20px; height: 20px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
 .opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
-.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
-.opt-text { font-size: 15px; font-weight: 500; }
+.opt.selected .opt-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+.opt-text { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+.opt:hover .opt-text { color: var(--text); }
+.opt.selected .opt-text { color: var(--text); }
 .nav-btns { display: flex; gap: 12px; margin-top: 32px; }
-.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
-.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
-.nav-btn.secondary:hover { border-color: var(--primary-light); }
-.nav-btn.primary { background: var(--primary); border: none; color: white; }
+.nav-btn { flex: 1; padding: 14px; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.nav-btn.secondary:hover { border-color: rgba(139,92,246,0.4); color: var(--text); }
+.nav-btn.primary { background: var(--primary); border: 1px solid var(--primary); color: white; }
 .nav-btn.primary:hover { background: var(--primary-dark); }
-.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-#resultPage { background: linear-gradient(180deg, #ec4899 0%, #8b5cf6 40%, var(--bg) 40%); }
+#resultPage { background: var(--bg); position: relative; z-index: 1; }
 .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
-.result-header { text-align: center; color: white; margin-bottom: 32px; padding-top: 20px; }
-.result-header h1 { font-size: 26px; margin-bottom: 8px; }
-.result-header p { opacity: 0.9; font-size: 14px; }
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.section-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-.section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.result-header { text-align: center; color: var(--text); margin-bottom: 32px; padding-top: 20px; }
+.result-header h1 { font-family: 'Noto Serif SC', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, #8b5cf6, #a78bfa, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.result-header p { opacity: 0.38; font-size: 13px; letter-spacing: 1px; }
+.card { background: var(--card); border-radius: 0; padding: 32px; border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: linear-gradient(180deg, var(--primary), transparent); }
+.section-title { font-family: 'Noto Serif SC', serif; font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-icon { width: 32px; height: 32px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-.score-hero { text-align: center; padding: 32px; border-radius: 20px; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); margin-bottom: 24px; }
-.score-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.score-number { font-size: 72px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
-.score-suffix { font-size: 24px; color: var(--primary); margin-left: 4px; }
-.score-title { font-size: 22px; font-weight: 600; color: var(--primary); margin: 16px 0 8px; }
-.score-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.score-hero { text-align: center; padding: 40px 32px; border-radius: 0; background: rgba(139,92,246,0.04); border: 1px solid var(--border); margin-bottom: 24px; position: relative; overflow: hidden; }
+.score-hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
+.score-label { font-family: 'EB Garamond', serif; font-size: 14px; color: var(--text-muted); margin-bottom: 8px; position: relative; letter-spacing: 3px; }
+.score-number { font-family: 'EB Garamond', serif; font-size: 80px; font-weight: 400; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 30%, #c4b5fd 60%, #8b5cf6 100%); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; position: relative; animation: gradient-shift 3s ease infinite; }
+@keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.score-suffix { font-family: 'EB Garamond', serif; font-size: 24px; color: var(--primary); margin-left: 4px; }
+.score-title { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 600; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 16px 0 8px; position: relative; }
+.score-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; position: relative; }
 
-.type-card { text-align: center; padding: 24px; border-radius: 16px; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); margin-bottom: 20px; }
-.type-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.type-name { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
-.type-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.quote-card { margin: 20px 0; padding: 28px 32px; background: rgba(139,92,246,0.03); border-radius: 0; border-left: 2px solid var(--primary); position: relative; overflow: hidden; }
+.quote-card::before { content: '\201C'; position: absolute; top: -10px; left: 16px; font-size: 80px; font-family: 'EB Garamond', serif; color: rgba(139,92,246,0.1); line-height: 1; }
+.quote-card::after { content: none; }
+.quote-text { font-family: 'Noto Serif SC', serif; font-size: 15px; font-style: italic; color: var(--text); line-height: 1.8; margin-bottom: 12px; position: relative; z-index: 1; }
+.quote-author { font-family: 'EB Garamond', serif; font-size: 13px; color: var(--primary-light); text-align: right; position: relative; z-index: 1; letter-spacing: 1px; }
+
+.type-card { text-align: center; padding: 32px 24px; border-radius: 0; background: rgba(139,92,246,0.04); border: 1px solid var(--border); margin-bottom: 20px; position: relative; overflow: hidden; }
+.type-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
+.type-card::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,92,246,0.2), transparent); }
+.type-label { font-family: 'EB Garamond', serif; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 3px; }
+.type-name { font-family: 'Noto Serif SC', serif; font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #8b5cf6, #a78bfa, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+.type-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; }
+.type-story { margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); text-align: left; }
+.type-story-label { font-family: 'EB Garamond', serif; font-size: 12px; color: var(--primary-light); margin-bottom: 6px; letter-spacing: 3px; }
+.type-story-text { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+.section-divider { height: 1px; margin: 8px 0 20px; background: linear-gradient(90deg, transparent, var(--border), transparent); border-radius: 0; opacity: 1; }
 
 .chart-wrap { max-width: 350px; margin: 0 auto; }
-.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 0; margin-bottom: 12px; }
 .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .dim-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
-.dim-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-.dim-bar-fill { height: 100%; border-radius: 4px; }
-.level-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.level-high { background: #fce7f3; color: #ec4899; }
-.level-medium { background: #fef3c7; color: #d97706; }
-.level-low { background: #dbeafe; color: #3b82f6; }
+.dim-icon { width: 32px; height: 32px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 0; }
+.level-badge { padding: 4px 10px; border-radius: 0; font-size: 11px; font-weight: 500; letter-spacing: 1px; }
+.level-high { background: rgba(139,92,246,0.1); color: #a78bfa; }
+.level-medium { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); }
+.level-low { background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.3); }
 
-.summary-text { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
-.highlight-box { margin-top: 16px; padding: 16px; background: #fdf2f8; border-radius: 12px; }
-.highlight-box p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.summary-text { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+.highlight-box { margin-top: 16px; padding: 16px 20px; background: rgba(139,92,246,0.03); border-radius: 0; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.highlight-box::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--primary); }
+.highlight-box p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
 .highlight-box strong { color: var(--text); }
 
-.tip-item { display: flex; gap: 12px; padding: 14px; background: #fdf2f8; border-radius: 10px; margin-bottom: 10px; }
-.tip-num { width: 24px; height: 24px; background: var(--gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.tip-item { display: flex; gap: 12px; padding: 14px; background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); margin-bottom: 10px; }
+.tip-num { width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 0; display: flex; align-items: center; justify-content: center; font-family: 'EB Garamond', serif; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.tip-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
 .trait-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
-.trait-item { padding: 14px; background: #f8fafc; border-radius: 10px; text-align: center; }
+.trait-item { padding: 14px; background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); text-align: center; }
 .trait-icon { font-size: 24px; margin-bottom: 6px; }
-.trait-label { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-.trait-value { font-size: 16px; font-weight: 600; color: var(--text); }
+.trait-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 1px; }
+.trait-value { font-size: 15px; font-weight: 600; color: var(--text); }
 
-.love-meter { margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #fff5f7 0%, #faf5ff 100%); border-radius: 16px; }
-.meter-bar { height: 20px; background: #e2e8f0; border-radius: 10px; overflow: hidden; position: relative; }
-.meter-fill { height: 100%; background: var(--gradient); border-radius: 10px; transition: width 1s ease-out; }
-.meter-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+.love-meter { margin: 20px 0; padding: 20px; background: rgba(139,92,246,0.03); border-radius: 0; border: 1px solid var(--border); }
+.meter-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; position: relative; }
+.meter-fill { height: 100%; background: var(--primary); border-radius: 0; transition: width 1s ease-out; }
+.meter-labels { display: flex; justify-content: space-between; margin-top: 8px; font-family: 'EB Garamond', serif; font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
 
-.partner-card { background: #f8fafc; border-radius: 12px; padding: 16px; margin-top: 16px; }
-.partner-card h4 { font-size: 14px; margin-bottom: 12px; color: var(--text); }
+.partner-card { background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); padding: 16px; margin-top: 16px; }
+.partner-card h4 { font-family: 'Noto Serif SC', serif; font-size: 14px; margin-bottom: 12px; color: var(--text); }
 .partner-list { list-style: none; padding: 0; }
-.partner-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+.partner-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 13px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
 .partner-list li:last-child { border-bottom: none; }
-.partner-list li::before { content: '💕'; font-size: 12px; }
+.partner-list li::before { content: '\2014'; color: var(--primary-light); font-size: 12px; }
 
 .action-btns { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
-.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
-.restart-btn.primary { background: var(--gradient); border: none; color: white; }
-.restart-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(236,72,153,0.3); }
-.restart-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
-.restart-btn.secondary:hover { border-color: var(--primary); }
+.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+.restart-btn.primary { background: var(--primary); border: 1px solid var(--primary); color: white; }
+.restart-btn.primary:hover { background: var(--primary-dark); }
+.restart-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.restart-btn.secondary:hover { border-color: rgba(139,92,246,0.4); color: var(--text); }
 
-.celebrity-box { background: #f8fafc; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.celebrity-box { background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); padding: 16px; margin-top: 16px; }
 .celebrity-box h4 { font-size: 14px; margin-bottom: 12px; }
 .celebrity-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; }
 .celebrity-item .gender { font-size: 20px; }
@@ -130,28 +151,32 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .celebrity-item .name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
 .celebrity-item .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
 .modal-overlay.show { opacity: 1; }
-.modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { background: #111; border-radius: 0; border: 1px solid var(--border); padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
 .modal-overlay.show .modal-content { transform: scale(1); }
 .modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 20px; margin-bottom: 12px; }
-.modal-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-.modal-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-.modal-btn.primary { background: var(--gradient); border: none; color: white; }
-.modal-btn.secondary { background: #f1f5f9; border: none; color: var(--text); }
+.modal-content h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; margin-bottom: 12px; }
+.modal-content p { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+.modal-btn { width: 100%; padding: 14px; border-radius: 0; font-size: 13px; font-weight: 500; letter-spacing: 2px; cursor: pointer; margin-bottom: 10px; }
+.modal-btn.primary { background: var(--primary); border: 1px solid var(--primary); color: white; }
+.modal-btn.secondary { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); }
 
-.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
+.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,10,10,0.92); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
 .loading-overlay.show { display: flex; }
-.loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+.loading-spinner { width: 48px; height: 48px; border: 1px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.insight-card { background: linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%); border-radius: 12px; padding: 16px; margin-top: 16px; }
-.insight-card h4 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.insight-card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.insight-card { background: rgba(139,92,246,0.04); border-radius: 0; border: 1px solid var(--border); padding: 16px; margin-top: 16px; }
+.insight-card h4 { font-family: 'Noto Serif SC', serif; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.insight-card p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+.energy-card { padding: 16px; background: rgba(255,255,255,0.02); border-radius: 0; border: 1px solid var(--border); text-align: center; position: relative; overflow: hidden; }
+.energy-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); opacity: 0.3; }
 </style>
 </head>
 <body>
+<div class="noise"></div>
 
 <div id="testPage" class="page active">
   <div class="test-container">
@@ -195,71 +220,71 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 
 <script>
 const questions = [
-  // 维度A - 情感依恋度 (7题): 对TA的情感依赖、想念、牵挂程度
-  { dim: 'A', text: '当你一整天没有和TA联系时，你会不自觉地想起TA在做什么。' },
-  { dim: 'A', text: '看到有趣的事物或美丽的风景，你第一反应就是想和TA分享。' },
-  { dim: 'A', text: '睡前如果没有和TA说晚安，你会觉得这一天好像少了点什么。' },
-  { dim: 'A', text: '当TA心情不好时，你也会跟着感到难过或担心。' },
-  { dim: 'A', text: '即使很忙，你也会抽时间给TA发消息或打电话。' },
-  { dim: 'A', text: 'TA的一个微笑或一句暖心的话，就能让你开心一整天。' },
-  { dim: 'A', text: '你经常会回忆起和TA在一起的美好时刻。' },
+  // 维度A - 情感依恋度 (7题)
+  { dim: 'A', text: '如果思念有重量，你的口袋现在是什么状态？', opts: ['轻如蝉翼，几乎忘记它的存在', '偶尔沉一下，像揣了颗温热的石头', '走路都慢了半拍，总是不经意地摸一摸', '整个人都被压进了沙发里，甘之如饴'] },
+  { dim: 'A', text: '深夜两点，窗外下起了今年第一场雪。你的第一反应是？', opts: ['拍照发朋友圈，和所有人分享', '觉得挺美的，明天可以跟TA提一嘴', '立刻想拿起手机告诉TA，又怕吵醒TA', '对着窗户发呆，脑海里全是和TA一起看雪的画面'] },
+  { dim: 'A', text: '如果你的情绪是一片海，TA的消息像什么？', opts: ['海面上偶尔掠过的一阵微风', '能掀起几朵小浪花的石子', '让整片海潮汐涨落的月亮', 'TA就是海本身，分不清哪里是TA哪里是我'] },
+  { dim: 'A', text: '你手机里最近一次删掉又重新打出来的消息，大概率发给谁？', opts: ['谁都有可能，不一定是TA', '可能是TA，但我一般直接发不犹豫', '八成是TA，总想把措辞调到最好', '一定是TA，每句话都想让TA收到最温柔的版本'] },
+  { dim: 'A', text: '在一座你从未去过的城市旅行，走到一条特别美的小巷子。你会？', opts: ['拍几张照留给自己就好', '发一条动态，TA看到也行看不到也行', '专门挑最美的角度拍给TA看，想象TA在身边', '突然有点走不动了——所有美的事物都让你更想TA'] },
+  { dim: 'A', text: '如果把TA对你的影响比作天气，最像哪种？', opts: ['偶尔的晴天，锦上添花', '稳定的暖阳，让人舒服', 'TA开心我就放晴，TA难过天就阴了', 'TA就是我的整个气候系统，一切因TA而变'] },
+  { dim: 'A', text: '老歌《月亮代表我的心》里唱"你问我爱你有多深"——你觉得这个问题？', opts: ['有点矫情，爱不需要量化', '可以想一想，但答案不会太夸张', '嘴上不说，心里其实有一个很长的答案', '这首歌根本唱不完我想说的话'] },
 
-  // 维度B - 占有欲 (7题): 希望TA专属于自己的程度
-  { dim: 'B', text: '你希望自己是TA心中最特别、最重要的人。' },
-  { dim: 'B', text: '当TA在社交媒体上和别人互动频繁时，你会比较在意。' },
-  { dim: 'B', text: '你希望TA的朋友圈、个性签名等能体现出你们的关系。' },
-  { dim: 'B', text: '你会记住TA提到过的每一个异性朋友的名字。' },
-  { dim: 'B', text: '如果TA送给别人和送给你一样的礼物，你会有点介意。' },
-  { dim: 'B', text: '你希望TA在重要的日子（生日、节日）都能陪在你身边。' },
-  { dim: 'B', text: '你会希望TA在做重要决定时第一个想到和你商量。' },
+  // 维度B - 占有欲 (7题)
+  { dim: 'B', text: '在TA的生命故事里，你最希望自己扮演什么角色？', opts: ['一个有趣的过客，彼此记得就好', '一个重要的配角，被写进感谢名单', '男/女主角，戏份最多那种', '不是角色——我要当这个故事唯一的读者和续写者'] },
+  { dim: 'B', text: '如果TA的注意力是一束聚光灯，你希望它怎么照？', opts: ['偶尔扫到我就行，不必刻意', '在人群中多停留一会儿', '大部分时间照着我，这样我比较安心', '我希望做那个能随时打开灯的人'] },
+  { dim: 'B', text: 'TA手机里有一个你不知道的联系人备注了一个小心心。你内心的真实反应？', opts: ['可能是家人或闺蜜吧，没什么', '好奇了一秒，但不至于在意', '表面平静，但这个细节会住进脑子里', '像有人踩进了我精心打理的花园'] },
+  { dim: 'B', text: '如果可以在TA身上留下一个只有你们懂的记号，你选什么？', opts: ['不需要，心知肚明就够了', '一个只有我们知道的暗号或者小习惯', '一首只属于我们的歌，谁也不能用', '最好全世界都知道TA属于我的宇宙'] },
+  { dim: 'B', text: '博物馆里有一幅TA最爱的画，但只允许一个人和TA一起欣赏。你会？', opts: ['谁都可以陪TA去啊，这不重要', '希望是我，但别人去也能接受', '必须是我，这种灵魂共鸣时刻应该属于我们', '不仅要一起看，还想做那个解读这幅画给TA听的人'] },
+  { dim: 'B', text: 'TA说"你是我遇到过最好的人之一"。哪个字让你微微在意？', opts: ['没有，这句话很好啊', '"之一"让我想了一下，但理解', '"之一"确实扎了一下——我想做唯一', '我会笑着回答，但内心想把"之一"偷偷擦掉'] },
+  { dim: 'B', text: '如果TA的人生是一栋房子，你想住在哪里？', opts: ['客厅就好，来来往往挺热闹', '书房，一个安静的专属角落', '卧室，最私密的空间只属于我', '我想住进地基里，成为这栋房子离不开的部分'] },
 
-  // 维度C - 嫉妒敏感度 (7题): 对潜在竞争者的敏感程度
-  { dim: 'C', text: '当TA夸赞其他异性的优点时，你内心会有一点酸酸的感觉。' },
-  { dim: 'C', text: '看到TA和异性朋友单独合照，你会想知道对方是谁。' },
-  { dim: 'C', text: '如果TA的前任突然联系TA，你会希望TA告诉你聊了什么。' },
-  { dim: 'C', text: '当有人对TA表现出好感时，你会更想在TA身边刷存在感。' },
-  { dim: 'C', text: '你会留意TA和异性互动时的表情和语气。' },
-  { dim: 'C', text: '如果TA经常提起某个异性同事或朋友，你会记在心里。' },
-  { dim: 'C', text: '你希望自己在TA心中是无可替代的存在。' },
+  // 维度C - 嫉妒敏感度 (7题)
+  { dim: 'C', text: 'TA在朋友圈夸了一个人"有才华得不像话"——而那个人不是你。你内心天气预报？', opts: ['晴空万里，TA欣赏别人很正常', '飘了一片云，但很快散了', '局部阵雨，不影响主要活动但心里知道', '气象台发布了台风预警，需要做好防御工作'] },
+  { dim: 'C', text: '一个和TA关系很好的异性发了一条只有他们才懂的内涵动态。你的反应？', opts: ['朋友之间有默契很正常', '嘴上没说什么，眼睛多看了两秒', '会装作不经意地问TA那条动态什么意思', '心里升起一座小火山，虽然努力让它不喷发'] },
+  { dim: 'C', text: '如果嫉妒是一种颜色，它此刻在你心里占多大面积？', opts: ['一个几乎看不见的小点', '偶尔闪烁的一抹浅色', '不大不小的一团，像水墨晕染', '像黄昏的晚霞，漫过了半边天空'] },
+  { dim: 'C', text: 'TA的前任发了一条"怀念过去"的动态。你会？', opts: ['跟我无关，过去的就过去了', '看了一眼就划走了，不想多想', '忍不住翻了翻评论区，看TA有没有互动', '假装没看到，但这个画面会在脑子里重播好几遍'] },
+  { dim: 'C', text: '在一个聚会上，有个人讲话时TA笑得特别开心——比和你在一起时还开心。你的内心独白？', opts: ['TA开心就好，笑容不需要比较', '注意到了，但告诉自己不要多想', '记下了那个人的名字，回去会不经意地打听', '整个晚上都在想，我是不是不够有趣'] },
+  { dim: 'C', text: 'TA把一个异性朋友的微信置顶了（你偶然看到的）。你会怎么处理？', opts: ['置顶是为了方便联系嘛，很正常', '心里"咯噔"一下但不会说什么', '不会直接问，但接下来的几天会格外留意TA的手机', '虽然知道不该介意，但还是想找个合适的时机问清楚'] },
+  { dim: 'C', text: '如果你的心里有一个警报系统，什么情况下它会响？', opts: ['基本不响，我对TA有绝对的信任', '在比较明显的情况下才会微微亮灯', '有一些固定的触发词和场景会让它嗡嗡作响', '它灵敏到风吹草动都会响——因为这个人对我太重要了'] },
 
-  // 维度D - 付出意愿 (7题): 愿意为对方牺牲和付出的程度
-  { dim: 'D', text: '为了TA，你愿意改变自己的一些生活习惯。' },
-  { dim: 'D', text: '即使自己很累，只要TA需要你，你还是会赶过去。' },
-  { dim: 'D', text: '你愿意把自己最喜欢的东西送给TA。' },
-  { dim: 'D', text: '如果TA的工作机会在另一个城市，你愿意考虑一起搬过去。' },
-  { dim: 'D', text: '你会主动记住TA喜欢的东西，在特别的日子给TA惊喜。' },
-  { dim: 'D', text: '当TA遇到困难时，你会把TA的问题当成自己的问题去解决。' },
-  { dim: 'D', text: '你愿意为了两个人的未来，现在多吃一些苦。' },
+  // 维度D - 付出意愿 (7题)
+  { dim: 'D', text: '如果爱是一座花园，你愿意做哪种园丁？', opts: ['欣赏花开就好，不一定要亲手种', '浇浇水施施肥，但不用太辛苦', '愿意起早贪黑打理，只要花开得好', '我就是那个会趴在地上研究每一寸土壤的人'] },
+  { dim: 'D', text: '凌晨三点，TA说感觉有点难过。窗外下着暴雨。你会？', opts: ['发几条安慰的消息，让TA早点睡', '语音陪聊到TA心情好一点', '穿上衣服考虑要不要打车过去', '已经在路上了——暴雨算什么'] },
+  { dim: 'D', text: '你珍藏了十年的绝版唱片，TA说"好喜欢这张"。你会？', opts: ['给TA听，但这个还是自己留着', '犹豫一下，找个折中的方案', '心里有点舍不得，但还是会送给TA', '立刻递过去——我拥有过的最好的东西都想给TA'] },
+  { dim: 'D', text: 'TA的梦想在另一座城市，而你的根在这里。你会怎么想？', opts: ['各自追梦也没什么不好', '有点为难，但可以试试异地', '纠结过后大概率会跟过去', '行李都不用收拾，TA在哪里哪里就是我的根'] },
+  { dim: 'D', text: '如果可以把自己的时间分成十份，你愿意给TA多少？', opts: ['一到两份，保持自我空间很重要', '三到四份，彼此都需要独立生活', '五到六份，大半的时光都想和TA度过', '问我上限在哪，但其实根本不想计算'] },
+  { dim: 'D', text: '你最近特别累，但TA遇到了一个不大不小的麻烦。你会？', opts: ['先照顾好自己，TA自己也能处理', '给些建议，有余力的话帮一帮', '把自己的事先放放，TA的事更急', '完全不觉得累了——TA需要我就是我的充电器'] },
+  { dim: 'D', text: '如果爱情有一张账单，你希望上面写什么？', opts: ['AA制就好，公平最重要', '我可以多出一些，但也希望被记住', '不用记账——爱里不应该算这些', '如果有账单，我希望上面写着"已由我全额承担，无需归还"'] },
 
-  // 维度E - 未来承诺意愿 (7题): 想要长期在一起的意愿强度
-  { dim: 'E', text: '你经常会想象和TA一起生活的未来画面。' },
-  { dim: 'E', text: '当你做长期规划时（如职业、买房），会把TA考虑进去。' },
-  { dim: 'E', text: '你希望未来的重要人生节点都有TA的参与。' },
-  { dim: 'E', text: '你愿意向家人和朋友正式介绍TA。' },
-  { dim: 'E', text: '即使遇到一些矛盾和分歧，你也想和TA一起解决而不是放弃。' },
-  { dim: 'E', text: '你觉得TA就是那个可以陪你走完一生的人。' },
-  { dim: 'E', text: '你会期待和TA一起创造属于你们的故事和回忆。' },
+  // 维度E - 未来承诺意愿 (7题)
+  { dim: 'E', text: '如果未来是一栋正在建造的房子，TA在你的蓝图里吗？', opts: ['还没画蓝图呢，走一步看一步', 'TA出现在其中一两个房间的想象里', '整栋房子都是按照"两个人住"设计的', 'TA不只在蓝图里——TA就是我画这栋房子的原因'] },
+  { dim: 'E', text: '你看到一张机票写着"2035年，目的地未知"。你会？', opts: ['自己去探险也挺好', '看情况——那时候谁知道和谁在一起', '脑海里自动多加了一张TA的票', '连旁边的座位号都帮TA选好了'] },
+  { dim: 'E', text: '朋友问你"五年后你在哪"，你脑海里浮现的画面有TA吗？', opts: ['五年后的变数太多，不好说', '模模糊糊的，TA有可能在画面里', '画面很清晰，TA站在我旁边', '不是有没有的问题——没有TA，那个画面就不成立'] },
+  { dim: 'E', text: '如果两个人的未来是一首很长的歌，你现在愿意唱到哪里？', opts: ['先唱完副歌再说吧', '愿意唱到第二段，看看旋律是否合拍', '想一直唱到歌曲结束', '我希望这首歌永远不要有终止符'] },
+  { dim: 'E', text: '暴风雨来了，感情的小船在摇晃。你的选择是？', opts: ['如果船翻了就各自游走吧', '先抓紧船舷看看情况', '拿起船桨一起划——翻了也一起翻', '在暴风雨来之前我就已经在加固船板了'] },
+  { dim: 'E', text: '如果有一台时光机，你想带TA去看什么？', opts: ['不太需要时光机，活在当下就好', '回到我们相遇的那天重新体验一次', '带TA去看我们白发苍苍还在一起的样子', '去看平行宇宙里每一个版本的我们，确认每一个我都选了TA'] },
+  { dim: 'E', text: '关于"永远"这个词，你对TA的使用权限是？', opts: ['"永远"太重了，我现在还说不出口', '心里偶尔闪过，但不会说出来', '在某些特别的瞬间，会真心想说"永远"', '每天都在心里说一遍，像呼吸一样自然'] },
 
-  // 维度F - 专一程度 (7题): 对当前感情的专注度（高分=更专一）
-  { dim: 'F', text: '自从心里有了TA，你对其他异性的兴趣明显降低了。' },
-  { dim: 'F', text: '即使有条件更好的人追求你，你也不会动心。' },
-  { dim: 'F', text: '你觉得TA身上有一种其他人都没有的特别吸引力。' },
-  { dim: 'F', text: '当朋友问你理想型时，你脑海中浮现的就是TA的样子。' },
-  { dim: 'F', text: '在人群中，你的目光总是会不自觉地寻找TA。' },
-  { dim: 'F', text: '你认为找到真爱比找到各方面条件都好的人更重要。' },
-  { dim: 'F', text: '你相信TA就是命运安排给你的那个人。' }
+  // 维度F - 专一程度 (7题)
+  { dim: 'F', text: '如果人群是一片星空，TA是什么？', opts: ['是其中一颗不错的星星', '是比较亮的那颗，但别的星星也好看', '是北极星——所有方向都因TA确定', '其他星星在TA面前全都熄灭了'] },
+  { dim: 'F', text: '一个各方面条件都很优秀的人向你走来，微笑着递出一杯咖啡。你的心里在想什么？', opts: ['嗯，不错的人呢', '欣赏归欣赏，但也仅此而已', '谢谢，不过我心里的咖啡馆已经只为一个人开了', '在看到TA的那一秒，脑子里自动弹出了另一个人的脸'] },
+  { dim: 'F', text: '朋友说"你的理想型是什么样的"——你的CPU开始处理什么？', opts: ['列出几个客观条件和标准', '有一些模糊的轮廓，不一定像谁', 'CPU直接调出了TA的全息影像', '什么理想型，TA本人就是标准答案的出题者'] },
+  { dim: 'F', text: '如果心是一扇门，现在门上挂着什么牌子？', opts: ['"营业中，欢迎参观"', '"有人了，但偶尔也接待访客"', '"VIP专属，凭卡入内"', '"此门仅为一人而开，钥匙已融化在锁里"'] },
+  { dim: 'F', text: '在一个热闹的派对上，你的目光雷达会怎么工作？', opts: ['360度自由扫描，有趣的人很多', '大部分时间自由探索，偶尔搜索TA的信号', '基本锁定在TA的频率上，只是偶尔看看别处', '全场只有一个人有颜色，其余都是黑白的'] },
+  { dim: 'F', text: '如果可以用一首诗来形容你对TA的态度，最接近哪一句？', opts: ['曾经沧海难为水——但水也不止一种', '曾经沧海难为水，取次花丛也不算太懒回顾', '曾经沧海难为水，除却巫山不是云', '我连沧海都不想去了，你就是全部的水域'] },
+  { dim: 'F', text: '如果命运说"下辈子你们不会相遇"，你会怎么回答？', opts: ['那就认识新的人吧，缘分嘛', '会遗憾，但也接受命运的安排', '我会在每一世都去找TA', '命运说了不算——我会改写剧本'] }
 ];
 
 const dimInfo = {
-  'A': { name: '情感依恋', icon: '💕', bg: '#fce7f3', color: '#ec4899', desc: '对TA的想念与牵挂' },
-  'B': { name: '专属渴望', icon: '👑', bg: '#e0e7ff', color: '#6366f1', desc: '希望成为TA的唯一' },
-  'C': { name: '守护本能', icon: '🛡️', bg: '#fef3c7', color: '#f59e0b', desc: '对感情的保护意识' },
-  'D': { name: '付出热忱', icon: '🎁', bg: '#d1fae5', color: '#10b981', desc: '为TA奉献的意愿' },
-  'E': { name: '未来憧憬', icon: '🌟', bg: '#dbeafe', color: '#3b82f6', desc: '共同未来的期盼' },
-  'F': { name: '专一深度', icon: '💎', bg: '#f3e8ff', color: '#a855f7', desc: '心无旁骛的程度' }
+  'A': { name: '情感依恋', icon: '💕', bg: '#4a1942', color: '#f472b6', desc: '对TA的想念与牵挂' },
+  'B': { name: '专属渴望', icon: '👑', bg: '#1e1b4b', color: '#818cf8', desc: '希望成为TA的唯一' },
+  'C': { name: '守护本能', icon: '🛡️', bg: '#422006', color: '#fbbf24', desc: '对感情的保护意识' },
+  'D': { name: '付出热忱', icon: '🎁', bg: '#0f2a1e', color: '#34d399', desc: '为TA奉献的意愿' },
+  'E': { name: '未来憧憬', icon: '🌟', bg: '#1e3a5f', color: '#60a5fa', desc: '共同未来的期盼' },
+  'F': { name: '专一深度', icon: '💎', bg: '#2e1065', color: '#c084fc', desc: '心无旁骛的程度' }
 };
 
-const optionLabels = ['不太符合', '有点符合', '比较符合', '非常符合'];
+const defaultLabels = ['不太符合', '有点符合', '比较符合', '非常符合'];
 
 let idx = 0;
 let answers = new Array(42).fill(null);
@@ -272,9 +297,10 @@ function render() {
   document.getElementById('qText').textContent = q.text;
   document.getElementById('progressFill').style.width = ((idx + 1) / 42 * 100) + '%';
 
+  const labels = q.opts || defaultLabels;
   const optDiv = document.getElementById('options');
   optDiv.innerHTML = '';
-  optionLabels.forEach((label, i) => {
+  labels.forEach((label, i) => {
     const opt = document.createElement('div');
     opt.className = 'opt' + (answers[idx] === i ? ' selected' : '');
     opt.innerHTML = `<div class="opt-radio"></div><div class="opt-text">${label}</div>`;
@@ -290,6 +316,8 @@ function render() {
 function selectOption(val) {
   answers[idx] = val;
   render();
+  if (idx < 41) setTimeout(() => next(), 300);
+  else setTimeout(() => next(), 300);
 }
 
 function prev() { if (idx > 0) { idx--; render(); } }
@@ -368,13 +396,13 @@ function getTotalLoveScore(norm) {
 }
 
 function getLoveLevel(score) {
-  if (score >= 90) return { level: '深入骨髓的爱', icon: '💖', desc: '你的爱情已经融入生命，TA是你生活中不可或缺的一部分' };
-  if (score >= 80) return { level: '刻骨铭心的爱', icon: '💝', desc: '你对TA有着强烈而深沉的感情，愿意为这份爱全力以赴' };
-  if (score >= 70) return { level: '真挚热烈的爱', icon: '💗', desc: '你对TA的感情真诚而热烈，这份爱意正在茁壮成长' };
-  if (score >= 60) return { level: '温暖绵长的爱', icon: '💓', desc: '你对TA有着稳定而温暖的感情，像阳光一样持续温暖' };
-  if (score >= 50) return { level: '萌芽中的爱', icon: '💕', desc: '你对TA的感情正在生根发芽，还有很大的发展空间' };
-  if (score >= 40) return { level: '淡淡的喜欢', icon: '💫', desc: '你对TA有好感，但感情还处于探索阶段' };
-  return { level: '初识的心动', icon: '✨', desc: '你对TA有一些好奇和欣赏，感情才刚刚开始萌发' };
+  if (score >= 90) return { level: '深入骨髓的爱', icon: '💖', desc: '你的爱已经像血液一样在身体里流淌，TA不是你生命的一部分——TA就是你生命本身的回声' };
+  if (score >= 80) return { level: '刻骨铭心的爱', icon: '💝', desc: '你对TA的感情像被刻进了骨头里的诗句，即使有一天记忆褪色，身体也会记得这份爱' };
+  if (score >= 70) return { level: '真挚热烈的爱', icon: '💗', desc: '你的爱像仲夏夜的篝火，真诚、明亮，温暖着你们之间所有的空气' };
+  if (score >= 60) return { level: '温暖绵长的爱', icon: '💓', desc: '你的爱像一首缓缓流淌的河流，不喧哗、不炫耀，却一直在那里润泽万物' };
+  if (score >= 50) return { level: '萌芽中的爱', icon: '💕', desc: '你们的感情像春天里刚冒出土的嫩芽，带着泥土的气息和阳光的期待' };
+  if (score >= 40) return { level: '淡淡的喜欢', icon: '💫', desc: '像午后阳光穿过树叶在你笔记本上留下的光斑——温柔、短暂、让人微笑' };
+  return { level: '初识的心动', icon: '✨', desc: '如同在夜空中第一次辨认出某颗星星的名字——新鲜、好奇、带着一点屏住呼吸的小心翼翼' };
 }
 
 function getLoveType(norm, totalScore) {
@@ -387,10 +415,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '全心全意型',
       emoji: '💖',
-      desc: '你是一个全身心投入爱情的人。你对TA的爱体现在生活的方方面面：无时无刻的牵挂、毫无保留的付出、以及对未来的美好憧憬。你的爱情观纯粹而热烈，相信爱就要爱得彻底。',
-      traits: ['深情专注', '无私奉献', '未来导向', '情感丰富'],
-      strength: '你的真诚和投入会让对方感受到被珍视，你们的感情基础非常坚实。',
-      expression: '你会通过实际行动表达爱意，照顾TA的生活起居，记住TA的每一个喜好。'
+      desc: '你爱一个人的方式，像飞蛾扑向火焰，又像潮水涌向月亮——无法抗拒，也不想抗拒。你把整颗心都铺在TA面前，每一个细胞都写着同一个名字。这不是盲目，而是一种选择：你选择了用最大的勇气去爱，即使知道爱本身就是一场没有安全网的高空行走。',
+      traits: ['深情如海', '倾其所有', '以爱为信仰', '灵魂共振'],
+      strength: '你的爱像一首没有删减的长诗，每一行都是真心。这种纯粹会让TA感到自己是被这个世界选中的人。',
+      expression: '你会把日常变成情书——早安是序章，晚安是尾声，中间所有的小事都是献给TA的散文。',
+      story: '罗密欧与朱丽叶——莎翁笔下最不计后果的爱。他们证明了：当爱到极致，整个世界都会为之让路。',
+      quote: '"爱是不会老的，它留着的是永恒的火焰与不灭的光辉。" —— 左拉',
+      quoteAuthor: '左拉'
     };
   }
 
@@ -398,10 +429,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '独占深情型',
       emoji: '👑',
-      desc: '你对爱情有着强烈的独占意识，希望成为TA生命中最特别的存在。这不是自私，而是源于你对这份感情的重视和珍惜。你相信真正的爱情应该是专一且深刻的。',
-      traits: ['专一忠诚', '重视承诺', '感情专注', '守护意识强'],
-      strength: '你的专一和忠诚是感情中最宝贵的品质，能给对方强烈的安全感。',
-      expression: '你喜欢通过仪式感和专属时刻来表达爱意，让TA知道自己的独特地位。'
+      desc: '你的爱像一座精心修筑的城堡，里面只有两个人的位置。你不是贪心，而是认真——认真到想把TA放进一个只有你能抵达的世界。对你而言，爱的反义词不是恨，而是"共享"。你渴望的是一种独一无二的深度连接：在这段关系里，你们对彼此而言都是不可替代的。',
+      traits: ['忠诚如金', '深度连接', '守护本能', '独一无二'],
+      strength: '你的专一和忠诚像一座灯塔，在所有的风浪中都不会熄灭。TA永远知道你在那里等着。',
+      expression: '你用"只属于我们"来定义爱——一首歌、一个暗号、一个只有你们才懂的眼神。',
+      story: '希斯克利夫与凯瑟琳——《呼啸山庄》里那种"我就是你"的爱，激烈到超越了生死的边界。',
+      quote: '"他比我更像我自己。不管我们的灵魂是什么做成的，他和我是同一种。" —— 艾米莉·勃朗特',
+      quoteAuthor: '艾米莉·勃朗特'
     };
   }
 
@@ -409,10 +443,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '温柔守护型',
       emoji: '🌸',
-      desc: '你的爱是温柔而持久的，像春风细雨般润物无声。你愿意为TA默默付出，不求回报，只希望看到TA幸福的笑容。你相信爱情需要用心经营，而不是轰轰烈烈。',
-      traits: ['体贴入微', '耐心包容', '细水长流', '默默付出'],
-      strength: '你的温柔和耐心能让感情持久稳定，是值得信赖的伴侣。',
-      expression: '你会在日常小事中表达爱意，一杯热茶、一条问候，都是你的爱语。'
+      desc: '你的爱像《小王子》里的狐狸对麦田的感情——因为驯养了彼此，所以金色的麦浪从此有了意义。你不需要轰轰烈烈的誓言，你的爱藏在每一杯刚好温度的水里、每一次提前打好的伞里。你相信爱是一种日复一日的选择，而你每天都在选同一个人。',
+      traits: ['润物无声', '细水长流', '以行动为语言', '温暖如春'],
+      strength: '你的爱就像空气——看不见，但离开就无法呼吸。这种不露声色的深情，是世间最持久的浪漫。',
+      expression: '你在TA看不到的地方为TA遮风挡雨，用一百种安静的方式说"我在"。',
+      story: '《小王子》中的狐狸——"正因为你为你的玫瑰花费了时间，你的玫瑰才变得如此重要。"',
+      quote: '"爱不是相互凝视，而是一起注视同一个方向。" —— 圣埃克苏佩里',
+      quoteAuthor: '圣埃克苏佩里'
     };
   }
 
@@ -420,10 +457,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '浪漫痴情型',
       emoji: '🌹',
-      desc: '你是一个浪漫的灵魂，相信爱情是世间最美好的事物。你对TA的爱充满诗意和浪漫，在你眼中TA有着独一无二的光芒。你享受恋爱的每一个甜蜜瞬间。',
-      traits: ['浪漫多情', '感性细腻', '追求美好', '情感丰富'],
-      strength: '你的浪漫和热情能让感情充满色彩，生活因你而精彩。',
-      expression: '你善于用文字、礼物、惊喜来表达爱意，每个纪念日都精心准备。'
+      desc: '你像一个在月光下写情诗的旅人——世界上有那么多风景，但你只为一个人停笔。你的爱带着一种与生俱来的审美：不只是爱TA这个人，更爱你们之间那种微妙的化学反应。在你眼中，TA自带光芒，是这个灰暗世界里唯一鲜活的颜色。',
+      traits: ['诗意栖居', '审美之爱', '专情如故', '感性世界'],
+      strength: '你让爱情变成了一件艺术品。你眼中的TA永远闪闪发光，这种滤镜不会随时间褪色。',
+      expression: '你为TA写的每一条消息都像一首短诗，你记住的每个瞬间都像一帧电影。',
+      story: '纳兰性德与卢氏——"人生若只如初见"，纳兰用一辈子证明了初见的心动可以绵延到永恒。',
+      quote: '"我只是一个人在想念另一个人而已。这是很日常的事情，但也是整个宇宙。" —— 王小波',
+      quoteAuthor: '王小波'
     };
   }
 
@@ -431,10 +471,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '成熟稳重型',
       emoji: '🏠',
-      desc: '你对爱情有着成熟的理解，知道真正的爱情需要责任和承诺。你不仅享受当下的甜蜜，更着眼于未来的共同生活。你是一个可靠的伴侣，值得托付终身。',
-      traits: ['有责任心', '目标明确', '行动派', '踏实可靠'],
-      strength: '你的成熟和稳重能给对方足够的安全感，让TA无后顾之忧。',
-      expression: '你通过规划未来、解决实际问题来表达爱意，行动胜于甜言蜜语。'
+      desc: '你像一座大树，爱不是你开出的花，而是你向下扎的根。你对爱情的理解超越了荷尔蒙的层面——你知道激情会退潮，但选择留下来的人才是真正在爱。你在用行动建造一种可以被时间检验的感情：稳固、深沉、经得起风雨。',
+      traits: ['根深蒂固', '以行践爱', '风雨同舟', '岁月可期'],
+      strength: '你是爱情里的建筑师——别人在讨论感觉的时候，你已经在打地基了。这种可靠本身就是最深的情话。',
+      expression: '你用"我把你写进人生规划"来代替"我爱你"——而这比任何甜言蜜语都更有分量。',
+      story: '钱锺书与杨绛——"我见到她之前，从未想到要结婚；我娶了她几十年，从未后悔娶她。"',
+      quote: '"成熟的爱是：我需要你，因为我爱你。而不是：我爱你，因为我需要你。" —— 弗洛姆',
+      quoteAuthor: '弗洛姆'
     };
   }
 
@@ -442,10 +485,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '热情炽烈型',
       emoji: '🔥',
-      desc: '你的爱情热烈而强烈，像一团燃烧的火焰。你对TA有着强烈的情感依恋，不允许任何人威胁你们的感情。这份炽热源于你对这段关系的高度重视。',
-      traits: ['热情如火', '感情强烈', '直接坦率', '有行动力'],
-      strength: '你的热情和主动会让感情保持活力，永远不会平淡无趣。',
-      expression: '你会直接表达爱意，大声说出"我爱你"，让TA时刻感受你的热情。'
+      desc: '你的爱像一场不愿停歇的夏日雷暴——炽热、磅礴、带着电流的颤栗。你无法对TA的一切无动于衷，你的情绪和TA绑定得如此紧密，以至于TA的一个眼神就能让你心跳改变节奏。你不害怕爱的强烈，因为你知道，淡如水的感情不值得你赴汤蹈火。',
+      traits: ['热烈如火', '感知敏锐', '勇敢赴爱', '不留余地'],
+      strength: '你让人知道什么叫"被炽热地爱着"——这种温度会融化所有的防备和犹豫。',
+      expression: '你会直接告诉TA你的感受，像一首不需要前奏直接进副歌的摇滚乐。',
+      story: '林徽因与三个男人——她的故事证明了，热烈的灵魂总会在世间掀起风暴。',
+      quote: '"你是我的半截的诗，不许别人更改一个字。" —— 海子',
+      quoteAuthor: '海子'
     };
   }
 
@@ -453,10 +499,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '均衡理性型',
       emoji: '⚖️',
-      desc: '你在爱情中保持着良好的平衡，既有感性的浪漫，也有理性的思考。你懂得爱自己的同时也爱对方，在感情中保持独立而不失温度。',
-      traits: ['理性浪漫', '独立自主', '懂得平衡', '情商高'],
-      strength: '你的平衡感让感情健康持久，不会过度依赖也不会过于疏离。',
-      expression: '你会根据对方的需求调整表达方式，是一个贴心的伴侣。'
+      desc: '你像一个优雅的天平——在热烈与克制之间找到了属于自己的平衡点。你的爱不是不深，而是你知道好的爱情需要两个完整的人，而不是两个各缺一半的人拼在一起。你用智慧经营爱，用理性保护爱，用刚刚好的距离让爱保持呼吸。',
+      traits: ['张弛有度', '独立完整', '智慧之爱', '可持续发展'],
+      strength: '你的爱情像一首和弦完美的乐曲——没有哪个音符过分突出，但整体听起来格外和谐动人。',
+      expression: '你在感性和理性之间自如切换：该浪漫时浪漫，该实际时实际，让TA既有蝴蝶在胃里飞的心动，也有双脚踩在大地上的踏实。',
+      story: '波伏瓦与萨特——他们发明了一种"必然之爱"与"偶然之爱"并存的模式，用哲学的方式重新定义了伴侣关系。',
+      quote: '"真正的爱情不是自我牺牲或自我毁灭，它是对人的最高肯定。" —— 波伏瓦',
+      quoteAuthor: '波伏瓦'
     };
   }
 
@@ -464,10 +513,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '灵魂伴侣型',
       emoji: '🦋',
-      desc: '你相信TA就是命运安排给你的那个人，是你的灵魂伴侣。你们之间有着超越言语的默契和连接，你对未来充满期待，相信你们能携手走过人生的每一个阶段。',
-      traits: ['相信缘分', '精神共鸣', '未来导向', '深度连接'],
-      strength: '你对灵魂伴侣的坚信会让你们的感情有着精神层面的深度连接。',
-      expression: '你追求心灵的交流和共鸣，喜欢分享内心世界和人生感悟。'
+      desc: '你相信宇宙中有一种力量，让两颗星辰注定相遇。你对TA的爱不仅仅停留在人间烟火的层面——你在TA身上看到了一种精神性的共鸣，像两把音叉靠近时自然产生的共振。这种爱超越了日常的喜怒哀乐，它关乎存在本身：因为遇见TA，你觉得"活着"这件事有了更深的意义。',
+      traits: ['命运共振', '灵魂共鸣', '超越时间', '深度连接'],
+      strength: '你们之间的默契像一种超越语言的暗号——有些东西不需要说出来，你们就是懂。',
+      expression: '你用"我在每个宇宙都想遇见你"来表达爱——你的感情有一种宿命般的浪漫。',
+      story: '柏拉图的《会饮篇》——远古时代人本是四手四足的完整生命，被劈成两半后终生寻找另一半。你相信你找到了。',
+      quote: '"在所有的世界中，在所有的时间里，我的灵魂都在寻找你的灵魂。" —— 张爱玲',
+      quoteAuthor: '张爱玲'
     };
   }
 
@@ -475,10 +527,13 @@ function getLoveType(norm, totalScore) {
     return {
       name: '无私奉献型',
       emoji: '🎁',
-      desc: '你的爱是无私的，总是把TA的需求放在自己之前。你在付出中获得快乐，看到TA幸福就是你最大的满足。这种爱源于你内心的善良和对TA的珍视。',
-      traits: ['乐于奉献', '体贴周到', '不求回报', '温暖善良'],
-      strength: '你的无私奉献会让对方感受到真正被爱的温暖。',
-      expression: '你通过照顾和帮助来表达爱意，永远把TA的需求放在首位。'
+      desc: '你的爱像一棵大树——根在地下默默蔓延，枝叶在风中为TA遮出一片阴凉。你的幸福感不来自于被爱，而来自于付出。看着TA因为你的存在而更快乐，就是你收到过最好的情书。你是爱情里的一道光，照亮别人的时候自己也在发光。',
+      traits: ['大爱无声', '甘之如饴', '以TA为先', '温暖如灯'],
+      strength: '你让"被爱"这件事变得像呼吸一样自然——TA可能不会每天都意识到，但一旦离开就会窒息。',
+      expression: '你不说"我爱你"，但你的每一个行动都在大声说。',
+      story: '《礼物》中的麦琪——他卖掉表链买了发梳，她剪掉长发买了表链。爱的本质就是"我愿意用我最珍贵的换你一个微笑"。',
+      quote: '"爱一个人就是在拨通电话时，忽然不知道说什么好，原来只是想听听那熟悉的声音。" —— 张爱玲',
+      quoteAuthor: '张爱玲'
     };
   }
 
@@ -486,44 +541,47 @@ function getLoveType(norm, totalScore) {
   return {
     name: '真诚探索型',
     emoji: '🌱',
-    desc: '你正在用心感受和探索这份感情，对TA的爱还在不断加深和成长。每一份真挚的感情都需要时间来培育，你正走在爱的旅程上。',
-    traits: ['真诚用心', '开放成长', '慢慢了解', '潜力无限'],
-    strength: '你的真诚和开放会让感情自然而然地发展，值得期待。',
-    expression: '你在慢慢学习如何表达爱意，每一次尝试都是成长。'
+    desc: '你的爱像春天刚刚解冻的河流——带着冬天的冷静和春天的好奇，缓缓流向一个尚未确定的方向。你没有急于定义这份感情，因为你知道好的故事都需要耐心来展开。你正在用心感受、用眼观察、用时间验证——这不是犹豫，而是一种对爱负责任的温柔。',
+    traits: ['好奇心驱动', '慢热而深沉', '开放成长', '未来可期'],
+    strength: '你给爱留出了成长的空间——就像不急着拆开的礼物，期待本身就是一种幸福。',
+    expression: '你用"我想更了解你"来代替"我爱你"——而这份好奇，也许正是最初的爱意。',
+    story: '《傲慢与偏见》——达西与伊丽莎白从误解到理解，证明了最好的爱情不是一见钟情，而是渐渐懂得。',
+    quote: '"一切真正伟大的东西，都是缓慢而不显眼的。" —— 茨威格',
+    quoteAuthor: '茨威格'
   };
 }
 
 function getDimAnalysis(dim, score) {
   const analyses = {
     A: {
-      high: '你对TA有着深深的情感依恋，TA已经成为你生活中不可或缺的一部分。每一天的想念、每一刻的牵挂，都证明着你用心在爱。这种深度的情感连接是爱情最美好的部分，珍惜这种心心相印的感觉。',
-      medium: '你对TA有稳定而温暖的感情，会在合适的时候想起TA，但也能保持自己的生活节奏。这是一种健康的依恋模式，既有亲密的连接，又有独立的空间。',
-      low: '你对TA的感情表达相对含蓄内敛，也许你更习惯把爱放在心里。每个人表达爱的方式不同，随着时间的推移，你可能会逐渐敞开心扉，让这份感情更加深厚。'
+      high: '你的心像一片永不停歇的海洋，TA就是那颗让潮汐涨落的月亮。每一秒的想念都是一朵浪花，无声却汹涌。这种深度的情感共振是爱情最珍贵的勋章——因为只有真正在乎的人，才有能力让你的内心如此不平静。你的世界因TA而有了天气变化，这不是脆弱，是深情。',
+      medium: '你的牵挂像春天的风——不是暴风骤雨，而是恰到好处地吹过来。你会想TA，但也能安静地独处；你享受TA的陪伴，但也不会因为分离而崩塌。这是一种健康而成熟的依恋，像一棵向着阳光生长的树——根扎在自己的土壤里，枝叶却朝着TA的方向延伸。',
+      low: '你的爱像地下暗河——外表看不出波澜，深处却自有流向。也许你还不习惯让另一个人占据你太多的心理空间，也许你正在学习如何把心门打开一条缝。每朵花都有自己的花期，也许随着这份感情慢慢发酵，你会发现想念原来也是一种甜蜜的重力。'
     },
     B: {
-      high: '你希望成为TA生命中最重要的人，这份专属渴望体现了你对这段感情的重视。你愿意用心经营属于你们的小世界，希望建立独特而深刻的连接。这是爱情中最珍贵的期盼。',
-      medium: '你对TA有一定的专属期待，希望在TA心中占有特别的位置。同时你也尊重彼此的个人空间，懂得爱情需要信任和自由相辅相成。',
-      low: '你对于感情中的专属性要求不高，更看重彼此的理解和信任。你相信真正的爱情不需要用占有来证明，这是一种豁达的爱情观。'
+      high: '你的心里为TA修建了一座只有两个人的城堡——不是因为狭隘，而是因为珍视。你渴望成为TA世界里独一无二的存在，就像夜空中最亮的那颗星渴望被仰望者辨认出来。这种专属渴望的本质是一种确认：你需要确认自己在TA的生命版图里，有一个不可替代的坐标。',
+      medium: '你对TA有一种温和的归属期待——你希望自己是特别的，但也能接受TA的世界里有别的星星。这是一种优雅的姿态：你在心里为TA留了一个最好的位置，同时也允许彼此保有各自的天空。信任和占有在你这里找到了一个恰到好处的平衡点。',
+      low: '你对爱情有一种开阔的理解——你相信真正的连接不需要用"专属"来证明。你的安全感来自内心，不需要外在的确认。这是一种豁达的爱情哲学，像海洋不会因为河流注入别的海域而感到被亏待。你的爱有一种令人敬佩的从容。'
     },
     C: {
-      high: '你对这份感情有着强烈的保护意识，会本能地关注可能影响你们关系的因素。这种守护本能源于你对TA的深爱，说明这段感情对你来说非常重要，你不愿意失去。',
-      medium: '你对感情保持适度的警觉，会关注一些信号但不会过度紧张。你懂得信任是爱情的基础，同时也会保护好这份珍贵的感情。',
-      low: '你对这段感情非常有信心，相信你们之间的信任是坚不可摧的。这种安全感让你们的关系更加轻松自在，是感情成熟的表现。'
+      high: '你心里有一个灵敏的雷达系统，24小时扫描着所有可能靠近TA的信号。这不是神经质，而是因为这个人对你太重要了——重要到你无法忍受任何失去的可能性。你的嫉妒是爱的侧写，你的敏感是在乎的回声。只是记得给自己的雷达偶尔放个假，信任也是一种勇敢的守护。',
+      medium: '你像一个有经验的气象员——知道什么时候该关注风向变化，什么时候可以安心晴天。你的守护本能不会过度消耗你的能量，而是在关键时刻为你亮起信号灯。这种适度的警觉是对感情的尊重，你把信任和保护拿捏得恰到好处。',
+      low: '你对这段感情有一种令人安心的笃定——像一个坐在窗前看海的人，知道潮水会来也会走，但不会冲走脚下的大地。你的安全感像一棵深根的大树，不会因为路过的风就开始摇晃。这种信任是对TA最高级的信赖。'
     },
     D: {
-      high: '你愿意为TA付出一切，把TA的幸福当作自己的责任。你的爱是无私的、是主动的、是不计回报的。这种付出的热忱是最深沉的爱的表达，让TA感受到被全心全意地珍惜。',
-      medium: '你愿意为TA付出，同时也懂得照顾好自己。你相信健康的爱情是相互付出、共同成长的，这是一种成熟的爱情态度。',
-      low: '你在付出方面相对谨慎，喜欢先观察再行动。这不是不爱，而是你习惯用更理性的方式经营感情。随着感情加深，你会找到适合自己的付出方式。'
+      high: '你是爱情花园里最勤劳的园丁——不计时间、不问收获，只要花开就是奖赏。你的付出有一种温暖的自然而然，就像太阳不需要理由就会发光。这种以TA的幸福为己任的爱，是世间最无声又最有力的告白。只是别忘了，好的园丁也需要给自己浇水。',
+      medium: '你的付出像一首节奏稳定的爵士乐——有热情但不失分寸，有投入但不会耗竭。你知道最好的爱情是两个满杯的水互相倾倒，而不是一杯倒空自己去填满另一杯。这种成熟的付出方式，让你们的关系像一棵双根并生的树，各自汲取养分又互相荫庇。',
+      low: '你在付出方面像一只谨慎的猫——需要先确认安全，才会慢慢露出柔软的肚皮。这不是冷漠，而是你在保护自己的同时也在保护这段感情——你不想因为过度付出而失衡。每个人都有自己的爱的节拍，也许你正在寻找那个让你想要无条件给予的人。'
     },
     E: {
-      high: '你已经开始憧憬和TA共同的未来，无论是日常生活还是人生大事，你都希望有TA的参与。这种对未来的承诺是爱情最有力的证明，说明你已经准备好和TA携手走过漫长岁月。',
-      medium: '你对和TA的未来有美好的期待，同时也在用心经营当下。你相信好的未来是由每一个用心的现在累积而成的，这是务实而温暖的爱。',
-      low: '你更专注于享受当下的感情，对于遥远的未来还没有太多规划。每段感情都有自己的节奏，也许随着你们的故事继续，未来的图景会逐渐清晰。'
+      high: '你已经在心里为TA建造了一个未来——有早晨的阳光、厨房的香气、客厅里孩子的笑声。这不是幻想，而是一种深沉的承诺。你把TA写进了人生最重要的方程式里，所有关于"以后"的句子，主语都是"我们"。这种对未来的确信，是爱情最有力的宣言。',
+      medium: '你对未来有一种温和的期待——TA出现在你的五年计划里，但那个画面还允许被修改。你不急于确定终点，因为你更享受一起走路的过程。这是一种既有方向感又保留弹性的姿态，像一首还没写完的歌——旋律已经很美，而结尾值得期待。',
+      low: '你是一个活在当下的人——未来对你而言是一个太远的词，你更愿意珍惜此刻的温度。这不是逃避承诺，而是你对时间有自己的理解。也许你相信，好的未来不是规划出来的，而是由每一个用心的"现在"自然累积而成。'
     },
     F: {
-      high: '自从遇见TA，你的世界里就只有TA一个人。这种专一是最纯粹的爱的体现，说明TA在你心中真的无可替代。你的眼里只有TA，这是多么珍贵的深情。',
-      medium: '你对TA很专心，虽然偶尔也会欣赏其他人的优点，但心里最重要的位置一直是TA的。这是健康而真实的状态，爱不必与世隔绝。',
-      low: '你对感情保持开放的态度，可能还在确认自己的心意。给自己一些时间，当你遇到那个让你心无旁骛的人，你会知道的。'
+      high: '自从遇见TA，你的世界发生了一种奇妙的色彩偏移——TA是唯一的彩色，其余一切都变成了黑白底片。这种专一不是刻意为之，而是一种本能：你的心像一面只能朝向一个方向的镜子，一旦锁定了TA的光，就再也反射不出别人的影子。这份纯粹的深情，是宇宙级别的浪漫。',
+      medium: '你的心里有一个很明确的优先级排序——TA在最顶端，虽然你偶尔也会欣赏路过的风景。这是一种真实而健康的状态：你不需要假装看不见世界的美好，因为你知道不管看了多少风景，最后想回去的那个地方只有一个。',
+      low: '你的心门还开着好几扇窗，阳光从不同的方向照进来。也许你还在等待那个让你想要关上所有窗户、只留一道门的人。也许你还在确认，哪道光才是你真正想要追随的。给自己时间——当那个人出现时，你的心会自己做出选择。'
     }
   };
 
@@ -543,27 +601,27 @@ function getAdvice(norm, loveType, totalScore) {
   const tips = [];
 
   if (totalScore >= 80) {
-    tips.push('你的爱如此深沉，记得也要照顾好自己的感受，健康的爱情是相互滋养的');
-    tips.push('可以和TA分享你对这段感情的珍视，让TA知道自己有多幸福');
-    tips.push('保持这份热情的同时，也给彼此留一些个人成长的空间');
+    tips.push('你的爱如此深沉，像一首没有休止符的交响乐。记得偶尔按下暂停键——给自己的灵魂也留一个安静呼吸的角落');
+    tips.push('试着把你心中这些汹涌的感受说出来，让TA知道被爱到这种程度是一件多么幸运的事');
+    tips.push('深爱一个人的同时保持自我，就像月亮既能被太阳照亮，也有自己暗面的完整——这是爱最高级的形态');
   } else if (totalScore >= 60) {
-    tips.push('你们的感情正在稳步发展，继续用心经营这份美好');
-    tips.push('尝试创造更多共同的回忆，让感情在点滴中加深');
-    tips.push('学会更直接地表达爱意，让TA感受到你的心意');
+    tips.push('你们的感情正处在最美好的生长期，像一棵正在往上攀的藤蔓，记得给它搭一个向阳的架子');
+    tips.push('创造一些只属于你们的仪式——固定的晚安方式、只有你们懂的暗号，这些小小的秘密会让感情拥有独特的纹路');
+    tips.push('爱要说出口——不是因为不说TA就不知道，而是因为被听到的"我爱你"和被猜到的完全不同');
   } else {
-    tips.push('感情需要时间培育，不必着急，慢慢感受彼此');
-    tips.push('多创造一些相处的机会，在互动中了解对方');
-    tips.push('敞开心扉，让自己更投入地去感受这份感情');
+    tips.push('感情的种子需要时间在土壤里安静发芽，不着急浇水，先让根找到自己的方向');
+    tips.push('多创造一些不被手机打扰的面对面时光——真正的了解往往发生在安静的缝隙里');
+    tips.push('试着让自己的心门打开得更大一点——被风吹到也没关系，那说明你活在一个有季节变换的世界里');
   }
 
   if (norm.A < 50) {
-    tips.push('可以更频繁地联系TA，分享你的日常，增加情感连接');
+    tips.push('试着在想TA的时候立刻行动——发一条消息、打一个电话，让念头变成连接的桥梁');
   }
   if (norm.D < 50) {
-    tips.push('尝试主动为TA做一些事情，付出本身也是一种幸福');
+    tips.push('爱是一种肌肉——越练越强。尝试每天为TA做一件小事，你会发现付出本身就是一种幸福');
   }
   if (norm.E < 50) {
-    tips.push('和TA聊聊对未来的想法，共同的目标会让感情更有方向');
+    tips.push('找一个安静的夜晚，和TA聊聊"以后"——不需要完整的规划，只是让TA知道你的"以后"有TA的位置');
   }
 
   return tips.slice(0, 5);
@@ -652,7 +710,7 @@ function showResult() {
   document.getElementById('resultContent').innerHTML = `
     <div class="result-header">
       <h1>爱情深度测评报告</h1>
-      <p>用数据解读你心中的那份爱</p>
+      <p>在宇宙的尺度上，丈量你心中那片为TA保留的星域</p>
     </div>
 
     <div class="card">
@@ -682,7 +740,18 @@ function showResult() {
         <div class="type-label">你的爱情类型</div>
         <div class="type-name">${loveType.emoji} ${loveType.name}</div>
         <div class="type-desc">${loveType.desc}</div>
+        <div class="type-story">
+          <div class="type-story-label">文学原型</div>
+          <div class="type-story-text">${loveType.story}</div>
+        </div>
       </div>
+
+      <div class="quote-card">
+        <div class="quote-text">${loveType.quote.split('——')[0].replace(/"/g, '').replace(/"/g, '')}</div>
+        <div class="quote-author">—— ${loveType.quoteAuthor}</div>
+      </div>
+
+      <div class="section-divider"></div>
 
       <div class="trait-grid">
         ${loveType.traits.map(t => `
@@ -695,18 +764,20 @@ function showResult() {
       <div class="highlight-box">
         <p><strong>你的爱情优势：</strong>${loveType.strength}</p>
       </div>
-      <div class="highlight-box" style="background: #f0fdf4;">
+      <div class="highlight-box" style="background: #0f2a1e;">
         <p><strong>你的爱情表达：</strong>${loveType.expression}</p>
       </div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fce7f3">📊</div>爱情六维雷达图</div>
+      <div class="section-title"><div class="section-icon" style="background:#4a1942">📊</div>爱情六维雷达图</div>
+      <div class="section-divider"></div>
       <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#dbeafe">💕</div>六大维度深度解读</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e3a5f">💕</div>六大维度深度解读</div>
+      <div class="section-divider"></div>
       ${Object.entries(dimInfo).map(([dim, info]) => {
         const score = norm[dim];
         const level = getDimLevel(score);
@@ -727,7 +798,8 @@ function showResult() {
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💑</div>最契合你的伴侣特质</div>
+      <div class="section-title"><div class="section-icon" style="background:#0f2a1e">💑</div>最契合你的伴侣特质</div>
+      <div class="section-divider"></div>
       <div class="summary-text">
         根据你的爱情风格分析，以下类型的伴侣会让你们的感情更加和谐美满：
       </div>
@@ -740,15 +812,16 @@ function showResult() {
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#f3e8ff">💘</div>伴侣契合深度分析</div>
+      <div class="section-title"><div class="section-icon" style="background:#2e1065">💘</div>伴侣契合深度分析</div>
+      <div class="section-divider"></div>
 
-      <div class="type-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%); margin-bottom: 16px;">
+      <div class="type-card" style="background: linear-gradient(135deg, #422006 0%, #4a1942 100%); margin-bottom: 16px;">
         <div class="type-label">你倾向的伴侣年龄</div>
         <div class="type-name">${partnerArchetype.agePreference.icon} ${partnerArchetype.agePreference.type}</div>
         <div class="type-desc">${partnerArchetype.agePreference.desc}</div>
       </div>
 
-      <div class="type-card" style="background: linear-gradient(135deg, #dbeafe 0%, #f3e8ff 100%);">
+      <div class="type-card" style="background: linear-gradient(135deg, #1e3a5f 0%, #2e1065 100%);">
         <div class="type-label">你的理想伴侣构型</div>
         <div class="type-name">${partnerArchetype.archetype.icon} ${partnerArchetype.archetype.type}</div>
         <div class="type-desc">${partnerArchetype.archetype.desc}</div>
@@ -756,20 +829,21 @@ function showResult() {
 
       <div class="trait-grid" style="margin-top: 16px;">
         ${partnerArchetype.archetype.traits.map(t => `
-          <div class="trait-item" style="background: linear-gradient(135deg, #fff5f7 0%, #faf5ff 100%);">
-            <div class="trait-value" style="color: #ec4899;">💕 ${t}</div>
+          <div class="trait-item" style="background: linear-gradient(135deg, #3b1a3b 0%, #1e1b4b 100%);">
+            <div class="trait-value" style="color: #f472b6;">💕 ${t}</div>
           </div>
         `).join('')}
       </div>
 
-      <div class="insight-card" style="background: linear-gradient(135deg, #fce7f3 0%, #e0e7ff 100%); margin-top: 16px;">
+      <div class="insight-card" style="background: linear-gradient(135deg, #4a1942 0%, #1e1b4b 100%); margin-top: 16px;">
         <h4>🔮 伴侣匹配洞察</h4>
         <p>基于你的爱情模式分析，${partnerArchetype.agePreference.type === '年龄不是关键' ? '年龄对你来说不是择偶的关键因素，你更看重内在的契合度。' : `你更容易被${partnerArchetype.agePreference.type}吸引，这与你在感情中的角色定位有关。`}你的理想伴侣是${partnerArchetype.archetype.type}，TA能满足你内心深处对亲密关系的核心需求，让你在爱情中获得真正的满足感和幸福感。</p>
       </div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fef3c7">✨</div>让爱情更美好的建议</div>
+      <div class="section-title"><div class="section-icon" style="background:#422006">✨</div>让爱情更美好的建议</div>
+      <div class="section-divider"></div>
       ${advice.map((tip, i) => `
         <div class="tip-item">
           <div class="tip-num">${i + 1}</div>
@@ -777,47 +851,48 @@ function showResult() {
         </div>
       `).join('')}
 
-      <div class="insight-card">
-        <h4>💡 爱的真谛</h4>
-        <p>爱情没有标准答案，每个人都有自己独特的爱的方式。无论你的得分高低，只要是真心的付出，都是最珍贵的礼物。继续用心去爱，用心被爱，让这份感情成为你生命中最美的风景。</p>
+      <div class="quote-card" style="margin-top: 16px;">
+        <div class="quote-text">爱情没有标准答案，每个人都是用自己独特的语法在写同一首诗。无论你的得分是满天星辰还是一弯新月，那都是你此刻最真实的光亮。继续用心去爱——因为在这个宇宙里，没有比真心更稀有的元素了。</div>
+        <div class="quote-author">—— 宇宙认知盐究所</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">🌈</div>爱情能量分布</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e1b4b">🌈</div>爱情能量分布</div>
+      <div class="section-divider"></div>
       <div class="summary-text" style="text-align:center;margin-bottom:16px;">
-        你的爱情能量集中体现在以下方面
+        你的爱情能量在六个维度上的分布图谱
       </div>
       <div class="trait-grid">
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">💕</div>
           <div class="trait-label">情感依恋</div>
-          <div class="trait-value">${norm.A}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #f472b6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.A}%</div>
         </div>
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">👑</div>
           <div class="trait-label">专属渴望</div>
-          <div class="trait-value">${norm.B}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #818cf8, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.B}%</div>
         </div>
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">🛡️</div>
           <div class="trait-label">守护本能</div>
-          <div class="trait-value">${norm.C}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.C}%</div>
         </div>
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">🎁</div>
           <div class="trait-label">付出热忱</div>
-          <div class="trait-value">${norm.D}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.D}%</div>
         </div>
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">🌟</div>
           <div class="trait-label">未来憧憬</div>
-          <div class="trait-value">${norm.E}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.E}%</div>
         </div>
-        <div class="trait-item">
+        <div class="energy-card">
           <div class="trait-icon">💎</div>
           <div class="trait-label">专一深度</div>
-          <div class="trait-value">${norm.F}%</div>
+          <div class="trait-value" style="background: linear-gradient(135deg, #c084fc, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${norm.F}%</div>
         </div>
       </div>
     </div>
@@ -840,10 +915,10 @@ function showResult() {
       datasets: [{
         label: '得分',
         data: [norm.A, norm.B, norm.C, norm.D, norm.E, norm.F],
-        backgroundColor: 'rgba(236, 72, 153, 0.2)',
-        borderColor: '#ec4899',
-        borderWidth: 2,
-        pointBackgroundColor: '#ec4899'
+        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+        borderColor: '#8b5cf6',
+        borderWidth: 1,
+        pointBackgroundColor: '#8b5cf6'
       }]
     },
     options: {
@@ -851,7 +926,10 @@ function showResult() {
         r: {
           beginAtZero: true,
           max: 100,
-          ticks: { stepSize: 25 }
+          ticks: { stepSize: 25, color: 'rgba(255,255,255,0.25)', backdropColor: 'transparent' },
+          pointLabels: { color: 'rgba(255,255,255,0.6)' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          angleLines: { color: 'rgba(255,255,255,0.05)' }
         }
       },
       plugins: { legend: { display: false } }
@@ -876,7 +954,7 @@ async function downloadPDF() {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#f8fafc',
+      backgroundColor: '#0a0a0a',
       height: content.scrollHeight,
       windowHeight: content.scrollHeight
     });

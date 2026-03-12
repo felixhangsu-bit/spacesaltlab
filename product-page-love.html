@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱情心理结构测评 · 商品页长图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#111; display:flex; flex-direction:column; align-items:center; padding:40px 0; font-family:'Noto Sans SC',sans-serif; }
+.page { width:750px; background:#0a0a0a; position:relative; overflow:hidden; }
+.noise { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+
+.hero { position:relative; width:750px; height:540px; background:#080808; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 64px; }
+.hero-orb-1 { position:absolute; width:500px; height:500px; top:-200px; left:-150px; background:radial-gradient(circle,#a855f7,transparent 65%); opacity:0.22; border-radius:50%; filter:blur(80px); }
+.hero-orb-2 { position:absolute; width:400px; height:400px; bottom:-180px; right:-120px; background:radial-gradient(circle,#7c3aed,transparent 65%); opacity:0.18; border-radius:50%; filter:blur(80px); }
+.hero-orb-3 { position:absolute; width:300px; height:300px; top:50%; left:55%; transform:translate(-50%,-50%); background:radial-gradient(circle,#c084fc,transparent 65%); opacity:0.10; border-radius:50%; filter:blur(60px); }
+.hero-content { position:relative; z-index:2; text-align:center; }
+.hero-label { font-family:'EB Garamond',serif; font-size:12px; letter-spacing:6px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:20px; }
+.hero-icon { font-size:64px; margin-bottom:20px; line-height:1; }
+.hero-title { font-family:'Noto Serif SC',serif; font-size:52px; font-weight:700; background:linear-gradient(135deg,#f3e8ff 0%,#a855f7 50%,#7c3aed 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; letter-spacing:2px; }
+.hero-sub { font-size:15px; font-weight:300; color:rgba(255,255,255,0.40); letter-spacing:3px; margin-bottom:28px; }
+.hero-divider { width:48px; height:1px; background:linear-gradient(90deg,transparent,rgba(168,85,247,0.5),transparent); margin:0 auto 28px; }
+.hero-tagline { font-size:18px; font-weight:400; color:rgba(255,255,255,0.65); line-height:1.8; letter-spacing:1px; }
+.hero-tagline em { font-style:normal; background:linear-gradient(90deg,#f3e8ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:600; }
+.hero-stats { display:flex; gap:0; margin-top:36px; border-top:1px solid rgba(255,255,255,0.07); padding-top:28px; width:100%; justify-content:center; }
+.stat { flex:1; text-align:center; position:relative; }
+.stat+.stat::before { content:''; position:absolute; left:0; top:20%; height:60%; width:1px; background:rgba(255,255,255,0.08); }
+.stat-num { font-family:'EB Garamond',serif; font-size:36px; background:linear-gradient(135deg,#f3e8ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:6px; }
+.stat-label { font-size:12px; color:rgba(255,255,255,0.28); letter-spacing:2px; }
+
+.section { position:relative; padding:56px 64px; border-top:1px solid rgba(255,255,255,0.05); }
+.section-tag { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:5px; color:rgba(168,85,247,0.55); text-transform:uppercase; margin-bottom:12px; }
+.section-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:rgba(255,255,255,0.88); margin-bottom:20px; letter-spacing:1px; }
+.section-body { font-size:15px; line-height:2.0; color:rgba(255,255,255,0.45); font-weight:300; }
+
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.about-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:24px 22px; position:relative; overflow:hidden; }
+.about-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#a855f7,transparent); }
+.about-card-icon { font-size:24px; margin-bottom:12px; }
+.about-card-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:8px; letter-spacing:1px; }
+.about-card-text { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.8; font-weight:300; }
+
+/* 6维度 */
+.dims-bg { background:rgba(168,85,247,0.03); }
+.dims-list { display:flex; flex-direction:column; gap:0; margin-top:28px; border:1px solid rgba(255,255,255,0.06); overflow:hidden; }
+.dim-row-item { display:flex; align-items:stretch; border-bottom:1px solid rgba(255,255,255,0.05); }
+.dim-row-item:last-child { border-bottom:none; }
+.dim-left { width:56px; background:rgba(168,85,247,0.06); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.dim-letter { font-family:'EB Garamond',serif; font-size:28px; font-weight:600; color:rgba(168,85,247,0.50); }
+.dim-content { padding:18px 22px; flex:1; }
+.dim-header-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.dim-icon-s { font-size:18px; }
+.dim-name-s { font-family:'Noto Serif SC',serif; font-size:15px; font-weight:700; color:rgba(255,255,255,0.82); }
+.dim-subtitle { font-size:11px; color:rgba(168,85,247,0.45); letter-spacing:1px; font-family:'EB Garamond',serif; }
+.dim-desc-s { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.75; font-weight:300; }
+
+/* 样本 */
+.sample-bg { background:rgba(168,85,247,0.03); }
+.sample-result { background:rgba(255,255,255,0.02); border:1px solid rgba(168,85,247,0.15); margin-top:24px; overflow:hidden; }
+.sample-header { background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(124,58,237,0.08)); padding:28px 28px 24px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sample-header-top { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.sample-icon { font-size:44px; }
+.sample-label { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(168,85,247,0.6); text-transform:uppercase; margin-bottom:4px; }
+.sample-name { font-family:'Noto Serif SC',serif; font-size:28px; font-weight:700; color:#e9d5ff; }
+.sample-subtitle { font-size:13px; color:rgba(255,255,255,0.35); letter-spacing:2px; }
+.sample-body { padding:24px 28px; }
+.sample-section-title { font-size:13px; font-weight:600; color:rgba(168,85,247,0.7); letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.sample-section-title::before { content:''; display:inline-block; width:16px; height:1px; background:rgba(168,85,247,0.5); }
+.love-bars { display:flex; flex-direction:column; gap:12px; }
+.love-row { display:flex; align-items:center; gap:14px; }
+.love-label { font-size:12px; color:rgba(255,255,255,0.30); width:72px; flex-shrink:0; }
+.love-bar-bg { flex:1; height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+.love-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#a855f7,#7c3aed); }
+.love-val { font-family:'EB Garamond',serif; font-size:13px; color:rgba(168,85,247,0.55); width:36px; text-align:right; }
+
+.theory-bg { background:rgba(168,85,247,0.03); }
+.theory-quote { border-left:2px solid rgba(168,85,247,0.4); padding:18px 24px; margin:24px 0; background:rgba(168,85,247,0.04); }
+.theory-quote-text { font-family:'Noto Serif SC',serif; font-size:16px; color:rgba(255,255,255,0.60); line-height:1.9; font-style:italic; }
+.theory-quote-author { font-size:12px; color:rgba(168,85,247,0.5); letter-spacing:2px; margin-top:10px; font-family:'EB Garamond',serif; }
+
+.steps { display:flex; flex-direction:column; gap:0; margin-top:28px; }
+.step { display:flex; gap:20px; position:relative; padding-bottom:28px; }
+.step:last-child { padding-bottom:0; }
+.step-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.step-num { width:36px; height:36px; border-radius:50%; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.25); display:flex; align-items:center; justify-content:center; font-family:'EB Garamond',serif; font-size:16px; color:rgba(168,85,247,0.7); }
+.step-line { flex:1; width:1px; background:linear-gradient(180deg,rgba(168,85,247,0.2),transparent); margin-top:8px; }
+.step-content { padding-top:6px; }
+.step-title { font-size:15px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:6px; letter-spacing:1px; }
+.step-text { font-size:13px; color:rgba(255,255,255,0.33); line-height:1.8; font-weight:300; }
+
+.audience-list { display:flex; flex-direction:column; gap:14px; margin-top:24px; }
+.audience-item { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; background:rgba(255,255,255,0.02); border-left:2px solid rgba(168,85,247,0.25); }
+.audience-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.audience-text { font-size:14px; color:rgba(255,255,255,0.45); line-height:1.7; font-weight:300; }
+.audience-text strong { color:rgba(255,255,255,0.72); font-weight:500; }
+
+.promise-bg { background:rgba(168,85,247,0.03); }
+.promise-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+.promise-item { text-align:center; padding:24px 16px; border:1px solid rgba(255,255,255,0.05); }
+.promise-icon { font-size:28px; margin-bottom:12px; }
+.promise-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); margin-bottom:8px; letter-spacing:1px; }
+.promise-text { font-size:12px; color:rgba(255,255,255,0.28); line-height:1.7; font-weight:300; }
+
+.cta { position:relative; padding:60px 64px; text-align:center; background:#080808; border-top:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+.cta-orb { position:absolute; width:400px; height:400px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#a855f7,transparent 60%); opacity:0.08; border-radius:50%; filter:blur(60px); pointer-events:none; }
+.cta-content { position:relative; z-index:1; }
+.cta-title { font-family:'Noto Serif SC',serif; font-size:30px; font-weight:700; background:linear-gradient(135deg,#f3e8ff 0%,#a855f7 60%,#7c3aed 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:14px; }
+.cta-sub { font-size:14px; color:rgba(255,255,255,0.30); letter-spacing:3px; margin-bottom:32px; font-weight:300; }
+.cta-btn { display:inline-block; padding:14px 48px; border:1px solid rgba(168,85,247,0.40); color:rgba(168,85,247,0.80); font-size:14px; letter-spacing:4px; font-family:'Noto Sans SC',sans-serif; font-weight:300; background:rgba(168,85,247,0.06); }
+
+.footer { padding:28px 64px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); }
+.footer-brand { font-family:'EB Garamond',serif; font-size:13px; letter-spacing:4px; color:rgba(255,255,255,0.18); text-transform:uppercase; }
+.footer-note { font-size:11px; color:rgba(255,255,255,0.14); letter-spacing:1px; font-weight:300; }
+
+.page-break { width:100%; height:2px; background:linear-gradient(90deg,transparent,rgba(168,85,247,0.3),transparent); }
+.page-break-label { text-align:center; padding:8px; background:#111; font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(168,85,247,0.3); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div class="page-break-label">— Page 1 of 4 —</div>
+<div class="page">
+<div class="noise"></div>
+
+<div class="hero">
+  <div class="hero-orb-1"></div><div class="hero-orb-2"></div><div class="hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-label">Love Psychology · Relationship Structure Analysis</div>
+    <div class="hero-icon">💜</div>
+    <div class="hero-title">爱情心理结构测评</div>
+    <div class="hero-sub">你在关系里投入了多少，值多少？</div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">
+      不是「你爱不爱」，<br>
+      而是<em>你的爱具体由什么构成</em>——<br>
+      量化你在亲密关系中的投入模式与情感消耗结构
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">42</div><div class="stat-label">测评题目</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">爱情维度</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">题目/维度</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">分钟完成</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 关于 -->
+<div class="section">
+  <div class="section-tag">About This Test</div>
+  <div class="section-title">这个测评在测什么</div>
+  <div class="section-body">
+    这不是「你爱他多深」的测评，而是<strong style="color:rgba(255,255,255,0.72)">解剖你的爱由哪些成分构成</strong>——情感依恋、占有欲、守护本能、付出热忱、对未来的期许、专一深度，六个维度共同绘制你独特的爱情心理地图。
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-icon">🗺️</div>
+      <div class="about-card-title">爱情的六面镜</div>
+      <div class="about-card-text">你可能情感依恋很深但付出欲不强，或者专一度高但未来规划意愿低——六个维度各自独立，组合出你真实的爱情结构。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">⚖️</div>
+      <div class="about-card-title">不平衡才是关键</div>
+      <div class="about-card-text">「爱情结构」的价值在于看见哪个维度过载、哪个维度缺席——这才是你在关系中反复遇到问题的根源。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">📐</div>
+      <div class="about-card-title">量化而非定性</div>
+      <div class="about-card-text">每个维度给出具体分数，你可以看见自己在哪里投入最多、哪里最容易消耗殆尽。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🔄</div>
+      <div class="about-card-title">对比两人结构</div>
+      <div class="about-card-text">和伴侣各自测完，把结果放在一起对比——往往能解释你们之间那些说不清楚的拉扯。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6维度 -->
+<div class="section dims-bg">
+  <div class="section-tag">Six Dimensions · Love Structure</div>
+  <div class="section-title">爱情的六个结构维度</div>
+  <div class="section-body">每个维度 7 道题，覆盖你在亲密关系中最核心的情感动力。</div>
+  <div class="dims-list">
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">A</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">💕</div><div class="dim-name-s">情感依恋</div><div class="dim-subtitle">· Emotional Attachment</div></div>
+        <div class="dim-desc-s">对TA的想念与牵挂程度。高分者看到有趣的事第一反应就是想分享给TA，TA的情绪会直接影响自己的心情。</div>
+      </div>
+    </div>
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">B</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">👑</div><div class="dim-name-s">专属渴望</div><div class="dim-subtitle">· Exclusivity Desire</div></div>
+        <div class="dim-desc-s">希望成为TA生命中最特别的人的程度。高分者渴望在TA心中占据独一无二的位置，对特殊性有强烈需求。</div>
+      </div>
+    </div>
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">C</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">🛡️</div><div class="dim-name-s">守护本能</div><div class="dim-subtitle">· Protective Instinct</div></div>
+        <div class="dim-desc-s">对感情关系的保护意识。高分者对潜在威胁敏感，会留意TA与其他人的互动，有强烈的守护欲。</div>
+      </div>
+    </div>
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">D</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">🎁</div><div class="dim-name-s">付出热忱</div><div class="dim-subtitle">· Giving Enthusiasm</div></div>
+        <div class="dim-desc-s">愿意为TA付出与奉献的程度。高分者愿意改变生活习惯、记住TA的偏好、在需要时毫不犹豫出现。</div>
+      </div>
+    </div>
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">E</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">🌟</div><div class="dim-name-s">未来憧憬</div><div class="dim-subtitle">· Future Orientation</div></div>
+        <div class="dim-desc-s">对共同未来的期许强度。高分者在规划人生时自然地把TA算进去，期待一起经历重要人生节点。</div>
+      </div>
+    </div>
+    <div class="dim-row-item">
+      <div class="dim-left"><div class="dim-letter">F</div></div>
+      <div class="dim-content">
+        <div class="dim-header-row"><div class="dim-icon-s">💎</div><div class="dim-name-s">专一深度</div><div class="dim-subtitle">· Exclusiveness</div></div>
+        <div class="dim-desc-s">对当前感情的专注度与专一程度。高分者自从心里有了TA，对其他人的兴趣明显降低，认为TA是无可替代的。</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="page-break"></div>
+<div class="page-break-label">— Page 2 of 4 —</div>
+
+<div class="page">
+<div class="noise"></div>
+
+<!-- 结果示例 -->
+<div class="section sample-bg">
+  <div class="section-tag">Sample Result · 结果示例</div>
+  <div class="section-title">测试结果长这样</div>
+  <div class="section-body">以下为示例结果，实际报告展示六维度雷达图、分项解读、爱情结构特征与关系成长建议。</div>
+  <div class="sample-result">
+    <div class="sample-header">
+      <div class="sample-header-top">
+        <div class="sample-icon">💗</div>
+        <div>
+          <div class="sample-label">Your Love Structure</div>
+          <div class="sample-name">情感型 · 付出驱动者</div>
+        </div>
+      </div>
+      <div class="sample-subtitle">情感依恋极深 · 守护本能强 · 未来憧憬高</div>
+    </div>
+    <div class="sample-body">
+      <div style="font-size:14px;line-height:2.0;color:rgba(255,255,255,0.50);font-weight:300;margin-bottom:20px">
+        你的爱情以情感连接为核心驱动力。你能深深感受到与TA之间的情感联结，喜欢分享生活、有强烈的守护意愿，并清晰地想要与TA共同建构未来。你的爱结构完整，投入度高，但可能在「专属渴望」方面需要注意边界。
+      </div>
+      <div class="sample-section-title">六维度得分</div>
+      <div class="love-bars">
+        <div class="love-row"><span class="love-label">情感依恋 A</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:92%"></div></div><span class="love-val">92%</span></div>
+        <div class="love-row"><span class="love-label">专属渴望 B</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:76%"></div></div><span class="love-val">76%</span></div>
+        <div class="love-row"><span class="love-label">守护本能 C</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:82%"></div></div><span class="love-val">82%</span></div>
+        <div class="love-row"><span class="love-label">付出热忱 D</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:88%"></div></div><span class="love-val">88%</span></div>
+        <div class="love-row"><span class="love-label">未来憧憬 E</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:85%"></div></div><span class="love-val">85%</span></div>
+        <div class="love-row"><span class="love-label">专一深度 F</span><div class="love-bar-bg"><div class="love-bar-fill" style="width:90%"></div></div><span class="love-val">90%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 理论 -->
+<div class="section theory-bg">
+  <div class="section-tag">Why This Matters</div>
+  <div class="section-title">为什么要解剖爱情结构</div>
+  <div class="section-body">
+    爱情不是一个整体，而是由不同的心理需求和驱动力组合而成的复杂结构。当两个人的爱情结构高度不匹配——比如一方的「付出热忱」远高于另一方，或者「未来憧憬」指向完全不同的方向——就会在关系中产生持续的拉锯和消耗。
+  </div>
+  <div class="theory-quote">
+    <div class="theory-quote-text">「你以为你们的问题是沟通，但其实可能是你们对这段关系根本在投入不同的东西——爱的结构不同。」</div>
+    <div class="theory-quote-author">—— 关系心理学视角</div>
+  </div>
+</div>
+
+<!-- 流程 -->
+<div class="section">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">测评怎么做</div>
+  <div class="steps">
+    <div class="step"><div class="step-left"><div class="step-num">01</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">进入测评页面</div><div class="step-text">输入平台密码，进入 42 题爱情心理结构测评。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">02</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">带着「心中那个人」作答</div><div class="step-text">每道题对应一个具体的爱情场景，选择你在那个情境下真实的感受或反应。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">03</div><div class="step-line"></div></div><div class="step-content"><div class="step-title">获得六维度结构报告</div><div class="step-text">六维度雷达图 + 爱情结构类型命名 + 每个维度的深度解读 + 关系优化建议。</div></div></div>
+    <div class="step"><div class="step-left"><div class="step-num">04</div></div><div class="step-content"><div class="step-title">和对方对比结果</div><div class="step-text">两个人的结构图放在一起，往往能直观解释你们之间那些「说不清楚」的感受差异。</div></div></div>
+  </div>
+</div>
+
+<!-- 适合人群 -->
+<div class="section">
+  <div class="section-tag">Who Is This For</div>
+  <div class="section-title">这个测评适合你吗</div>
+  <div class="audience-list">
+    <div class="audience-item"><div class="audience-icon">💭</div><div class="audience-text"><strong>感觉「付出不对等」的人</strong>——一直觉得自己比对方爱得更多，但说不清楚到底哪里不对，想找到具体的答案</div></div>
+    <div class="audience-item"><div class="audience-icon">🔥</div><div class="audience-text"><strong>情感消耗很大的人</strong>——在关系里总是精力透支，想知道哪个维度的高投入让自己最消耗</div></div>
+    <div class="audience-item"><div class="audience-icon">💑</div><div class="audience-text"><strong>想和伴侣深度对话的情侣</strong>——两个人的爱情结构对比，是一种比普通测评更有深度的情感探索方式</div></div>
+    <div class="audience-item"><div class="audience-icon">🌸</div><div class="audience-text"><strong>单身状态下想了解自己爱情模式的人</strong>——以理想对象或过去关系为参照，了解自己的「爱情结构偏好」</div></div>
+  </div>
+</div>
+
+<!-- 品牌承诺 -->
+<div class="section promise-bg">
+  <div class="section-tag">Our Promise</div>
+  <div class="section-title">关于这份测评</div>
+  <div class="promise-grid">
+    <div class="promise-item"><div class="promise-icon">🔒</div><div class="promise-title">数据不留存</div><div class="promise-text">所有计算在本地完成，服务器不记录任何答题数据</div></div>
+    <div class="promise-item"><div class="promise-icon">📊</div><div class="promise-title">量化有意义</div><div class="promise-text">六维度独立评分，不是泛泛而谈，是可以指导具体问题的精准数据</div></div>
+    <div class="promise-item"><div class="promise-icon">💕</div><div class="promise-title">结果不评判</div><div class="promise-text">每种爱情结构都有其独特的美，报告帮你看见，不帮你评分好坏</div></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-orb"></div>
+  <div class="cta-content">
+    <div class="cta-title">你的爱，由什么构成？</div>
+    <div class="cta-sub">8 分钟 · 42 题 · 立即查看结果</div>
+    <div class="cta-btn">开 始 测 评</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="footer-brand">宇宙认知盐究所 · Spacesaltlab</span>
+  <span class="footer-note">测评结果仅供参考，不构成心理诊断</span>
+</div>
+</div>
+
+</body>
+</html>

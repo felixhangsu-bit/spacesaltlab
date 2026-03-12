@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙认知盐究所 · 商品主图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #111;
+  font-family: 'Noto Serif SC', serif;
+  padding: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+.page-title {
+  width: 100%;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+}
+
+/* ─── 每张主图容器 800×800 ─── */
+.cover {
+  width: 800px;
+  height: 800px;
+  position: relative;
+  overflow: hidden;
+  background: #0a0a0a;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ─── 噪点纹理叠层 ─── */
+.cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ─── 光晕 ─── */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── 内容层 ─── */
+.inner {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 60px 64px;
+}
+
+/* ─── 顶部标签 ─── */
+.tag {
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 0;
+}
+
+/* ─── 分割线 ─── */
+.divider {
+  width: 32px;
+  height: 1px;
+  margin: 18px 0;
+}
+
+/* ─── 主标题 ─── */
+.main-title {
+  font-size: 92px;
+  font-weight: 700;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 6px;
+  font-family: 'Noto Serif SC', serif;
+}
+
+/* ─── 副标题 ─── */
+.sub-title {
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ─── 正文描述 ─── */
+.desc {
+  font-size: 14.5px;
+  line-height: 2.0;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+  max-width: 520px;
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+/* ─── 维度列表 ─── */
+.dims {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dim-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dim-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'EB Garamond', serif;
+  width: 160px;
+  flex-shrink: 0;
+}
+.dim-bar-bg {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.dim-bar {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* ─── 底部品牌 ─── */
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.brand-name {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.25);
+  font-family: 'EB Garamond', serif;
+  text-transform: uppercase;
+}
+.brand-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.35);
+  font-family: 'EB Garamond', serif;
+}
+
+/* ─── 题号角标 ─── */
+.q-badge {
+  position: absolute;
+  top: 60px;
+  right: 64px;
+  text-align: right;
+}
+.q-num {
+  font-size: 72px;
+  font-weight: 700;
+  font-family: 'EB Garamond', serif;
+  line-height: 1;
+  opacity: 0.07;
+}
+.q-unit {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.2);
+  font-family: 'EB Garamond', serif;
+  text-align: right;
+  margin-top: -8px;
+}
+
+/* ─── 装饰圆圈 ─── */
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.05);
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+/* ════════════════════════════════
+   1. 动物投射测试  —  Amber / Red
+════════════════════════════════ */
+.animal .glow-orb-1 { width:500px; height:500px; top:-200px; right:-150px; background:#f59e0b; opacity:0.18; }
+.animal .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-120px; background:#ef4444; opacity:0.14; }
+.animal .divider { background: linear-gradient(90deg, #f59e0b, transparent); }
+.animal .main-title { background: linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #ef4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.animal .dim-bar { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.animal .deco-circle { width:320px; height:320px; right:-80px; bottom:80px; }
+.animal .deco-circle-2 { width:160px; height:160px; right:60px; bottom:260px; }
+
+/* ════════════════════════════════
+   2. 欲望比重测试  —  Violet
+════════════════════════════════ */
+.desire .glow-orb-1 { width:500px; height:500px; top:-200px; right:-150px; background:#7c3aed; opacity:0.22; }
+.desire .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-120px; background:#6366f1; opacity:0.16; }
+.desire .divider { background: linear-gradient(90deg, #8b5cf6, transparent); }
+.desire .main-title { background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 60%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.desire .dim-bar { background: linear-gradient(90deg, #8b5cf6, #6366f1); }
+.desire .deco-circle { width:360px; height:360px; right:-100px; bottom:60px; }
+.desire .deco-circle-2 { width:180px; height:180px; right:80px; bottom:260px; }
+
+/* ════════════════════════════════
+   3. 职业性格测评  —  Indigo / Cyan
+════════════════════════════════ */
+.career .glow-orb-1 { width:500px; height:500px; top:-180px; right:-120px; background:#3b82f6; opacity:0.20; }
+.career .glow-orb-2 { width:420px; height:420px; bottom:-200px; left:-140px; background:#0ea5e9; opacity:0.15; }
+.career .divider { background: linear-gradient(90deg, #60a5fa, transparent); }
+.career .main-title { background: linear-gradient(135deg, #bae6fd 0%, #60a5fa 50%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.career .dim-bar { background: linear-gradient(90deg, #60a5fa, #0ea5e9); }
+.career .deco-circle { width:340px; height:340px; right:-90px; bottom:70px; }
+.career .deco-circle-2 { width:170px; height:170px; right:70px; bottom:270px; }
+
+/* ════════════════════════════════
+   4. 爱情心理结构  —  Rose / Purple
+════════════════════════════════ */
+.love .glow-orb-1 { width:500px; height:500px; top:-200px; right:-140px; background:#ec4899; opacity:0.20; }
+.love .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-130px; background:#8b5cf6; opacity:0.16; }
+.love .divider { background: linear-gradient(90deg, #f472b6, transparent); }
+.love .main-title { background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.love .dim-bar { background: linear-gradient(90deg, #f472b6, #8b5cf6); }
+.love .deco-circle { width:320px; height:320px; right:-80px; bottom:80px; }
+.love .deco-circle-2 { width:160px; height:160px; right:60px; bottom:270px; }
+
+/* ════════════════════════════════
+   5. SCL-90 心理状态  —  Teal
+════════════════════════════════ */
+.scl90 .glow-orb-1 { width:500px; height:500px; top:-180px; right:-140px; background:#0d9488; opacity:0.20; }
+.scl90 .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-120px; background:#06b6d4; opacity:0.15; }
+.scl90 .divider { background: linear-gradient(90deg, #2dd4bf, transparent); }
+.scl90 .main-title { background: linear-gradient(135deg, #ccfbf1 0%, #2dd4bf 50%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.scl90 .dim-bar { background: linear-gradient(90deg, #2dd4bf, #06b6d4); }
+.scl90 .deco-circle { width:350px; height:350px; right:-90px; bottom:60px; }
+.scl90 .deco-circle-2 { width:175px; height:175px; right:75px; bottom:270px; }
+
+/* ════════════════════════════════
+   6. 情绪智力测评  —  Amber / Emerald
+════════════════════════════════ */
+.emotion .glow-orb-1 { width:500px; height:500px; top:-200px; right:-140px; background:#f59e0b; opacity:0.18; }
+.emotion .glow-orb-2 { width:420px; height:420px; bottom:-200px; left:-130px; background:#10b981; opacity:0.15; }
+.emotion .divider { background: linear-gradient(90deg, #fcd34d, transparent); }
+.emotion .main-title { background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.emotion .dim-bar { background: linear-gradient(90deg, #fcd34d, #6ee7b7); }
+.emotion .deco-circle { width:330px; height:330px; right:-85px; bottom:70px; }
+.emotion .deco-circle-2 { width:165px; height:165px; right:65px; bottom:265px; }
+
+/* ════════════════════════════════
+   7. 亲密关系测评  —  Crimson / Gold
+════════════════════════════════ */
+.relationship .glow-orb-1 { width:480px; height:480px; top:-180px; right:-130px; background:#be123c; opacity:0.20; }
+.relationship .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-120px; background:#d97706; opacity:0.15; }
+.relationship .divider { background: linear-gradient(90deg, #fb7185, transparent); }
+.relationship .main-title { background: linear-gradient(135deg, #ffe4e6 0%, #fb7185 50%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.relationship .dim-bar { background: linear-gradient(90deg, #fb7185, #fbbf24); }
+.relationship .deco-circle { width:340px; height:340px; right:-90px; bottom:70px; }
+.relationship .deco-circle-2 { width:170px; height:170px; right:70px; bottom:270px; }
+
+/* ════════════════════════════════
+   8. 压力与韧性测评  —  Emerald / Slate
+════════════════════════════════ */
+.resilience .glow-orb-1 { width:500px; height:500px; top:-200px; right:-140px; background:#059669; opacity:0.20; }
+.resilience .glow-orb-2 { width:400px; height:400px; bottom:-180px; left:-120px; background:#475569; opacity:0.20; }
+.resilience .divider { background: linear-gradient(90deg, #34d399, transparent); }
+.resilience .main-title { background: linear-gradient(135deg, #d1fae5 0%, #34d399 50%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.resilience .dim-bar { background: linear-gradient(90deg, #34d399, #94a3b8); }
+.resilience .deco-circle { width:350px; height:350px; right:-90px; bottom:65px; }
+.resilience .deco-circle-2 { width:175px; height:175px; right:75px; bottom:265px; }
+
+/* ─── 打印提示 ─── */
+.tip {
+  width: 100%;
+  text-align: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+}
+</style>
+</head>
+<body>
+
+<p class="page-title">SPACESALTLAB · 商品主图预览 · 800 × 800</p>
+
+<!-- ══════════════════════════════════════
+     1. 动物投射测试
+══════════════════════════════════════ -->
+<div class="cover animal">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Unconscious Projection · Animal Archetype</span>
+    <div class="divider"></div>
+    <div class="main-title">动物投射</div>
+    <div class="sub-title">你的潜意识，藏在动物里</div>
+
+    <div class="desc">
+      你第一眼看到的动物，<br>
+      映射的是你从未说出口的内在原型。<br>
+      <br>
+      没有对错，只有你与自己的对话。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">本能驱动</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:85%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">防御机制</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:70%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">社会适应</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:60%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">12</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     2. 欲望比重测试
+══════════════════════════════════════ -->
+<div class="cover desire">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Desire Architecture · Weight Distribution</span>
+    <div class="divider"></div>
+    <div class="main-title">欲望比重</div>
+    <div class="sub-title">你真正想要的，是什么</div>
+
+    <div class="desc">
+      金钱、权力、爱、自由、意义……<br>
+      每个人内心的欲望排列都不同。<br>
+      <br>
+      测出你的欲望结构，读懂驱动你的底层力量。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">物质欲</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:75%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">情感欲</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:88%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">成就欲</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:65%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">20</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     3. 职业性格测评
+══════════════════════════════════════ -->
+<div class="cover career">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Career Archetype · Personality Mapping</span>
+    <div class="divider"></div>
+    <div class="main-title">职业性格</div>
+    <div class="sub-title">找到你天生适合的位置</div>
+
+    <div class="desc">
+      你的思维方式、决策风格、能量来源，<br>
+      决定了哪条路对你来说走得最顺。<br>
+      <br>
+      不是职业决定你，而是你决定职业。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">领导力倾向</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:80%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">创造力指数</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:72%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">执行稳定性</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:68%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">36</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     4. 爱情心理结构测评
+══════════════════════════════════════ -->
+<div class="cover love">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Love Structure · Attachment Archetype</span>
+    <div class="divider"></div>
+    <div class="main-title">爱情结构</div>
+    <div class="sub-title">你如何爱，决定你如何被爱</div>
+
+    <div class="desc">
+      亲密、激情、承诺——<br>
+      三角结构里，你的重心落在哪里？<br>
+      <br>
+      读懂自己的爱情模式，才能走出轮回。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">亲密度</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:78%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">激情指数</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:65%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">承诺意愿</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:83%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">24</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     5. SCL-90 心理状态评估
+══════════════════════════════════════ -->
+<div class="cover scl90">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">SCL-90 · Psychological Symptom Checklist</span>
+    <div class="divider"></div>
+    <div class="main-title">心理症状</div>
+    <div class="sub-title">九个维度，读懂内心的信号</div>
+
+    <div class="desc">
+      焦虑、抑郁、强迫、敌对、恐惧……<br>
+      这些不是软弱，是内心在向你发出的信号。<br>
+      <br>
+      专业量表，帮你看清此刻的心理状态。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">情绪稳定性</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:70%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">人际敏感度</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:60%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">心理韧性</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:75%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">90</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     6. 情绪智力测评
+══════════════════════════════════════ -->
+<div class="cover emotion">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Emotional Intelligence · EQ Mapping</span>
+    <div class="divider"></div>
+    <div class="main-title">情绪智力</div>
+    <div class="sub-title">真正的高智商，是情绪的智慧</div>
+
+    <div class="desc">
+      感知情绪、理解情绪、运用情绪、管理情绪——<br>
+      EQ 决定了你在关系中走多远。<br>
+      <br>
+      不是压抑，而是驾驭。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">情绪感知</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:82%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">情绪调节</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:67%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">共情能力</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:75%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">33</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     7. 亲密关系心理测评
+══════════════════════════════════════ -->
+<div class="cover relationship">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Intimate Relationship · Attachment Style</span>
+    <div class="divider"></div>
+    <div class="main-title">亲密关系</div>
+    <div class="sub-title">你的依恋风格，决定你的关系命运</div>
+
+    <div class="desc">
+      安全型、焦虑型、回避型、混乱型——<br>
+      你的童年经历，塑造了你在亲密关系中的反应模式。<br>
+      <br>
+      看见模式，才能做出选择。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">安全感指数</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:60%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">依恋焦虑</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:72%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">回避倾向</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:55%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">28</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     8. 压力与韧性测评
+══════════════════════════════════════ -->
+<div class="cover resilience">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="deco-circle deco-circle"></div>
+  <div class="deco-circle deco-circle-2"></div>
+  <div class="inner">
+    <span class="tag">Resilience · Stress Response Mapping</span>
+    <div class="divider"></div>
+    <div class="main-title">压力韧性</div>
+    <div class="sub-title">你的弹性，是你最深的力量</div>
+
+    <div class="desc">
+      压力不会消失，但你可以变得更有弹性。<br>
+      测出你在逆境中的恢复力、适应力与成长力。<br>
+      <br>
+      韧性，是可以被训练的。
+    </div>
+
+    <div class="dims">
+      <div class="dim-row">
+        <span class="dim-label">抗压能力</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:78%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">恢复速度</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:65%"></div></div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">逆境成长</span>
+        <div class="dim-bar-bg"><div class="dim-bar" style="width:80%"></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">宇宙认知盐究所</span>
+      <span class="brand-badge">SPACESALTLAB</span>
+    </div>
+  </div>
+  <div class="q-badge">
+    <div class="q-num">25</div>
+    <div class="q-unit">QUESTIONS</div>
+  </div>
+</div>
+
+<p class="tip">在浏览器中打开 · 每张卡片 800×800px · 可直接截图使用</p>
+
+</body>
+</html>

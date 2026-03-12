@@ -7,119 +7,146 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #a5b4fc;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --radius: 16px;
+  --bg: #0a0a0a;
+  --card: rgba(255,255,255,0.025);
+  --text: rgba(255,255,255,0.88);
+  --text-muted: rgba(255,255,255,0.38);
+  --border: rgba(255,255,255,0.07);
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c084fc 100%);
+  --gradient-warm: linear-gradient(135deg, #8b5cf6 0%, #f472b6 100%);
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-.page { display: none; min-height: 100vh; }
+body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; position: relative; }
+.noise{position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .page.active { display: block; }
 #testPage { background: var(--bg); padding: 20px; }
 .test-container { max-width: 700px; margin: 0 auto; }
 .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
-.back-btn:hover { background: white; color: var(--text); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 0; letter-spacing: 2px; text-transform: uppercase; transition: all 0.2s; }
+.back-btn:hover { background: var(--card); color: var(--text); }
 .progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-.progress-bar { width: 180px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.3s; }
-.question-card { background: var(--card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
-.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
-.q-num { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-.q-text { font-size: 20px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; }
+.progress-text { font-family: 'EB Garamond', serif; font-size: 14px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 2px; }
+.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 0; transition: width 0.3s; }
+.question-card { background: var(--card); border-radius: 0; padding: 40px; box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; }
+.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.dim-tag { display: inline-block; padding: 6px 14px; border-radius: 0; font-size: 12px; font-weight: 500; margin-bottom: 16px; }
+.q-num { font-family: 'EB Garamond', serif; font-size: 14px; color: rgba(139,92,246,0.55); margin-bottom: 10px; letter-spacing: 3px; }
+.q-text { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.88); line-height: 1.5; margin-bottom: 32px; }
 .options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: var(--primary-light); background: #fafaff; }
-.opt.selected { border-color: var(--primary); background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%); }
-.opt-radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
+.opt:hover { border-color: rgba(139,92,246,0.3); background: rgba(255,255,255,0.02); }
+.opt.selected { border-color: var(--primary); background: rgba(139,92,246,0.08); }
+.opt-radio { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
 .opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
 .opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
 .opt-text { font-size: 15px; font-weight: 500; }
 .nav-btns { display: flex; gap: 12px; margin-top: 32px; }
-.nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
-.nav-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.nav-btn { flex: 1; padding: 14px; border-radius: 0; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; letter-spacing: 2px; }
+.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .nav-btn.secondary:hover { border-color: var(--primary-light); }
 .nav-btn.primary { background: var(--primary); border: none; color: white; }
 .nav-btn.primary:hover { background: var(--primary-dark); }
 .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-#resultPage { background: linear-gradient(180deg, #667eea 0%, #764ba2 40%, var(--bg) 40%); }
+#resultPage { background: var(--bg); position: relative; z-index: 1; }
 .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
-.result-header { text-align: center; color: white; margin-bottom: 32px; padding-top: 20px; }
-.result-header h1 { font-size: 26px; margin-bottom: 8px; }
-.result-header p { opacity: 0.9; font-size: 14px; }
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
-.section-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-.section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.result-header { text-align: center; color: var(--text); margin-bottom: 32px; padding-top: 20px; }
+.result-header h1 { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; margin-bottom: 8px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.result-header p { color: var(--text-muted); font-size: 14px; letter-spacing: 2px; }
+.result-header .subtitle-quote { font-family: 'EB Garamond', serif; font-style: italic; color: rgba(255,255,255,0.25); font-size: 14px; margin-top: 8px; letter-spacing: 1px; }
+.card { background: var(--card); border-radius: 0; padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.section-title { font-family: 'Noto Serif SC', serif; font-size: 17px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-icon { width: 32px; height: 32px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-.status-card { text-align: center; padding: 24px; border-radius: 16px; margin-bottom: 20px; }
-.status-card.stable { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
-.status-card.attention { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
-.status-card.risk { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
-.status-label { font-size: 14px; margin-bottom: 8px; }
-.status-value { font-size: 28px; font-weight: 700; }
-.status-card.stable .status-value { color: #059669; }
-.status-card.attention .status-value { color: #d97706; }
-.status-card.risk .status-value { color: #dc2626; }
+.status-card { text-align: center; padding: 28px; border-radius: 0; margin-bottom: 20px; position: relative; }
+.status-card.stable { background: rgba(5,150,115,0.1); border: 1px solid rgba(5,150,115,0.15); }
+.status-card.attention { background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.15); }
+.status-card.risk { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.15); }
+.status-label { font-family: 'EB Garamond', serif; font-size: 14px; margin-bottom: 8px; color: var(--text-muted); letter-spacing: 3px; }
+.status-value { font-family: 'Noto Serif SC', serif; font-size: 28px; font-weight: 700; }
+.status-card.stable .status-value { color: #6ee7b7; }
+.status-card.attention .status-value { color: #fde68a; }
+.status-card.risk .status-value { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.status-philosophy { font-size: 13px; margin-top: 12px; color: rgba(255,255,255,0.45); font-style: italic; line-height: 1.6; }
 
 .chart-wrap { max-width: 400px; margin: 0 auto; }
-.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+.dim-item { padding: 16px; border: 1px solid var(--border); border-radius: 0; margin-bottom: 12px; transition: all 0.2s; }
+.dim-item:hover { border-color: rgba(139,92,246,0.2); transform: translateY(-1px); }
 .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.dim-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
-.dim-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.dim-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-.dim-bar-fill { height: 100%; border-radius: 4px; }
-.level-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.level-high { background: #d1fae5; color: #059669; }
-.level-medium { background: #fef3c7; color: #d97706; }
-.level-low { background: #fee2e2; color: #dc2626; }
+.dim-name { display: flex; align-items: center; gap: 10px; font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: 14px; }
+.dim-icon { width: 32px; height: 32px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 0; transition: width 0.8s ease-out; }
+.level-badge { padding: 4px 10px; border-radius: 0; font-size: 12px; font-weight: 500; letter-spacing: 1px; }
+.level-high { background: rgba(5,150,115,0.12); color: #6ee7b7; }
+.level-medium { background: rgba(217,119,6,0.12); color: #fde68a; }
+.level-low { background: rgba(139,92,246,0.12); color: #c4b5fd; }
+
+.dim-metaphor { font-family: 'EB Garamond', serif; font-size: 13px; color: rgba(139,92,246,0.55); font-style: italic; margin-top: 6px; padding-left: 42px; letter-spacing: 0.5px; }
 
 .summary-text { font-size: 15px; color: var(--text-muted); line-height: 1.8; }
-.tip-item { display: flex; gap: 12px; padding: 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px; }
-.tip-num { width: 24px; height: 24px; background: var(--gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.tip-item { display: flex; gap: 12px; padding: 14px; background: rgba(255,255,255,0.015); border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; }
+.tip-num { font-family: 'EB Garamond', serif; width: 24px; height: 24px; background: var(--gradient); color: white; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
 .tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.tip-source { font-family: 'EB Garamond', serif; font-size: 12px; color: rgba(139,92,246,0.55); margin-top: 4px; font-style: italic; letter-spacing: 0.5px; }
 
-.warning-section { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 16px; margin-top: 16px; }
-.warning-section h4 { color: #dc2626; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.warning-section p { font-size: 13px; color: #7f1d1d; line-height: 1.6; }
+.warning-section { background: rgba(139,92,246,0.05); border: 1px solid rgba(139,92,246,0.1); border-radius: 0; padding: 16px; margin-top: 16px; }
+.warning-section h4 { color: #c4b5fd; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.warning-section p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+
+.philosophy-card { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 28px; margin-bottom: 20px; text-align: center; position: relative; }
+.philosophy-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); }
+.philosophy-card .phi-icon { font-size: 36px; margin-bottom: 12px; }
+.philosophy-card h3 { font-family: 'Noto Serif SC', serif; font-size: 18px; color: var(--text); margin-bottom: 16px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.philosophy-card .phi-text { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+.philosophy-card .phi-quote { font-family: 'EB Garamond', serif; font-style: italic; color: rgba(255,255,255,0.6); margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; font-size: 14px; letter-spacing: 0.5px; }
+.philosophy-card .phi-author { font-family: 'EB Garamond', serif; font-size: 13px; color: rgba(139,92,246,0.55); margin-top: 6px; letter-spacing: 1px; }
+
+.remember-card { background: rgba(5,150,115,0.05); border-radius: 0; padding: 28px; margin-bottom: 20px; text-align: center; border: 1px solid rgba(5,150,115,0.12); }
+.remember-card .rem-icon { font-size: 32px; margin-bottom: 10px; }
+.remember-card h3 { font-family: 'Noto Serif SC', serif; font-size: 17px; color: #6ee7b7; margin-bottom: 12px; }
+.remember-card p { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.8; }
+.remember-card .rem-quote { font-family: 'EB Garamond', serif; font-style: italic; margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px; letter-spacing: 0.5px; }
+
+.decorative-dots { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; }
+.decorative-dots span { width: 6px; height: 6px; border-radius: 50%; opacity: 0.2; }
 
 .action-btns { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
-.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
-.restart-btn.primary { background: var(--gradient); border: none; color: white; }
-.restart-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.3); }
-.restart-btn.secondary { background: white; border: 2px solid var(--border); color: var(--text); }
+.restart-btn { flex: 1; min-width: 140px; padding: 14px 20px; border-radius: 0; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; letter-spacing: 2px; }
+.restart-btn.primary { background: var(--primary); border: none; color: white; }
+.restart-btn.primary:hover { background: var(--primary-dark); box-shadow: 0 10px 30px rgba(139,92,246,0.2); }
+.restart-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .restart-btn.secondary:hover { border-color: var(--primary); }
 
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
 .modal-overlay.show { opacity: 1; }
-.modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { background: #111; border: 1px solid var(--border); border-radius: 0; padding: 32px; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
 .modal-overlay.show .modal-content { transform: scale(1); }
 .modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 20px; margin-bottom: 12px; }
+.modal-content h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; margin-bottom: 12px; }
 .modal-content p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
-.modal-btn { width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-.modal-btn.primary { background: var(--gradient); border: none; color: white; }
-.modal-btn.secondary { background: #f1f5f9; border: none; color: var(--text); }
+.modal-btn { width: 100%; padding: 14px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; letter-spacing: 2px; }
+.modal-btn.primary { background: var(--primary); border: none; color: white; }
+.modal-btn.secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); }
 
-.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
+.loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,10,10,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; flex-direction: column; gap: 16px; }
 .loading-overlay.show { display: flex; }
-.loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+.loading-spinner { width: 48px; height: 48px; border: 1px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
+<div class="noise"></div>
 
 <div id="testPage" class="page active">
   <div class="test-container">
@@ -134,7 +161,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
       </div>
     </div>
     <div class="question-card">
-      <div class="dim-tag" id="dimTag" style="display:none;background:#dbeafe;color:#3b82f6">躯体化</div>
+      <div class="dim-tag" id="dimTag" style="display:none;background:#1e3a5f;color:#60a5fa">躯体化</div>
       <div class="q-num">第 <span id="qNum">1</span> 题</div>
       <div class="q-text" id="qText"></div>
       <div class="options" id="options"></div>
@@ -165,74 +192,74 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 // 45题SCL-90精简版，每个因子5题
 const questions = [
   // 躯体化 (5题)
-  { dim: 'som', text: '最近一周，你是否感到头痛或头部不适？' },
-  { dim: 'som', text: '最近一周，你是否感到心跳加速或心慌？' },
-  { dim: 'som', text: '最近一周，你是否感到身体某些部位麻木或刺痛？' },
-  { dim: 'som', text: '最近一周，你是否感到胸闷或呼吸困难？' },
-  { dim: 'som', text: '最近一周，你是否感到肌肉酸痛或身体疲劳？' },
+  { dim: 'som', text: '最近一周，你的身体有没有在某些时刻突然「说话」——比如头部发紧、胃里搅动、或者肩膀不自觉地缩起来？' },
+  { dim: 'som', text: '最近一周，有没有在安静的时候突然感觉到心跳，好像它在提醒你什么事情？' },
+  { dim: 'som', text: '最近一周，身体某些地方会不会偶尔出现一种说不清的异样感——像被轻轻电了一下，或者皮肤在微微发麻？' },
+  { dim: 'som', text: '最近一周，有没有过那种胸口像被什么东西轻轻压住的感觉，深呼吸的时候不太顺畅？' },
+  { dim: 'som', text: '最近一周，下班或放学后，你的身体是像卸下了背包一样轻松，还是像一块被拧干的毛巾？' },
   // 强迫症状 (5题)
-  { dim: 'obs', text: '最近一周，你是否反复检查已经做好的事情？' },
-  { dim: 'obs', text: '最近一周，你是否难以做出决定？' },
-  { dim: 'obs', text: '最近一周，你是否有一些无法摆脱的想法？' },
-  { dim: 'obs', text: '最近一周，你是否感到做事必须按特定顺序或方式进行？' },
-  { dim: 'obs', text: '最近一周，你是否因为粗心大意而烦恼？' },
+  { dim: 'obs', text: '最近一周，出门后你有没有走到半路又折回去确认门锁好了、煤气关了，哪怕心里知道已经检查过了？' },
+  { dim: 'obs', text: '最近一周，面对两个选项的时候，你会不会在脑子里来来回回地反复权衡，最后反而什么都没选？' },
+  { dim: 'obs', text: '最近一周，有没有某个念头像一首洗脑歌一样不断在脑海里自动播放，你越想忽略它它越响？' },
+  { dim: 'obs', text: '最近一周，你会不会觉得有些事情「必须」按照某种顺序或方式来做，否则心里就会很不舒服？' },
+  { dim: 'obs', text: '最近一周，有没有因为一个很小的疏忽（比如打错一个字）而反复纠结，觉得自己不该犯这种错？' },
   // 人际敏感 (5题)
-  { dim: 'int', text: '最近一周，你是否感到别人不理解你？' },
-  { dim: 'int', text: '最近一周，你是否感到与人相处时不自在？' },
-  { dim: 'int', text: '最近一周，你是否感到自己不如别人？' },
-  { dim: 'int', text: '最近一周，你是否过分在意别人对你的看法？' },
-  { dim: 'int', text: '最近一周，你是否感到别人对你不友善？' },
+  { dim: 'int', text: '最近一周，你有没有跟人说了一段话之后，回去在脑海里反复回放，觉得自己是不是说错了什么？' },
+  { dim: 'int', text: '最近一周，走进一个有很多人的房间时，你是自然地融入，还是会先在心里做一番「准备工作」？' },
+  { dim: 'int', text: '最近一周，刷朋友圈或社交媒体的时候，有没有一个瞬间觉得别人的生活都在闪闪发光，而自己的有点暗淡？' },
+  { dim: 'int', text: '最近一周，如果有人看了你一眼但没打招呼，你第一反应是「对方没注意到我」，还是「我是不是哪里得罪了他」？' },
+  { dim: 'int', text: '最近一周，有没有感觉到有些人对你说话的语气不太一样，虽然可能只是你的错觉？' },
   // 抑郁 (5题)
-  { dim: 'dep', text: '最近一周，你是否感到情绪低落或沮丧？' },
-  { dim: 'dep', text: '最近一周，你是否对事情失去兴趣？' },
-  { dim: 'dep', text: '最近一周，你是否感到前途没有希望？' },
-  { dim: 'dep', text: '最近一周，你是否感到自己没有价值？' },
-  { dim: 'dep', text: '最近一周，你是否有想哭的感觉？' },
+  { dim: 'dep', text: '最近一周，早晨醒来的那一刻，你的第一个感觉是「新的一天」，还是「又一天」？' },
+  { dim: 'dep', text: '最近一周，有没有一件以前让你眼睛发亮的事情，现在看起来变得灰蒙蒙的？' },
+  { dim: 'dep', text: '最近一周，如果有人问你「你对未来怎么看」，你脑海里浮现的画面是清晰的还是模糊的？' },
+  { dim: 'dep', text: '最近一周，有没有某个安静的瞬间，突然觉得自己像一件放在角落里被遗忘的物品？' },
+  { dim: 'dep', text: '最近一周，有没有毫无缘由地，眼眶就湿了——可能是因为一首歌、一句话，也可能什么都没有？' },
   // 焦虑 (5题)
-  { dim: 'anx', text: '最近一周，你是否感到紧张或心神不宁？' },
-  { dim: 'anx', text: '最近一周，你是否感到坐立不安？' },
-  { dim: 'anx', text: '最近一周，你是否感到害怕或恐惧？' },
-  { dim: 'anx', text: '最近一周，你是否容易受到惊吓？' },
-  { dim: 'anx', text: '最近一周，你是否感到莫名的担心？' },
+  { dim: 'anx', text: '最近一周，有没有那种「说不上来哪里不对，但身体就是放松不下来」的感觉？' },
+  { dim: 'anx', text: '最近一周，坐在椅子上的时候，你能安安静静地坐住，还是会不自觉地抖腿、搓手、或者动来动去？' },
+  { dim: 'anx', text: '最近一周，有没有在某个普通的场景里突然感到一阵恐惧，好像有什么坏事要发生——但其实什么都没有？' },
+  { dim: 'anx', text: '最近一周，一个突然的声响——比如手机铃声、关门声——会不会让你的心猛地一跳？' },
+  { dim: 'anx', text: '最近一周，有没有一种持续的担忧，像背景音乐一样一直在播放，虽然你说不清到底在担心什么？' },
   // 敌对 (5题)
-  { dim: 'hos', text: '最近一周，你是否容易发脾气或感到烦躁？' },
-  { dim: 'hos', text: '最近一周，你是否有想打人或伤害他人的冲动？' },
-  { dim: 'hos', text: '最近一周，你是否经常与人争吵？' },
-  { dim: 'hos', text: '最近一周，你是否感到容易被激怒？' },
-  { dim: 'hos', text: '最近一周，你是否有想摔东西的冲动？' },
+  { dim: 'hos', text: '最近一周，有没有因为一件很小的事——比如排队被插队、外卖送晚了——而感到异常恼火？' },
+  { dim: 'hos', text: '最近一周，如果有人让你不高兴了，你脑海里会不会闪过一些很激烈的画面或者念头？' },
+  { dim: 'hos', text: '最近一周，你和身边的人说话时，是否比平时更容易「话赶话」，一不小心就变成了争论？' },
+  { dim: 'hos', text: '最近一周，有没有那种一根弦绷得很紧的感觉，一点点不顺心就觉得要断掉？' },
+  { dim: 'hos', text: '最近一周，有没有想把手里的东西重重摔下去的冲动，哪怕那东西没有做错什么？' },
   // 恐惧 (5题)
-  { dim: 'pho', text: '最近一周，你是否害怕到空旷的地方？' },
-  { dim: 'pho', text: '最近一周，你是否害怕乘坐公共交通？' },
-  { dim: 'pho', text: '最近一周，你是否害怕独处？' },
-  { dim: 'pho', text: '最近一周，你是否害怕人多的场合？' },
-  { dim: 'pho', text: '最近一周，你是否有特定的恐惧对象？' },
+  { dim: 'pho', text: '最近一周，走在一个特别空旷的地方——比如大广场、长走廊——你会不会有一种莫名的不安？' },
+  { dim: 'pho', text: '最近一周，在拥挤的地铁或公交上，你是随遇而安，还是会有一种「被困住了」的感觉？' },
+  { dim: 'pho', text: '最近一周，夜晚独自待在家里的时候，你是感到安宁，还是会莫名地竖起耳朵听动静？' },
+  { dim: 'pho', text: '最近一周，在人特别多的商场、集会或演唱会，你会不会有种想马上离开的冲动？' },
+  { dim: 'pho', text: '最近一周，有没有某个特定的东西——比如某种动物、某个场景、某种声音——每次遇到都让你心跳加速想回避？' },
   // 偏执 (5题)
-  { dim: 'par', text: '最近一周，你是否感到别人在议论你？' },
-  { dim: 'par', text: '最近一周，你是否感到别人想占你便宜？' },
-  { dim: 'par', text: '最近一周，你是否感到不能信任大多数人？' },
-  { dim: 'par', text: '最近一周，你是否感到别人在监视或谈论你？' },
-  { dim: 'par', text: '最近一周，你是否感到别人对你有敌意？' },
+  { dim: 'par', text: '最近一周，走进一个大家正在笑的房间时，你会不会有一瞬间觉得他们可能在笑你？' },
+  { dim: 'par', text: '最近一周，有没有觉得某些人对你特别好的时候，你反而会想「他是不是有什么目的」？' },
+  { dim: 'par', text: '最近一周，你觉得身边的大多数人是值得信任的，还是心里总有一个声音说「小心点」？' },
+  { dim: 'par', text: '最近一周，有没有感觉有人在有意无意地关注你的行为，或者在你背后谈论你？' },
+  { dim: 'par', text: '最近一周，当事情不顺利的时候，你的第一反应是「运气不好」，还是「有人在故意为难我」？' },
   // 现实感稳定性 (5题)
-  { dim: 'psy', text: '最近一周，你是否感到自己的思想不受控制？' },
-  { dim: 'psy', text: '最近一周，你是否感到孤独？' },
-  { dim: 'psy', text: '最近一周，你是否感到内心空虚或迷茫？' },
-  { dim: 'psy', text: '最近一周，你是否感到自己不真实？' },
-  { dim: 'psy', text: '最近一周，你是否感到周围事物不真实？' }
+  { dim: 'psy', text: '最近一周，有没有某个瞬间觉得脑子里的想法像脱缰的马，你只能看着它们跑，却拉不住缰绳？' },
+  { dim: 'psy', text: '最近一周，即使身边有很多人，你有没有感觉到一种透明的隔板把你和他们隔开了？' },
+  { dim: 'psy', text: '最近一周，有没有一种内心空荡荡的感觉，像一间搬走了所有家具的房间？' },
+  { dim: 'psy', text: '最近一周，有没有看着镜子里的自己，突然觉得那个人有点陌生——明明是自己，但又不太确定？' },
+  { dim: 'psy', text: '最近一周，有没有走在熟悉的路上，却突然觉得周围的一切像电影布景一样不太真实？' }
 ];
 
 const dimInfo = {
-  'som': { name: '躯体化', icon: '🩺', bg: '#dbeafe', color: '#3b82f6' },
-  'obs': { name: '强迫症状', icon: '🔄', bg: '#fef3c7', color: '#f59e0b' },
-  'int': { name: '人际敏感', icon: '👥', bg: '#fce7f3', color: '#ec4899' },
-  'dep': { name: '抑郁', icon: '😔', bg: '#e0e7ff', color: '#6366f1' },
-  'anx': { name: '焦虑', icon: '😰', bg: '#fee2e2', color: '#ef4444' },
-  'hos': { name: '敌对', icon: '😤', bg: '#ffedd5', color: '#f97316' },
-  'pho': { name: '恐惧', icon: '😨', bg: '#d1fae5', color: '#10b981' },
-  'par': { name: '偏执', icon: '🤔', bg: '#f3e8ff', color: '#a855f7' },
-  'psy': { name: '现实感稳定性', icon: '🌀', bg: '#cffafe', color: '#06b6d4' }
+  'som': { name: '身体信号', icon: '🌊', bg: '#1e3a5f', color: '#60a5fa' },
+  'obs': { name: '思维漩涡', icon: '🔮', bg: '#422006', color: '#fbbf24' },
+  'int': { name: '人际雷达', icon: '🪞', bg: '#4a1942', color: '#f472b6' },
+  'dep': { name: '情绪色温', icon: '🌒', bg: '#1e1b4b', color: '#818cf8' },
+  'anx': { name: '内在天气', icon: '🌪️', bg: '#450a0a', color: '#f87171' },
+  'hos': { name: '火焰信号', icon: '🔥', bg: '#431407', color: '#fb923c' },
+  'pho': { name: '避风本能', icon: '🦋', bg: '#064e3b', color: '#34d399' },
+  'par': { name: '信任罗盘', icon: '🧭', bg: '#3b0764', color: '#c084fc' },
+  'psy': { name: '现实锚点', icon: '🌌', bg: '#164e63', color: '#22d3ee' }
 };
 
-const optionLabels = ['没有', '很轻', '中等', '偏重', '严重'];
+const optionLabels = ['完全没有', '偶尔一闪而过', '时不时会出现', '经常如此', '几乎一直都是'];
 
 let idx = 0;
 let answers = new Array(45).fill(null);
@@ -267,6 +294,8 @@ function render() {
 function selectOption(val) {
   answers[idx] = val;
   render();
+  if (idx < 44) setTimeout(() => next(), 300);
+  else setTimeout(() => next(), 300);
 }
 
 function prev() { if (idx > 0) { idx--; render(); } }
@@ -315,16 +344,34 @@ function calcScores() {
 }
 
 function getOverallStatus(total) {
-  if (total <= 45) return { level: '心理状态稳定', class: 'stable', color: '#059669', desc: '你当前的心理状态整体稳定，各项指标均在正常范围内。这表明你在近期的生活中能够较好地应对日常压力，情绪调节能力良好。继续保持健康的生活方式，维持规律的作息、适当的运动和社交活动，这将有助于你持续保持良好的心理状态。' };
-  if (total <= 90) return { level: '需要关注', class: 'attention', color: '#d97706', desc: '你当前的心理状态显示出一些需要关注的信号。虽然整体处于可控范围，但某些方面可能正在经历压力或困扰。建议你关注那些得分较高的维度，分析可能的压力来源，并采取积极的自我调节措施。如果这些症状持续存在或加重，建议寻求专业帮助。' };
-  return { level: '建议寻求帮助', class: 'risk', color: '#dc2626', desc: '你当前的心理状态显示出较明显的困扰信号，多个维度的得分偏高。这可能意味着你正在经历较大的心理压力或情绪困扰。我们强烈建议你认真对待这些信号，及时寻求专业心理咨询师或医生的帮助。请记住，寻求帮助是勇敢和明智的选择，专业人士可以提供有效的支持和指导。' };
+  if (total <= 45) return {
+    level: '内心天气：晴',
+    class: 'stable',
+    color: '#059669',
+    desc: '从你的回答来看，最近一周你的心理状态整体是平稳的——像一片风平浪静的水面，偶尔有涟漪，但很快就恢复了。这说明你当前的内在资源是充足的，你正在用一种相对健康的方式和自己、和生活相处。',
+    philosophy: '荣格说过：「人不是通过想象光明来获得觉悟，而是通过意识到黑暗。」你现在的平稳，并不意味着没有暗流——而是你有能力与它们共处。'
+  };
+  if (total <= 90) return {
+    level: '内心天气：多云',
+    class: 'attention',
+    color: '#d97706',
+    desc: '你的内心最近像是一片多云的天空——不是暴风雨，但也不是万里无云。某些维度的信号比较活跃，这说明你的心灵正在用自己的方式告诉你：有些东西需要被看见。这不是坏事，恰恰说明你的感知力是敏锐的。',
+    philosophy: '叔本华认为：「痛苦不是意外，而是意志的本质表达。」你感受到的这些不适，是你内在智慧发出的信号——它在提醒你做出调整。'
+  };
+  return {
+    level: '内心天气：风雨中',
+    class: 'risk',
+    color: '#7c3aed',
+    desc: '你最近正在经历一段不容易的时光。多个维度的信号都在提醒你：现在的你需要被好好照顾。这不是软弱，也不是失败——每个人都会经历内心的风暴期。最重要的是，你愿意来做这个评估，这本身就是一种勇气和自我关怀。',
+    philosophy: '佛学中说「苦」是生命的第一真相，不是要让我们绝望，而是让我们正视。弗洛伊德说焦虑是一种信号——你的心灵在大声呼喊：「请帮帮我。」请听见它。'
+  };
 }
 
 function getDimLevel(score) {
-  if (score <= 5) return { level: '良好', class: 'level-high', color: '#059669' };
-  if (score <= 10) return { level: '需留意', class: 'level-medium', color: '#d97706' };
-  if (score <= 15) return { level: '需关注', class: 'level-medium', color: '#f97316' };
-  return { level: '需重视', class: 'level-low', color: '#dc2626' };
+  if (score <= 5) return { level: '平静', class: 'level-high', color: '#059669' };
+  if (score <= 10) return { level: '微澜', class: 'level-medium', color: '#d97706' };
+  if (score <= 15) return { level: '涌动', class: 'level-medium', color: '#f97316' };
+  return { level: '风浪', class: 'level-low', color: '#7c3aed' };
 }
 
 // 获取维度的具体实施方法和警惕的心理疾病
@@ -332,125 +379,121 @@ function getDimWarningInfo(dim, score) {
   const warningInfo = {
     som: {
       methods: [
-        '每天进行15-20分钟的渐进式肌肉放松练习，从脚到头逐步放松每个肌肉群',
-        '建立"身体扫描"习惯，每天花5分钟专注感受身体各部位，区分正常感觉和压力反应',
-        '保持规律运动，每周至少3次有氧运动（如快走、游泳），帮助身体释放紧张',
-        '学习腹式呼吸法：吸气4秒、屏气4秒、呼气6秒，每天练习10分钟'
+        '每天花15分钟做一次「身体对话」：从脚尖到头顶，逐步感受每个部位，不去评判它，只是倾听——就像你倾听一位老朋友的诉说',
+        '建立「身体日记」的习惯：记录身体信号出现的时刻和情境，慢慢你会发现身体在替你的情绪说话',
+        '每周给身体三次「感谢时间」：30分钟的运动，不是为了减肥或打卡，而是为了让身体知道你在乎它',
+        '学习腹式呼吸（吸气4秒、屏气4秒、呼气6秒）：这是你和身体之间最简单的和解仪式'
       ],
       diseases: [
-        { name: '躯体化障碍', desc: '长期出现多种无法用医学解释的身体症状，如慢性疼痛、疲劳、头晕等' },
-        { name: '疑病症', desc: '过度担心自己患有严重疾病，反复检查身体，即使医学检查正常也难以放心' },
-        { name: '转换障碍', desc: '心理冲突转化为身体症状，如突发性失明、瘫痪等，但无器质性病变' }
+        { name: '躯体化障碍', desc: '身体反复发出疼痛、疲劳等信号，但医学检查找不到器质性原因——身体在替心灵承担它说不出口的东西' },
+        { name: '疑病倾向', desc: '总觉得身体哪里不对，反复检查也无法安心——本质上是安全感的缺失在身体层面的投射' },
+        { name: '转换障碍', desc: '内心冲突以身体症状的形式表达出来——身体成了情绪的翻译器' }
       ]
     },
     obs: {
       methods: [
-        '练习"延迟检查"：有检查冲动时，先等待5分钟再决定是否检查，逐步延长等待时间',
-        '建立"一次足够"原则：做完一件事后告诉自己"已经检查过了，一次就够了"',
-        '记录强迫思维日记：写下触发想法、情绪反应和实际结果，帮助识别不合理认知',
-        '学习接纳不确定性：练习对"可能出错"的情况说"那就算了"，培养对不完美的容忍'
+        '练习「让它飘走」：强迫念头出现时，想象它是天空中飘过的一朵云，你看见它了，但不需要抓住它',
+        '给自己设定「一次就够了」的实验：检查一次后，记录下焦虑值（1-10分），15分钟后再记录一次——你会发现焦虑自己会消退',
+        '写一封信给你的「完美主义者内在小人」：告诉它，你理解它在保护你，但你可以承受不完美',
+        '学习拥抱不确定性的小练习：每天故意留一件事「不检查」，感受那个不舒服，然后看看——世界并没有崩塌'
       ],
       diseases: [
-        { name: '强迫症(OCD)', desc: '反复出现无法控制的想法（强迫思维）或重复行为（强迫行为），明知不合理但无法停止' },
-        { name: '囤积障碍', desc: '难以丢弃物品，导致居住空间堆满杂物，影响正常生活功能' },
-        { name: '拔毛癖', desc: '反复拔自己的头发或体毛，导致明显脱发，伴随紧张和拔后的满足感' }
+        { name: '强迫症(OCD)', desc: '思维像一个停不下来的旋转木马——你明知道可以下来，但身体就是不听指挥' },
+        { name: '囤积倾向', desc: '每样东西都舍不得丢掉，因为扔东西的那一刻，像是在丢掉一部分自己' },
+        { name: '完美主义焦虑', desc: '对每个细节都反复打磨，不是因为热爱，而是因为害怕——害怕一旦不完美就不被接受' }
       ]
     },
     int: {
       methods: [
-        '练习自我肯定：每天写下3件自己做得好的事情，无论大小',
-        '挑战负面自我评价：当出现"我不如别人"的想法时，列出反驳证据',
-        '从小的社交互动开始：先与熟悉的人练习表达想法，逐步扩大社交圈',
-        '学习assertive沟通：用"我感觉...当...我希望..."的句式表达需求，不卑不亢'
+        '每天给自己写三条「我做到了」的便签——不需要多了不起，哪怕只是「今天按时吃了早饭」',
+        '练习「旁观者视角」：当你开始跟别人比较的时候，想象自己是一个慈祥的老人在看着年轻时的自己，你会怎么说？',
+        '从「安全的人」开始练习真实表达：选一个你最信任的人，告诉他一件你平时不敢说的小事',
+        '学会区分「我觉得别人觉得」和「别人真的觉得」——大多数时候，那个严厉的评判者不是别人，是你自己'
       ],
       diseases: [
-        { name: '社交焦虑障碍', desc: '在社交场合中感到强烈恐惧和焦虑，担心被他人负面评价，导致回避社交' },
-        { name: '回避型人格障碍', desc: '极度敏感于他人的批评和拒绝，因害怕被嘲笑而回避人际交往和新活动' },
-        { name: '自卑情结', desc: '持续性地低估自己的能力和价值，总觉得自己不够好，影响生活各方面' }
+        { name: '社交焦虑', desc: '每一次社交都像一场考试——你在人群中不断给自己打分，而且总是不及格' },
+        { name: '回避型依恋模式', desc: '想要靠近，又害怕靠近——因为过去的经验让你相信：靠近就意味着受伤' },
+        { name: '自我价值感低落', desc: '像戴着一副灰色滤镜看自己——明明别人都看到了你的光，你却只看到自己的影子' }
       ]
     },
     dep: {
       methods: [
-        '建立"行为激活"计划：每天安排至少一项愉快活动，即使不想做也坚持完成',
-        '保持规律作息：固定时间起床和睡觉，白天多接触自然光',
-        '每天进行至少30分钟的有氧运动，运动能促进大脑分泌"快乐激素"',
-        '与信任的人保持联系，每周至少与朋友或家人进行一次深入交流',
-        '如症状持续超过两周，请务必寻求专业心理或精神科帮助'
+        '建立一个「最小行动」清单：不要求自己「振作起来」，只需要做到最小的事——起床、洗脸、喝一杯温水。每一个小行动都是对黑暗的轻轻反抗',
+        '让阳光成为你的药：每天至少在自然光下待15分钟，哪怕只是坐在窗边。光线是大脑的天然调节器',
+        '运动不是为了「变好」，而是为了让身体告诉大脑「我还活着，我还在动」——每天走路30分钟就足够了',
+        '不要逼自己独自扛着。找一个你信任的人，哪怕只是说「我最近不太好」——你不需要解释原因，也不需要对方给出答案',
+        '如果这种灰蒙蒙的感觉已经持续超过两周，请一定去看看专业的人。这不是软弱，这是你对自己最大的善意'
       ],
       diseases: [
-        { name: '重度抑郁症', desc: '持续两周以上的情绪低落、兴趣丧失，伴随睡眠、食欲变化，严重时有自杀想法' },
-        { name: '持续性抑郁障碍', desc: '慢性低落情绪持续至少两年，症状较轻但持久，严重影响生活质量' },
-        { name: '季节性情感障碍', desc: '在特定季节（通常是秋冬）出现抑郁症状，春夏季节缓解' }
+        { name: '抑郁症', desc: '像是生活的色彩被慢慢拧暗了——不是突然关灯，而是渐渐失去亮度，直到你习惯了灰色' },
+        { name: '持续性情绪低落', desc: '不是暴风雨般的痛苦，而是一种绵绵细雨——没有剧烈的崩溃，但永远晴不了' },
+        { name: '季节性情绪变化', desc: '某些季节像是心灵的冬天——万物沉寂，但请记住，冬天之后一定有春天' }
       ]
     },
     anx: {
       methods: [
-        '学习4-7-8呼吸法：吸气4秒、屏气7秒、呼气8秒，激活副交感神经',
-        '练习正念冥想：每天10-15分钟，专注于当下感受，不评判地观察想法来去',
-        '建立"担忧时间"：每天固定15分钟专门用来担心，其他时间出现担忧就推迟到这个时段',
-        '限制咖啡因和酒精摄入，它们会加重焦虑症状',
-        '练习渐进式暴露：从最小的焦虑情境开始，逐步面对和适应'
+        '学一个随时可用的「急救呼吸」：吸气4秒、屏气7秒、呼气8秒——这是在告诉你的身体「现在是安全的」',
+        '每天给自己10分钟的「什么都不用做」时间：不看手机，不思考，只是坐着。焦虑的反面不是放松，是允许',
+        '设立一个「担忧小时」：每天固定15分钟专门用来担心，其余时间担忧出现了就温柔地说「不是现在，等到担忧时间再说」',
+        '减少咖啡和酒精——它们是焦虑的扩音器，会把小声的担忧变成大声的恐慌',
+        '列一个「我担心的事和最后实际发生的事」对照表——你会发现，90%的恐惧从未成真'
       ],
       diseases: [
-        { name: '广泛性焦虑障碍', desc: '对多种事情持续过度担忧至少6个月，伴随紧张、易疲劳、难以集中注意力' },
-        { name: '惊恐障碍', desc: '反复出现突发性强烈恐惧发作，伴随心悸、出汗、窒息感，担心再次发作' },
-        { name: '分离焦虑障碍', desc: '与依恋对象分离时出现过度焦虑和痛苦，常见于儿童但也可能持续到成年' }
+        { name: '广泛性焦虑', desc: '像一台永远不关机的警报器——不是因为真的有危险，而是它的设定值太低了' },
+        { name: '惊恐发作', desc: '突如其来的恐惧洪流——心脏狂跳、窒息感、好像世界要塌了。但请记住：它会过去的，每一次都会过去' },
+        { name: '预期性焦虑', desc: '还没出发就开始害怕路上的颠簸——大部分痛苦不在事件本身，而在对事件的想象中' }
       ]
     },
     hos: {
       methods: [
-        '学习识别愤怒预警信号：注意身体紧张、心跳加速等信号，在爆发前采取行动',
-        '使用"暂停技术"：感到愤怒时，先离开现场，做10次深呼吸，等情绪平复再处理问题',
-        '练习用"我"开头的陈述句表达感受，而不是指责对方',
-        '找到健康的情绪宣泄方式：运动、写日记、打枕头等',
-        '探索愤怒背后的需求：愤怒常常是受伤、恐惧或无助的面具'
+        '学习做自己愤怒的「翻译官」：每次发火前问自己，愤怒下面藏着的是什么？受伤？恐惧？无力感？——愤怒常常是更脆弱情绪的盔甲',
+        '建立一个「暂停按钮」习惯：感觉要爆发时，先离开现场，做10次深呼吸。不是压抑，是给自己选择如何表达的时间',
+        '找到身体的「安全出口」：跑步、游泳、打拳击、大声唱歌——让情绪通过身体流出去，而不是通过话语伤害别人',
+        '每天花5分钟回顾「我今天什么时候忍住了」——不是表扬克制，而是看见自己正在成长'
       ],
       diseases: [
-        { name: '间歇性爆发障碍', desc: '反复出现无法控制的攻击性爆发，与触发事件严重程度不成比例' },
-        { name: '对立违抗性障碍', desc: '持续性的愤怒情绪、争辩行为和对权威的反抗，常见于儿童青少年' },
-        { name: '边缘型人格障碍', desc: '情绪不稳定、人际关系紧张、易怒，伴随自我伤害行为和空虚感' }
+        { name: '间歇性情绪爆发', desc: '像一座活火山——平时看着平静，但喷发时连自己都害怕那个失控的力量' },
+        { name: '慢性易激惹状态', desc: '像一根一直绷着的弦——不是你脾气不好，是你太累了，已经没有余量去缓冲了' },
+        { name: '情绪调节困难', desc: '情绪像没有刹车的过山车——不是你不想控制，是调节系统暂时超载了' }
       ]
     },
     pho: {
       methods: [
-        '学习系统脱敏法：建立恐惧等级表，从最轻的恐惧开始逐步暴露',
-        '在安全环境下想象恐惧场景，同时练习放松技巧，打破恐惧与紧张的联结',
-        '制定"面对恐惧"的小目标：每天做一件让你轻微不适的事情',
-        '记录恐惧发作前后的想法，识别不合理的灾难化思维',
-        '与支持者一起进行暴露练习，有人陪伴会更有安全感'
+        '画一个「恐惧阶梯」：把让你害怕的事情从轻到重排列，每周从最轻的那一级开始踩，慢慢往上爬。不需要勇敢，只需要温柔地坚持',
+        '在安全的环境下做「想象彩排」：闭上眼想象恐惧场景，同时做深呼吸——告诉大脑「这只是想象，我是安全的」',
+        '每天做一件「微小的不舒服」的事：走一条不同的路、吃一家新的餐厅——慢慢拓宽你的舒适区',
+        '找一个「陪伴者」一起练习面对恐惧——有人在身边时，你会发现那些「怪兽」比你以为的小得多'
       ],
       diseases: [
-        { name: '特定恐惧症', desc: '对特定对象或情境（如动物、高处、打针）产生过度恐惧和回避' },
-        { name: '广场恐惧症', desc: '害怕在难以逃脱或无法获得帮助的环境中出现惊恐症状，导致回避外出' },
-        { name: '社交恐惧症', desc: '对社交场合产生强烈恐惧，害怕被他人审视或评判' }
+        { name: '特定恐惧症', desc: '理性告诉你没什么好怕的，但身体就是不听——这不是你的错，是大脑的警报系统在过度保护你' },
+        { name: '广场恐惧', desc: '害怕的不是空间本身，而是「如果在这里出事了我逃不掉」的感觉——本质上是对安全感的渴望' },
+        { name: '社交恐惧', desc: '别人眼中的「内向」或「害羞」，其实是你内心正在经历的一场看不见的风暴' }
       ]
     },
     par: {
       methods: [
-        '练习"证据检验"：当出现怀疑想法时，列出支持和反对的证据，做出更平衡的判断',
-        '学习从多角度解读他人行为，而不是默认负面意图',
-        '建立信任的小步骤：选择一个相对安全的人，尝试分享一件小事',
-        '记录"被针对"的想法和实际结果，检验预期与现实的差距',
-        '练习给他人"善意解读"：假设对方有合理的理由，而不是恶意'
+        '练习「多版本故事」：当你觉得别人在针对你时，试着写出三个不同的可能原因——你会发现恶意只是其中一种，而且通常不是最可能的那个',
+        '找一个你稍微信任的人，做一个小实验：分享一件不太重要的事，看看对方的反应——信任像肌肉，需要一点点锻炼',
+        '记录一个「预期 vs 现实」日记：写下你担心的事，一周后回来看——大部分「被针对」的感觉会被现实温柔地否定',
+        '练习「善意假设」：给别人的行为默认一个善意的解释——不是天真，而是给自己的心灵松绑'
       ],
       diseases: [
-        { name: '偏执型人格障碍', desc: '对他人持续不信任和猜疑，总觉得别人有恶意，导致人际关系困难' },
-        { name: '妄想障碍', desc: '持续存在一个或多个不合理的信念（如被跟踪、被迫害），无法被证据说服' },
-        { name: '精神分裂症偏执型', desc: '以被害妄想或关系妄想为主，可能伴随幻觉，需要专业治疗' }
+        { name: '偏执型思维模式', desc: '像一直戴着一副「寻找敌人」的眼镜——不是世界真的这么危险，而是你曾经被伤害过，所以时刻保持警惕' },
+        { name: '信任障碍', desc: '把城墙建得很高来保护自己——但最后发现，墙也把温暖挡在了外面' },
+        { name: '关系妄想倾向', desc: '总觉得无关的事情都和自己有关——大脑在过度寻找联系和模式，是一种疲惫的自我保护' }
       ]
     },
     psy: {
       methods: [
-        '建立稳定的日常routine：规律的作息和活动可以增强现实感',
-        '增加与他人的真实连接：面对面交流比线上交流更能增强存在感',
-        '练习"五感锚定"：当感到不真实时，找5个能看到的、4个能听到的、3个能触摸的...',
-        '减少独处时间，参与群体活动和社交',
-        '如果经常感到与现实脱节，请及时寻求专业帮助'
+        '建立稳定的「锚点」仪式：每天在固定时间做固定的事——泡茶、散步、浇花——这些小仪式是你与现实之间的绳索',
+        '多创造「身体在场」的时刻：和人面对面说话、做手工、做饭——让触觉、嗅觉、味觉帮你回到「此刻」',
+        '当感觉不真实的时候，试试「五感锚定法」：找5个能看到的、4个能听到的、3个能触摸的、2个能闻到的、1个能尝到的——你在这里，这是真的',
+        '如果「不真实感」经常出现，请温柔但坚定地告诉自己：这是大脑的保护机制，但我现在需要回来了——然后去找专业的人聊聊'
       ],
       diseases: [
-        { name: '解离障碍', desc: '与自己的想法、感受、身份或记忆产生分离感，感觉不像自己或世界不真实' },
-        { name: '人格解体障碍', desc: '持续感觉自己是自身想法和身体的旁观者，像在做梦或看电影' },
-        { name: '精神分裂症', desc: '思维、情感和行为的严重障碍，可能包括幻觉、妄想和思维紊乱' }
+        { name: '解离体验', desc: '像灵魂暂时离开了身体——大脑在说「这里太痛了，我先帮你走开一会儿」' },
+        { name: '人格解体感', desc: '看着镜子里的自己像看一个陌生人——不是你「疯了」，是你的心灵启动了一种保护模式' },
+        { name: '现实解体感', desc: '世界看起来像一场梦——这是大脑在面对过载时拉上的一层帘子，为了让你不那么痛' }
       ]
     }
   };
@@ -466,58 +509,58 @@ function getDimWarningInfo(dim, score) {
 function getDimAnalysis(dim, score) {
   const analyses = {
     som: {
-      normal: '你的躯体化水平正常，身体与心理的协调性良好。你能够区分身体的正常感受和压力反应，不会过度关注身体症状。继续保持健康的生活方式和适度运动。',
-      mild: '你出现了一些轻度的躯体化症状，如偶尔的头痛、疲劳或肌肉紧张。这可能是近期压力的身体反应。建议关注压力来源，适当放松，保证充足睡眠。',
-      moderate: '你的躯体化症状较为明显，身体不适可能影响到日常生活。建议先排除器质性疾病，同时学习压力管理技巧，如深呼吸、渐进式肌肉放松等。',
-      high: '你的躯体化水平较高，身体症状明显且频繁。这可能是长期压力或情绪问题的躯体表现。建议及时就医检查，同时考虑寻求心理咨询帮助。'
+      normal: '你的身体和心灵之间的对话是顺畅的。身体没有发出太多求助信号，说明你当前的内在压力在可控范围内。继续倾听身体的声音，它是你最忠实的朋友。',
+      mild: '你的身体最近偶尔会「嘀咕」一些事情——一点头部的紧绷、一些莫名的疲倦。这通常是身体在替你消化那些你还没有意识到的压力。试着在忙碌中给自己几分钟的安静，让身体知道你听到了它。',
+      moderate: '你的身体正在频繁地发出信号——它想告诉你一些重要的事情。这些不舒适不是无缘无故的，它们是你内心世界的回声。建议先做个体检排除身体原因，同时开始关注压力管理，学习和身体做朋友。',
+      high: '你的身体正在用很大的声量说话——它在呼喊「请注意我」。这些密集的身体信号说明你的心灵承载了太多还没有被处理的东西。请认真对待这些信号：先就医检查，同时考虑找一位心理咨询师，帮你听懂身体的语言。'
     },
     obs: {
-      normal: '你的强迫症状水平正常，思维和行为都很灵活。你能够做出决定并接受不完美，不会被重复性的想法或行为所困扰。',
-      mild: '你出现了一些轻度的强迫倾向，如偶尔反复检查或难以决定。这在压力下是常见的，不必过于担心。尝试接纳不确定性，减少不必要的检查行为。',
-      moderate: '你的强迫症状较为明显，可能经常被某些想法困扰或需要反复确认事情。建议学习接纳不完美，逐步减少强迫行为，必要时可寻求专业帮助。',
-      high: '你的强迫症状水平较高，这可能严重影响日常生活效率和情绪状态。强烈建议寻求专业心理帮助，认知行为疗法对强迫症状有良好效果。'
+      normal: '你的思维是灵活自由的，不会被某个念头绑架。你能做出决定然后往前走，接受「差不多就好」的弹性。这种心理弹性是非常宝贵的内在资源。',
+      mild: '最近你的脑子里偶尔会出现一些「卡壳」的时刻——反复确认、难以决断、对小失误耿耿于怀。在压力下这很正常，它说明你是一个认真的人。试着允许自己有一点「不完美」，世界不会因此崩塌。',
+      moderate: '你的思维最近像是陷入了旋涡——某些念头反复出现，某些行为不得不重复。这不是你的「毛病」，而是大脑在面对不确定性时启动了过度保护模式。可以试着学习「接纳不确定性」的练习，必要时寻求专业支持。',
+      high: '你正在经历思维层面的「高负荷运转」——大脑像一台停不下来的机器。这一定让你非常疲惫。请知道：这是可以被帮助的。认知行为疗法对这类困扰有非常好的效果，找一位专业的咨询师会让你轻松很多。'
     },
     int: {
-      normal: '你的人际敏感度正常，能够舒适地与他人相处。你有健康的自我评价，不会过度在意他人的看法，人际关系和谐。',
-      mild: '你出现了一些轻度的人际敏感，可能偶尔会在意别人的评价或感到不自在。这是正常的，尝试建立更积极的自我认知，关注自己的优点。',
-      moderate: '你的人际敏感度较高，可能经常担心别人的看法或感到自卑。建议培养自我接纳，学习assertive沟通技巧，逐步建立自信。',
-      high: '你的人际敏感水平较高，这可能严重影响社交和自我评价。建议寻求心理咨询，探索人际敏感的根源，建立更健康的自我概念和人际模式。'
+      normal: '你在人际关系中是相对自在的，能够做自己而不过度揣测他人的看法。你有健康的自我边界，这让你在社交中既能靠近也能保持独立。',
+      mild: '你最近在人际中偶尔会多想一些——别人的一个眼神、一句话，可能会在你心里转好几圈。这说明你是一个敏感细腻的人。适度的敏感是礼物，但当它开始消耗你的时候，试着把注意力从「别人怎么看我」转向「我怎么看我自己」。',
+      moderate: '你的「人际雷达」最近灵敏度很高——你在不断扫描周围人的态度和评价，这一定让你很累。这种敏感通常来自过去的经历——也许你曾经在某段关系里不被接纳。学着把一些评判的权力还给自己：你的价值不需要别人来定义。',
+      high: '你在人际中正在经历很大的不安——觉得不被理解、不被接纳、不如别人。这些感受都是真实的，但它们未必反映真实的情况。你值得被好好看见和理解，而一位专业的咨询师可以帮你找到这种「看见自己」的方式。'
     },
     dep: {
-      normal: '你的情绪状态良好，能够感受生活中的快乐和意义。即使遇到困难，你也能保持相对积极的心态。继续保持与他人的连接和有意义的活动。',
-      mild: '你出现了一些轻度的抑郁情绪，如偶尔感到低落或对事物兴趣下降。这可能是暂时的反应，保持规律作息、适度运动和社交活动会有帮助。',
-      moderate: '你的抑郁症状较为明显，情绪低落和兴趣减退可能持续存在。建议积极寻求支持，与信任的人交流，考虑专业心理咨询。',
-      high: '你的抑郁水平较高，这是需要认真对待的信号。请务必寻求专业帮助，与心理咨询师或精神科医生交流。记住，抑郁是可以治疗的，寻求帮助是正确的选择。'
+      normal: '你的情绪色温是温暖的——生活中依然有让你感到快乐、感动和期待的事物。即使遇到不顺，你也能在低谷之后重新找到动力。好好珍惜这种与生活的连接。',
+      mild: '最近你的情绪调色板里多了一些灰色——快乐来得慢了一点，感动少了一些。这可能是暂时的，也可能是你的心灵在提醒你：有些东西需要被照顾了。保持规律的作息和运动，让自己每天至少做一件「有点期待」的事。',
+      moderate: '你的情绪最近像是被蒙了一层薄雾——事物失去了颜色，动力变得稀薄。这种感觉可能已经持续一段时间了。请温柔地对待自己，不要逼自己「振作起来」。和一个你信任的人聊聊，如果可以，去找专业的人谈谈。你不需要一个人扛着。',
+      high: '你正在经历一段很深的低谷——颜色消失了、意义变淡了、连「明天会好的」都说不出口了。请听我说：这不是你的错。抑郁不是软弱，它是心灵的一种疾病，和感冒发烧一样需要治疗。请务必寻求专业帮助。你值得被拉一把。'
     },
     anx: {
-      normal: '你的焦虑水平正常，能够较好地应对日常压力和不确定性。你不会过度担心未来的事情，能够活在当下。',
-      mild: '你出现了一些轻度焦虑，如偶尔感到紧张或担心。这在面对压力时是正常的。学习一些放松技巧，如深呼吸或正念冥想，会有帮助。',
-      moderate: '你的焦虑症状较为明显，可能经常感到紧张不安或难以放松。建议识别焦虑触发因素，学习系统的放松方法，考虑寻求专业指导。',
-      high: '你的焦虑水平较高，这可能严重影响生活质量。建议尽快寻求专业帮助，认知行为疗法对焦虑有很好的效果。同时确保基本的自我照顾。'
+      normal: '你的内在天气是平稳的——你能够面对不确定性而不被淹没，能在压力下保持一定的从容。这种心理韧性会帮助你应对生活中的各种挑战。',
+      mild: '最近你的内在天气有一些不稳定——时不时飘过一些担忧的云。这在快节奏的生活中是很常见的。学一些简单的呼吸练习，每天给自己几分钟纯粹的放松时间，让身体知道「此刻是安全的」。',
+      moderate: '你的内在天气最近比较动荡——紧张感和不安感频繁造访，身体很难真正放松下来。焦虑本质上是对未来的过度预警，你的大脑在试图保护你，但它用力过猛了。试着学习正念冥想和系统放松，如果焦虑持续干扰生活，请寻求专业帮助。',
+      high: '你正在经历强烈的焦虑风暴——身体紧绷、思绪纷飞、好像随时有什么灾难要降临。弗洛伊德说焦虑是一种信号功能——你的心灵在呼喊「我需要帮助」。请认真对待这个呼喊。专业的焦虑治疗（尤其是认知行为疗法）效果非常好，你不必独自承受。'
     },
     hos: {
-      normal: '你的情绪控制良好，能够适当表达和管理愤怒情绪。你不会轻易被激怒，能够以建设性的方式处理冲突。',
-      mild: '你出现了一些轻度的敌对情绪，如偶尔感到烦躁或容易发脾气。这可能与近期压力有关。学习情绪识别和表达技巧会有帮助。',
-      moderate: '你的敌对情绪较为明显，可能经常感到愤怒或与人冲突。建议探索愤怒背后的需求，学习愤怒管理技巧，必要时寻求专业帮助。',
-      high: '你的敌对情绪水平较高，这可能影响人际关系和生活质量。强烈建议寻求专业帮助，学习健康的情绪调节方式。如有伤害自己或他人的冲动，请立即寻求帮助。'
+      normal: '你的情绪火焰控制得很好——能感受到愤怒但不被它绑架，能表达不满而不伤害他人。这说明你有成熟的情绪调节能力。',
+      mild: '最近你的火焰比平时旺了一些——更容易烦躁，忍耐力也下降了。这通常是压力累积的信号。愤怒下面常常藏着疲惫、委屈或者无力感。试着在发火之前问自己：「我真正想说的是什么？」',
+      moderate: '你的内在火焰最近很活跃——愤怒频繁地造访，有时甚至让你自己都吃惊。荣格说「你意识不到的东西会变成你的命运」——不被看见的愤怒会找到自己的出口。试着去了解这份愤怒背后的真正需要，必要时找人聊聊。',
+      high: '你正在经历很强烈的内在燃烧——愤怒几乎成了日常的底色。这一定很痛苦，不仅伤害身边的人，也在伤害你自己。愤怒是人类最原始的情绪之一，它不可耻，但需要被理解和疏导。请考虑寻求专业帮助，学习更健康的表达方式。'
     },
     pho: {
-      normal: '你的恐惧水平正常，能够面对日常生活中的各种情境。你不会被不合理的恐惧所限制，生活自由度较高。',
-      mild: '你出现了一些轻度恐惧，可能对某些情境感到不适。这是相对常见的，逐步暴露和放松练习可以帮助减轻恐惧。',
-      moderate: '你的恐惧症状较为明显，可能回避某些场所或情境。建议学习系统脱敏技术，逐步面对恐惧，必要时寻求专业指导。',
-      high: '你的恐惧水平较高，这可能严重限制日常活动。建议寻求专业心理帮助，暴露疗法对恐惧症有良好效果。不要让恐惧控制你的生活。'
+      normal: '你面对世界的姿态是开放的——不会被不合理的恐惧所限制，能够自由地去你想去的地方、做你想做的事。这种心理自由度是非常珍贵的。',
+      mild: '最近你的「安全系统」偶尔会过度响起——某些场景让你有些不舒服，想要回避。轻度的恐惧是人类的生存本能，但当它开始限制你的活动范围时，可以试着温柔地去面对它，一点一点拓宽边界。',
+      moderate: '你的内在警报系统最近比较敏感——某些场所或情境让你感到明显的恐惧和回避。这不是胆小，而是你的大脑在过度保护你。系统脱敏和暴露疗法对恐惧有非常好的效果，一位好的咨询师可以陪你一步步走过这段路。',
+      high: '恐惧正在明显地限制你的生活——有些地方你不敢去，有些事你不敢做。请知道：这不是你的性格缺陷。恐惧是大脑学来的反应，也可以被「解学」。专业的心理帮助可以让你重新获得自由。请勇敢地迈出这一步——找到帮助本身就是对恐惧最好的回应。'
     },
     par: {
-      normal: '你的信任感正常，能够与他人建立健康的关系。你不会过度怀疑他人的动机，人际交往轻松自在。',
-      mild: '你出现了一些轻度的偏执倾向，可能偶尔会怀疑他人的意图。这可能与过去的经历有关。尝试培养更开放的心态，给予他人信任的机会。',
-      moderate: '你的偏执症状较为明显，可能经常感到被针对或不信任他人。建议反思这些想法的合理性，尝试从不同角度看问题，考虑寻求专业帮助。',
-      high: '你的偏执水平较高，这可能严重影响人际关系和生活质量。建议尽快寻求专业心理帮助，探索偏执背后的原因，建立更健康的认知模式。'
+      normal: '你的信任罗盘校准得很好——既不天真也不多疑，能够根据实际情况判断谁值得信任。这让你的人际关系既安全又温暖。',
+      mild: '最近你的信任罗盘偶尔会偏转——会多想一些别人的动机，会觉得某些话里有话。一定程度的警觉是正常的自我保护。试着在怀疑出现时，多给自己和别人一些空间去验证。',
+      moderate: '你的信任系统最近进入了「高警戒」模式——经常觉得被针对、被议论、不被善待。这种感觉一定让你很孤独。这种警觉通常来自过去被伤害的经历——你的心灵记住了疼痛，于是提前竖起了刺。找人谈谈可能会有帮助。',
+      high: '你正在经历很深的信任危机——周围的世界看起来充满了敌意和阴谋。这一定非常孤独和疲惫。请知道：这些感受是真实的，但它们可能被放大了。你值得被帮助，一位好的咨询师可以帮你重新校准信任的罗盘，让你不必独自对抗整个世界。'
     },
     psy: {
-      normal: '你的现实感稳定，能够清晰地感知自己和周围环境。你与他人保持良好的连接，不会感到疏离或不真实。',
-      mild: '你出现了一些轻度的现实感变化，可能偶尔感到孤独或与他人疏远。这在压力下是可能发生的，增加社交活动和自我关怀会有帮助。',
-      moderate: '你的现实感稳定性有所下降，可能经常感到孤独或与现实脱节。建议增强与他人的连接，建立支持系统，考虑寻求专业帮助。',
-      high: '你的现实感稳定性较低，这是需要认真对待的信号。请尽快寻求专业心理或精神科帮助，确保你得到适当的支持和治疗。'
+      normal: '你的现实锚点是稳固的——你清楚地知道自己是谁、在哪里、身边的一切都是真实的。你与世界之间的连接是牢固而清晰的。',
+      mild: '最近你的现实锚点偶尔会晃动——有时感到孤独，有时觉得和世界之间有一层薄薄的距离。这在疲惫或压力大的时候可能会出现。多创造一些「在场」的时刻：和朋友面对面聊天、用手触摸真实的东西、走进自然。',
+      moderate: '你的现实感最近不太稳定——空虚感、疏离感、不真实感时不时出现。这可能让你感到困惑甚至害怕。这些体验是大脑的一种保护机制——当现实太沉重时，它会帮你「飘远」一点。但你需要找到回来的路，专业的帮助可以成为你的灯塔。',
+      high: '你正在经历比较强烈的现实感波动——觉得自己不真实、世界不真实、像在梦里。这一定让你非常不安。请一定要寻求专业帮助。这些体验是可以被治疗和改善的，你不必永远飘在这片迷雾里。你是真实的，你的感受也是真实的。'
     }
   };
 
@@ -528,6 +571,47 @@ function getDimAnalysis(dim, score) {
   return dimAnalysis.high;
 }
 
+function getDimMetaphor(dim) {
+  const metaphors = {
+    som: '身体是心灵的日记本——它忠实地记录了你不曾说出口的一切',
+    obs: '思维的旋涡不是你的敌人，它是一颗太想把事情做好的心',
+    int: '荣格说：「与其做一个好人，我宁愿做一个完整的人」',
+    dep: '叔本华说：「生命是一团欲望，欲望不满足便痛苦，满足便无聊」——但他忘了说，在痛苦与无聊之间，还有温柔',
+    anx: '弗洛伊德说焦虑是一种信号——你的心灵在用它独特的方式保护你',
+    hos: '愤怒是受伤的回声——它不可耻，它只是在说「这里痛」',
+    pho: '恐惧是生命最古老的保镖——有时候它只是太尽职了',
+    par: '「不信任」是一种学来的自我保护——你不是多疑，你只是曾经被伤害过',
+    psy: '佛学说一切如梦如幻——但此刻你正在阅读这段话，这就是最真实的存在'
+  };
+  return metaphors[dim] || '';
+}
+
+function getPhilosophySection(scores) {
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  const topDims = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 2);
+
+  let text = '';
+  let quote = '';
+  let author = '';
+
+  if (total <= 45) {
+    text = '从哲学的角度看，你当前的状态接近于佛学中所说的「正念」——不是没有烦恼，而是能与烦恼共处而不被淹没。斯多亚学派的哲学家爱比克泰德说过：真正的自由不是控制外在世界，而是掌握自己内在的反应。你正在做到这一点。';
+    quote = '「宁静不是大海中没有风浪，而是心中有一个不为风浪所动的地方。」';
+    author = '—— 改编自斯多亚哲学';
+  } else if (total <= 90) {
+    const dimNames = topDims.map(([d]) => dimInfo[d].name).join('和');
+    text = `你的「${dimNames}」维度信号比较活跃。从心理哲学的视角看，这些不适不是毫无意义的——荣格相信，每一种心理症状都是灵魂试图自我疗愈的尝试。你内心的不安可能正在推动你走向一个更深层的自我理解。`;
+    quote = '「人最大的发现之一，就是意识到自己可以通过改变内在态度来改变外在生活。」';
+    author = '—— 威廉·詹姆斯（心理学之父）';
+  } else {
+    text = '你正在经历的，许多伟大的思想者也曾经历过。叔本华在深重的忧郁中写出了对意志的深刻洞察，荣格在精神崩溃的边缘完成了《红书》，佛陀正是因为看见了「苦」才走上了觉悟之路。你的痛苦不是终点，它可能是一扇门——但请不要独自穿过它。';
+    quote = '「在你最黑暗的时刻，你要做的不是寻找光明，而是敢于成为黑暗中的一盏灯。」';
+    author = '—— 改编自荣格《红书》';
+  }
+
+  return { text, quote, author };
+}
+
 function showResult() {
   document.getElementById('testPage').classList.remove('active');
   document.getElementById('resultPage').classList.add('active');
@@ -535,6 +619,7 @@ function showResult() {
   const scores = calcScores();
   const total = Object.values(scores).reduce((a, b) => a + b, 0);
   const status = getOverallStatus(total);
+  const philosophy = getPhilosophySection(scores);
 
   // 找出需要关注的维度
   const concerns = Object.entries(scores)
@@ -542,36 +627,44 @@ function showResult() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 2);
 
+  const dotColors = ['#a78bfa', '#f472b6', '#60a5fa'];
+
   document.getElementById('resultContent').innerHTML = `
     <div class="result-header">
-      <h1>心理状态评估报告</h1>
-      <p>基于SCL-90专业量表 · 宇宙认知盐究所</p>
+      <h1>心理状态探索报告</h1>
+      <p>宇宙认知盐究所 · 你的内心比你以为的更丰富</p>
+      <div class="subtitle-quote">「了解自己是一切智慧的开始。」—— 苏格拉底</div>
     </div>
 
     <div class="card">
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
       <div class="status-card ${status.class}">
-        <div class="status-label">当前心理状态</div>
+        <div class="status-label">你最近的内在风景</div>
         <div class="status-value">${status.level}</div>
+        <div class="status-philosophy">${status.philosophy}</div>
       </div>
       <div class="summary-text">${status.desc}</div>
       ${total > 90 ? `
-        <div class="warning-section">
-          <h4>⚠️ 重要提示</h4>
-          <p>你的评估结果显示多个维度存在较高困扰。这不是诊断，但建议你认真对待这些信号，及时寻求专业心理咨询师或精神科医生的帮助。如有自伤或伤害他人的想法，请立即拨打心理援助热线或前往医院。</p>
+        <div class="warning-section" style="margin-top:16px;">
+          <h4>💜 温柔的提醒</h4>
+          <p>你的评估结果显示你正在承受不小的心理压力。这不是诊断，但这些信号值得被认真对待。请考虑和专业的心理咨询师聊聊——就像身体不舒服要看医生一样自然。如果你正在经历非常痛苦的时刻，请拨打下方的心理援助热线，会有人听你说话。</p>
         </div>
       ` : ''}
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#dbeafe">📊</div>心理状态雷达图</div>
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e3a5f">🌐</div>内在风景全貌</div>
       <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fef3c7">📋</div>9维度详细分析</div>
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="section-title"><div class="section-icon" style="background:#422006">🔍</div>9个维度的细语</div>
       ${Object.entries(dimInfo).map(([dim, info]) => {
         const score = scores[dim];
         const level = getDimLevel(score);
+        const metaphor = getDimMetaphor(dim);
         return `
           <div class="dim-item">
             <div class="dim-header">
@@ -582,6 +675,7 @@ function showResult() {
               </div>
             </div>
             <div class="dim-bar"><div class="dim-bar-fill" style="width:${(score/20)*100}%;background:${level.color}"></div></div>
+            <div class="dim-metaphor">${metaphor}</div>
             <div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-top:8px;">${getDimAnalysis(dim, score)}</div>
           </div>
         `;
@@ -590,41 +684,42 @@ function showResult() {
 
     ${concerns.length > 0 ? `
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#fee2e2">⚠️</div>需要特别关注的维度</div>
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="section-title"><div class="section-icon" style="background:#3b0764">🔮</div>需要温柔以待的维度</div>
       <div class="summary-text">
-        根据你的评估结果，以下维度需要特别关注：
+        以下维度的信号比较强烈，它们在试图告诉你一些重要的事情：
       </div>
 
       ${concerns.map(([dim, score]) => {
         const warningInfo = getDimWarningInfo(dim, score);
         if (!warningInfo) return '';
         return `
-          <div style="margin-top:20px;padding:20px;background:#fef2f2;border-radius:12px;border-left:4px solid ${dimInfo[dim].color};">
+          <div style="margin-top:20px;padding:20px;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);border-radius:12px;border-left:4px solid ${dimInfo[dim].color};">
             <div style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">${dimInfo[dim].icon}</span>
               ${dimInfo[dim].name}
-              <span style="font-size:13px;color:#dc2626;background:#fee2e2;padding:2px 8px;border-radius:10px;">得分 ${score}/20</span>
+              <span style="font-size:13px;color:#c4b5fd;background:#3b0764;padding:2px 8px;border-radius:10px;">信号强度 ${score}/20</span>
             </div>
 
             <div style="margin-bottom:16px;">
-              <div style="font-size:14px;font-weight:600;color:#059669;margin-bottom:8px;">🛠️ 具体实施方法：</div>
+              <div style="font-size:14px;font-weight:600;color:#6ee7b7;margin-bottom:8px;">🌱 你可以尝试的事情：</div>
               <ul style="font-size:13px;color:var(--text-muted);line-height:1.8;padding-left:20px;">
                 ${warningInfo.methods.map(m => `<li>${m}</li>`).join('')}
               </ul>
             </div>
 
             <div>
-              <div style="font-size:14px;font-weight:600;color:#dc2626;margin-bottom:8px;">⚠️ 需警惕的心理状况：</div>
+              <div style="font-size:14px;font-weight:600;color:#c4b5fd;margin-bottom:8px;">📖 了解更多（科普信息）：</div>
               <div style="display:grid;gap:10px;">
                 ${warningInfo.diseases.map(d => `
-                  <div style="background:white;padding:12px;border-radius:8px;border:1px solid #fecaca;">
-                    <div style="font-size:13px;font-weight:600;color:#dc2626;margin-bottom:4px;">${d.name}</div>
+                  <div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border:1px solid #334155;">
+                    <div style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:4px;">${d.name}</div>
                     <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">${d.desc}</div>
                   </div>
                 `).join('')}
               </div>
-              <div style="font-size:12px;color:#7f1d1d;margin-top:8px;font-style:italic;">
-                * 以上仅为科普信息，如有相关困扰请寻求专业诊断
+              <div style="font-size:12px;color:#a5b4fc;margin-top:8px;font-style:italic;">
+                * 以上仅为科普信息，帮助你了解不同心理状态的名字。如有相关困扰，请找专业人士聊聊
               </div>
             </div>
           </div>
@@ -633,19 +728,66 @@ function showResult() {
     </div>
     ` : ''}
 
-    <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#d1fae5">💡</div>自我调整建议</div>
-      <div class="tip-item"><div class="tip-num">1</div><div class="tip-text">保持规律的作息时间，确保充足的睡眠（7-8小时），这是心理健康的基础</div></div>
-      <div class="tip-item"><div class="tip-num">2</div><div class="tip-text">每天进行适度的身体活动，运动可以有效缓解压力和改善情绪</div></div>
-      <div class="tip-item"><div class="tip-num">3</div><div class="tip-text">维持健康的社交关系，与信任的人分享你的感受和困扰</div></div>
-      <div class="tip-item"><div class="tip-num">4</div><div class="tip-text">学习放松技巧，如深呼吸、正念冥想或渐进式肌肉放松</div></div>
-      <div class="tip-item"><div class="tip-num">5</div><div class="tip-text">如果症状持续或加重，不要犹豫，及时寻求专业心理帮助</div></div>
+    <div class="philosophy-card">
+      <div class="phi-icon">🌌</div>
+      <h3>心理哲学视角</h3>
+      <div class="phi-text">${philosophy.text}</div>
+      <div class="phi-quote">${philosophy.quote}</div>
+      <div class="phi-author">${philosophy.author}</div>
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#e0e7ff">📞</div>专业支持资源</div>
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="section-title"><div class="section-icon" style="background:#064e3b">🌱</div>自我照顾的小哲学</div>
+      <div class="tip-item">
+        <div class="tip-num">1</div>
+        <div class="tip-text">
+          睡眠是心灵的修复时间。每天在固定时间入睡和起床，让身体建立自己的节律——昼夜节律是自然送给我们最古老的礼物。
+          <div class="tip-source">「睡眠是最好的冥想。」—— 达赖喇嘛</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">2</div>
+        <div class="tip-text">
+          每天让身体动起来——不一定是剧烈运动，散步、拉伸、跳舞都可以。运动不是为了燃烧卡路里，而是为了燃烧焦虑。
+          <div class="tip-source">「散步是对灵魂的小小冒险。」—— 华莱士·史蒂文斯</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">3</div>
+        <div class="tip-text">
+          人是关系中的存在。每周至少和一个你在乎的人进行一次真诚的对话——不是寒暄，是那种说完之后心里会暖一下的交流。
+          <div class="tip-source">「人只有在与他者的关系中才能成为自己。」—— 马丁·布伯</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">4</div>
+        <div class="tip-text">
+          每天给自己5-10分钟的安静时间。不看手机，不思考问题，只是呼吸、存在。正念不是让大脑安静，是让你学会不跟着噪音走。
+          <div class="tip-source">「你不需要控制你的想法，你只需要停止让它们控制你。」—— 丹·米尔曼</div>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-num">5</div>
+        <div class="tip-text">
+          如果你试了很多方法但还是不舒服，那就去找专业的人谈谈。就像牙疼了去看牙医一样自然。寻求帮助不是软弱，是你对自己最大的温柔。
+          <div class="tip-source">「勇气不是没有恐惧，而是判断有些东西比恐惧更重要。」—— 安布罗斯·雷德蒙</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="remember-card">
+      <div class="rem-icon">🌿</div>
+      <h3>最后，请记住</h3>
+      <p>这份报告只是一面小小的镜子，它不能定义你是谁。你比任何量表的分数都更丰富、更复杂、更值得被善待。不管今天的结果如何，你愿意来了解自己，这本身就是一种了不起的勇气。</p>
+      <div class="rem-quote">「在这个宇宙中，每一粒盐都有自己的味道。你不需要变成糖，才值得被珍惜。」<br>—— 宇宙认知盐究所</div>
+    </div>
+
+    <div class="card">
+      <div class="decorative-dots">${dotColors.map(c => `<span style="background:${c}"></span>`).join('')}</div>
+      <div class="section-title"><div class="section-icon" style="background:#1e1b4b">📞</div>专业支持资源</div>
       <div class="summary-text">
-        <p>如果你正在经历严重的心理困扰，以下资源可以提供帮助：</p>
+        <p>如果你正在经历困难的时刻，以下这些地方有人在等着帮助你：</p>
         <ul style="margin-top:12px;padding-left:20px;line-height:2;">
           <li>全国心理援助热线：400-161-9995</li>
           <li>北京心理危机研究与干预中心：010-82951332</li>
@@ -653,9 +795,9 @@ function showResult() {
           <li>或前往当地精神卫生中心、三甲医院心理科就诊</li>
         </ul>
       </div>
-      <div class="warning-section" style="margin-top:16px;background:#fef3c7;border-color:#fde68a;">
-        <h4 style="color:#92400e;">📋 重要声明</h4>
-        <p style="color:#78350f;">本测评结果仅供自我了解参考，不构成任何心理诊断或医学建议。如有严重心理困扰或危机状况，请及时寻求专业帮助。</p>
+      <div class="warning-section" style="margin-top:16px;background:#1e1b4b;border-color:#3b0764;">
+        <h4 style="color:#c4b5fd;">📋 温馨说明</h4>
+        <p style="color:#a5b4fc;">本测评是一个自我探索的工具，而非专业诊断。它帮助你了解自己的内在状态，但不能替代心理咨询师或医生的专业判断。如果你感到困扰，请一定寻求专业帮助——你值得被好好对待。</p>
       </div>
     </div>
 
@@ -675,12 +817,14 @@ function showResult() {
     data: {
       labels: Object.values(dimInfo).map(d => d.name),
       datasets: [{
-        label: '得分',
+        label: '信号强度',
         data: Object.keys(dimInfo).map(d => scores[d]),
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        borderColor: '#6366f1',
-        borderWidth: 2,
-        pointBackgroundColor: '#6366f1'
+        backgroundColor: 'rgba(139, 92, 246, 0.08)',
+        borderColor: '#8b5cf6',
+        borderWidth: 1,
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: 'rgba(139,92,246,0.3)',
+        pointHoverBackgroundColor: '#a78bfa'
       }]
     },
     options: {
@@ -688,7 +832,10 @@ function showResult() {
         r: {
           beginAtZero: true,
           max: 20,
-          ticks: { stepSize: 5 }
+          ticks: { stepSize: 5, color: 'rgba(255,255,255,0.25)', backdropColor: 'transparent' },
+          pointLabels: { color: 'rgba(255,255,255,0.6)', font: { size: 12, family: 'Noto Sans SC' } },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          angleLines: { color: 'rgba(255,255,255,0.05)' }
         }
       },
       plugins: { legend: { display: false } }
@@ -714,7 +861,7 @@ async function downloadPDF() {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#f8fafc',
+      backgroundColor: '#0a0a0a',
       height: content.scrollHeight,
       windowHeight: content.scrollHeight
     });
@@ -740,7 +887,7 @@ async function downloadPDF() {
     }
 
     const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '-');
-    pdf.save(`心理状态评估报告_${date}.pdf`);
+    pdf.save(`心理状态探索报告_${date}.pdf`);
   } catch (e) {
     console.error(e);
     alert('PDF生成失败');

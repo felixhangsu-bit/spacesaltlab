@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动物投射测试 · 商品页长图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ══════════════════════════════
+   整体页面容器  750px 宽
+══════════════════════════════ */
+.page {
+  width: 750px;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 通用噪点 ── */
+.noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════
+   HERO SECTION
+════════════════════════════════════════ */
+.hero {
+  position: relative;
+  width: 750px;
+  height: 520px;
+  background: #080808;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 64px;
+}
+.hero-orb-1 { position:absolute; width:500px; height:500px; top:-200px; left:-150px; background:radial-gradient(circle,#f59e0b,transparent 65%); opacity:0.22; border-radius:50%; filter:blur(80px); }
+.hero-orb-2 { position:absolute; width:400px; height:400px; bottom:-180px; right:-120px; background:radial-gradient(circle,#ef4444,transparent 65%); opacity:0.18; border-radius:50%; filter:blur(80px); }
+.hero-orb-3 { position:absolute; width:300px; height:300px; top:50%; left:55%; transform:translate(-50%,-50%); background:radial-gradient(circle,#7c3aed,transparent 65%); opacity:0.10; border-radius:50%; filter:blur(60px); }
+
+.hero-content { position: relative; z-index: 2; text-align: center; }
+.hero-label {
+  font-family: 'EB Garamond', serif;
+  font-size: 12px;
+  letter-spacing: 6px;
+  color: rgba(255,255,255,0.28);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-icon { font-size: 64px; margin-bottom: 20px; line-height: 1; }
+.hero-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 56px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+.hero-sub {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.40);
+  letter-spacing: 3px;
+  margin-bottom: 28px;
+}
+.hero-divider {
+  width: 48px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.5), transparent);
+  margin: 0 auto 28px;
+}
+.hero-tagline {
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+.hero-tagline em {
+  font-style: normal;
+  background: linear-gradient(90deg, #fde68a, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+/* ── 统计栏 ── */
+.hero-stats {
+  display: flex;
+  gap: 0;
+  margin-top: 36px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 28px;
+  width: 100%;
+  justify-content: center;
+}
+.stat {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+.stat + .stat::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%;
+  height: 60%;
+  width: 1px;
+  background: rgba(255,255,255,0.08);
+}
+.stat-num {
+  font-family: 'EB Garamond', serif;
+  font-size: 36px;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 2px;
+}
+
+/* ════════════════════════════════════════
+   通用 section
+════════════════════════════════════════ */
+.section {
+  position: relative;
+  padding: 56px 64px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.section-tag {
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: rgba(245,158,11,0.55);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+.section-body {
+  font-size: 15px;
+  line-height: 2.0;
+  color: rgba(255,255,255,0.45);
+  font-weight: 300;
+}
+
+/* ════════════════════════════════════════
+   Section 1: 关于测试
+════════════════════════════════════════ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+.about-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 24px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #f59e0b, transparent);
+}
+.about-card-icon { font-size: 24px; margin-bottom: 12px; }
+.about-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.about-card-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ════════════════════════════════════════
+   Section 2: 测试原理
+════════════════════════════════════════ */
+.theory-bg {
+  background: rgba(245,158,11,0.03);
+}
+.theory-quote {
+  border-left: 2px solid rgba(245,158,11,0.4);
+  padding: 18px 24px;
+  margin: 24px 0;
+  background: rgba(245,158,11,0.04);
+}
+.theory-quote-text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 16px;
+  color: rgba(255,255,255,0.60);
+  line-height: 1.9;
+  font-style: italic;
+}
+.theory-quote-author {
+  font-size: 12px;
+  color: rgba(245,158,11,0.5);
+  letter-spacing: 2px;
+  margin-top: 10px;
+  font-family: 'EB Garamond', serif;
+}
+
+/* ════════════════════════════════════════
+   Section 3: 8种动物结果
+════════════════════════════════════════ */
+.animals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 28px;
+}
+.animal-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 22px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.animal-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.animal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.animal-icon { font-size: 28px; line-height: 1; }
+.animal-name-wrap {}
+.animal-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 2px;
+}
+.animal-trait {
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-family: 'EB Garamond', serif;
+  color: rgba(255,255,255,0.30);
+}
+.animal-desc {
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(255,255,255,0.38);
+  font-weight: 300;
+}
+
+/* 各动物颜色 */
+.ac-cat      { background: linear-gradient(90deg, #a78bfa, transparent); }
+.ac-dog      { background: linear-gradient(90deg, #f59e0b, transparent); }
+.ac-wolf     { background: linear-gradient(90deg, #6366f1, transparent); }
+.ac-fox      { background: linear-gradient(90deg, #ec4899, transparent); }
+.ac-deer     { background: linear-gradient(90deg, #10b981, transparent); }
+.ac-bear     { background: linear-gradient(90deg, #8b5cf6, transparent); }
+.ac-owl      { background: linear-gradient(90deg, #64748b, transparent); }
+.ac-dolphin  { background: linear-gradient(90deg, #06b6d4, transparent); }
+
+/* ════════════════════════════════════════
+   Section 4: 结果示例
+════════════════════════════════════════ */
+.sample-bg {
+  background: rgba(167,139,250,0.03);
+}
+.sample-result {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(167,139,250,0.15);
+  margin-top: 24px;
+  overflow: hidden;
+}
+.sample-header {
+  background: linear-gradient(135deg, rgba(167,139,250,0.12), rgba(99,102,241,0.08));
+  padding: 28px 28px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.sample-header-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.sample-icon { font-size: 44px; }
+.sample-title-wrap {}
+.sample-label {
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(167,139,250,0.6);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sample-name {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #c4b5fd;
+}
+.sample-subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 2px;
+}
+.sample-desc {
+  font-size: 14px;
+  line-height: 2.0;
+  color: rgba(255,255,255,0.50);
+  font-weight: 300;
+}
+.sample-body { padding: 24px 28px; }
+.sample-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(167,139,250,0.7);
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sample-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background: rgba(167,139,250,0.5);
+}
+.trait-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.trait-tag {
+  font-size: 12px;
+  padding: 5px 14px;
+  border: 1px solid rgba(167,139,250,0.25);
+  color: rgba(167,139,250,0.65);
+  letter-spacing: 1px;
+  font-family: 'EB Garamond', serif;
+  background: rgba(167,139,250,0.05);
+}
+.dimension-bars { display: flex; flex-direction: column; gap: 12px; }
+.dim-row { display: flex; align-items: center; gap: 14px; }
+.dim-label-s {
+  font-size: 12px;
+  color: rgba(255,255,255,0.30);
+  width: 80px;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+}
+.dim-bg { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.dim-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #a78bfa, #6366f1); }
+.dim-val {
+  font-family: 'EB Garamond', serif;
+  font-size: 13px;
+  color: rgba(167,139,250,0.55);
+  width: 36px;
+  text-align: right;
+}
+
+/* ════════════════════════════════════════
+   Section 5: 测试流程
+════════════════════════════════════════ */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 28px;
+}
+.step {
+  display: flex;
+  gap: 20px;
+  position: relative;
+  padding-bottom: 28px;
+}
+.step:last-child { padding-bottom: 0; }
+.step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.step-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'EB Garamond', serif;
+  font-size: 16px;
+  color: rgba(245,158,11,0.7);
+  flex-shrink: 0;
+}
+.step-line {
+  flex: 1;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(245,158,11,0.2), transparent);
+  margin-top: 8px;
+}
+.step-content { padding-top: 6px; }
+.step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+.step-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.33);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+/* ════════════════════════════════════════
+   Section 6: 适合人群
+════════════════════════════════════════ */
+.audience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+.audience-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid rgba(245,158,11,0.25);
+}
+.audience-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.audience-text { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.7; font-weight: 300; }
+.audience-text strong { color: rgba(255,255,255,0.72); font-weight: 500; }
+
+/* ════════════════════════════════════════
+   Section 7: 品牌承诺
+════════════════════════════════════════ */
+.promise-bg {
+  background: rgba(245,158,11,0.03);
+}
+.promise-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+.promise-item {
+  text-align: center;
+  padding: 24px 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.promise-icon { font-size: 28px; margin-bottom: 12px; }
+.promise-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.promise-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.28);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ════════════════════════════════════════
+   CTA BANNER
+════════════════════════════════════════ */
+.cta {
+  position: relative;
+  padding: 60px 64px;
+  text-align: center;
+  background: #080808;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.cta-orb { position:absolute; width:400px; height:400px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#f59e0b,transparent 60%); opacity:0.08; border-radius:50%; filter:blur(60px); pointer-events:none; }
+.cta-content { position: relative; z-index: 1; }
+.cta-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 30px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 60%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+.cta-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.30);
+  letter-spacing: 3px;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+.cta-btn {
+  display: inline-block;
+  padding: 14px 48px;
+  border: 1px solid rgba(245,158,11,0.40);
+  color: rgba(245,158,11,0.80);
+  font-size: 14px;
+  letter-spacing: 4px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+  background: rgba(245,158,11,0.06);
+}
+
+/* ════════════════════════════════════════
+   Footer
+════════════════════════════════════════ */
+.footer {
+  padding: 28px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.footer-brand {
+  font-family: 'EB Garamond', serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+}
+.footer-note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.14);
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+<div class="noise"></div>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-label">Unconscious Projection · Animal Archetype</div>
+    <div class="hero-icon">🦊</div>
+    <div class="hero-title">动物投射测试</div>
+    <div class="hero-sub">你压力下会切换成哪种动物人格？</div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">
+      这不是性格测试，<br>
+      而是揭露你在<em>不同心理情境</em>下<br>
+      真实的潜意识反应模式
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">16</div>
+        <div class="stat-label">情境题目</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4</div>
+        <div class="stat-label">心理情境</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">8</div>
+        <div class="stat-label">动物人格</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5</div>
+        <div class="stat-label">分钟完成</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 关于测试 ══════════════ -->
+<div class="section">
+  <div class="section-tag">About This Test</div>
+  <div class="section-title">这个测试在测什么</div>
+  <div class="section-body">
+    大多数性格测试告诉你「你是什么人」，但这个测试不同——<br>
+    它测的是<strong style="color:rgba(255,255,255,0.72)">你在不同压力和情境下，会自动切换成哪种应对模式</strong>。<br><br>
+    基于心理投射原理，通过 16 个真实情境场景，发现你在面对压力、冲突、亲密关系和团队时的本能反应——那个你来不及「表演」的自己。
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-icon">🧠</div>
+      <div class="about-card-title">心理投射原理</div>
+      <div class="about-card-text">你对动物情境的选择，映射的是你内心深层的心理结构与防御机制。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🎭</div>
+      <div class="about-card-title">情境切换模型</div>
+      <div class="about-card-text">没有人在所有情况下都是同一种人格，测出你在不同情境下的真实面貌。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🔍</div>
+      <div class="about-card-title">无法伪装的选择</div>
+      <div class="about-card-text">情境题没有「正确答案」，你的第一反应才是最真实的数据。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🌱</div>
+      <div class="about-card-title">看见成长方向</div>
+      <div class="about-card-text">了解自己的人格模式，才能有意识地选择如何回应，而不是被本能驱使。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 测试原理 ══════════════ -->
+<div class="section theory-bg">
+  <div class="section-tag">Theory Background</div>
+  <div class="section-title">为什么是动物？</div>
+  <div class="section-body">
+    动物意象自古就是人类潜意识的投射载体。荣格在原型理论中指出，动物是本能与阴影自我的象征。当我们选择「像哪种动物」时，绕开了理性自我审查，触达了更深层的心理真相。
+  </div>
+  <div class="theory-quote">
+    <div class="theory-quote-text">
+      「直到你让潜意识变得有意识，它就会指引你的生活，而你会称之为命运。」
+    </div>
+    <div class="theory-quote-author">—— C.G. Jung · 荣格</div>
+  </div>
+  <div class="section-body">
+    本测试基于情境投射法设计，覆盖 4 大心理场景：<strong style="color:rgba(255,255,255,0.65)">独处时、人际冲突时、亲密关系中、高压工作下</strong>，从四个角度完整呈现你的心理应对图谱。
+  </div>
+</div>
+
+<!-- ══════════════ 8种动物结果 ══════════════ -->
+<div class="section">
+  <div class="section-tag">Result Types · 8 Archetypes</div>
+  <div class="section-title">你会是哪一种？</div>
+  <div class="section-body">测试会给出你的主导动物人格，以及在特定情境下触发的副人格，完整呈现你的心理模式组合。</div>
+  <div class="animals-grid">
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-cat"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🐱</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">猫</div>
+          <div class="animal-trait">Independent · Boundary</div>
+        </div>
+      </div>
+      <div class="animal-desc">珍视个人空间，有清晰边界感。表面疏离，对亲近的人有深厚感情。需要独处恢复能量。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-dog"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🐕</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">狗</div>
+          <div class="animal-trait">Loyal · Affectionate</div>
+        </div>
+      </div>
+      <div class="animal-desc">热情忠诚，渴望被需要和被爱。对亲近的人全心付出，世界需要稳定的情感连接。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-wolf"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🐺</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">狼</div>
+          <div class="animal-trait">Protective · Dominant</div>
+        </div>
+      </div>
+      <div class="animal-desc">有领地意识和保护欲，面对威胁展现强势。重视忠诚和原则，行动力强，是可靠的存在。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-fox"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🦊</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">狐狸</div>
+          <div class="animal-trait">Clever · Adaptive</div>
+        </div>
+      </div>
+      <div class="animal-desc">机敏灵活，善于观察和应变。不正面硬刚，用智慧找最优解。享受智力游戏，不喜被看透。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-deer"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🦌</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">鹿</div>
+          <div class="animal-trait">Sensitive · Gentle</div>
+        </div>
+      </div>
+      <div class="animal-desc">敏感温柔，能敏锐感知他人情绪。天性善良，有时因太在意别人而忽略自己。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-bear"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🐻</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">熊</div>
+          <div class="animal-trait">Strong · Caring</div>
+        </div>
+      </div>
+      <div class="animal-desc">平时温和憨厚，保护重要的人时爆发强大能量。喜欢照顾人，需要被信任和依赖的感觉。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-owl"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🦉</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">猫头鹰</div>
+          <div class="animal-trait">Wise · Observant</div>
+        </div>
+      </div>
+      <div class="animal-desc">洞察力强，喜欢观察和思考。不轻易表态，但一旦发言很有分量。重视知识与理性。</div>
+    </div>
+
+    <div class="animal-card">
+      <div class="animal-card-accent ac-dolphin"></div>
+      <div class="animal-card-header">
+        <div class="animal-icon">🐬</div>
+        <div class="animal-name-wrap">
+          <div class="animal-name">海豚</div>
+          <div class="animal-trait">Empathic · Healing</div>
+        </div>
+      </div>
+      <div class="animal-desc">强大的共情能力，能感知和治愈他人情绪。乐于助人，喜欢和谐氛围，会主动调解冲突。</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ 结果示例 ══════════════ -->
+<div class="section sample-bg">
+  <div class="section-tag">Sample Result · 结果示例</div>
+  <div class="section-title">测试结果长这样</div>
+  <div class="section-body">以下为「猫型人格」的示例结果，实际结果包含主导人格、情境切换分析、天赋与成长建议。</div>
+
+  <div class="sample-result">
+    <div class="sample-header">
+      <div class="sample-header-top">
+        <div class="sample-icon">🐱</div>
+        <div class="sample-title-wrap">
+          <div class="sample-label">Your Primary Archetype</div>
+          <div class="sample-name">猫型人格</div>
+        </div>
+      </div>
+      <div class="sample-subtitle">独立自主 · 有边界感 · 内在深情</div>
+    </div>
+    <div class="sample-body">
+      <div class="sample-desc" style="margin-bottom:20px">
+        你有着猫一样的独立性格，珍视个人空间和自由。你不轻易依赖他人，有自己的节奏和边界感。表面可能显得疏离，但对真正亲近的人有着极深的感情。你需要独处来恢复能量，被随意打扰会让你感到烦躁。
+      </div>
+
+      <div class="sample-section-title">核心特质</div>
+      <div class="trait-tags" style="margin-bottom:20px">
+        <span class="trait-tag">自给自足</span>
+        <span class="trait-tag">边界清晰</span>
+        <span class="trait-tag">选择性社交</span>
+        <span class="trait-tag">内在深情</span>
+        <span class="trait-tag">不轻易示弱</span>
+      </div>
+
+      <div class="sample-section-title">心理维度分析</div>
+      <div class="dimension-bars">
+        <div class="dim-row">
+          <span class="dim-label-s">独立性</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:92%"></div></div>
+          <span class="dim-val">92%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">边界感</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:88%"></div></div>
+          <span class="dim-val">88%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">共情能力</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:65%"></div></div>
+          <span class="dim-val">65%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">社交意愿</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:42%"></div></div>
+          <span class="dim-val">42%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 测试流程 ══════════════ -->
+<div class="section">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">测试怎么做</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num">01</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">进入测试页面</div>
+        <div class="step-text">输入密码进入专属测试页，无需注册账号，保护隐私。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num">02</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">回答 16 道情境题</div>
+        <div class="step-text">每道题描述一个真实生活情境，选择你的第一反应。不用思考太久——本能反应最真实。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num">03</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">获得完整结果报告</div>
+        <div class="step-text">立即生成你的主导动物人格、情境切换分析、天赋图谱与成长建议，支持截图保存。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left">
+        <div class="step-num">04</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">分享你的结果</div>
+        <div class="step-text">很多人看完结果会发给朋友说「你觉得我像这个吗」—— 这才是最好玩的部分。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 适合人群 ══════════════ -->
+<div class="section">
+  <div class="section-tag">Who Is This For</div>
+  <div class="section-title">这个测试适合你吗</div>
+  <div class="audience-list">
+    <div class="audience-item">
+      <div class="audience-icon">🌙</div>
+      <div class="audience-text"><strong>总觉得自己「状态不稳定」</strong>——有时社牛，有时极度不想说话，不知道自己到底是什么性格的人</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">💭</div>
+      <div class="audience-text"><strong>在关系里感到困惑</strong>——不理解自己为什么总是那样反应，或者想了解自己在亲密关系中的模式</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">🔥</div>
+      <div class="audience-text"><strong>压力下容易「变个人」</strong>——高压情境下会突然变得不像自己，测出你压力下的真实本能</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">✨</div>
+      <div class="audience-text"><strong>单纯好奇自己</strong>——享受探索自我的过程，喜欢分享有趣的测试结果给朋友</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 品牌承诺 ══════════════ -->
+<div class="section promise-bg">
+  <div class="section-tag">Our Promise</div>
+  <div class="section-title">关于这份测试</div>
+  <div class="promise-grid">
+    <div class="promise-item">
+      <div class="promise-icon">🔒</div>
+      <div class="promise-title">数据不留存</div>
+      <div class="promise-text">所有计算在本地完成，服务器不记录任何答题数据</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">📖</div>
+      <div class="promise-title">理论有依据</div>
+      <div class="promise-text">基于荣格原型理论与情境投射法，非娱乐性随机结果</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">💡</div>
+      <div class="promise-title">结果有深度</div>
+      <div class="promise-text">不是几句话的结论，是能让你反复咀嚼的完整分析报告</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CTA ══════════════ -->
+<div class="cta">
+  <div class="cta-orb"></div>
+  <div class="cta-content">
+    <div class="cta-title">你压力下是哪种动物？</div>
+    <div class="cta-sub">5 分钟 · 16 题 · 立即查看结果</div>
+    <div class="cta-btn">开 始 测 试</div>
+  </div>
+</div>
+
+<!-- ══════════════ Footer ══════════════ -->
+<div class="footer">
+  <span class="footer-brand">宇宙认知盐究所 · Spacesaltlab</span>
+  <span class="footer-note">测评结果仅供参考，不构成心理诊断</span>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>

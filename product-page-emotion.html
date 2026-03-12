@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪智力测评 · 商品页长图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background:#111; display:flex; flex-direction:column; align-items:center; padding:40px 0; font-family:'Noto Sans SC',sans-serif; }
+.page { width:750px; background:#0a0a0a; position:relative; overflow:hidden; }
+.noise { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+
+.hero { position:relative; width:750px; height:540px; background:#080808; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 64px; }
+.hero-orb-1 { position:absolute; width:500px; height:500px; top:-200px; left:-150px; background:radial-gradient(circle,#f59e0b,transparent 65%); opacity:0.20; border-radius:50%; filter:blur(80px); }
+.hero-orb-2 { position:absolute; width:400px; height:400px; bottom:-180px; right:-120px; background:radial-gradient(circle,#d97706,transparent 65%); opacity:0.16; border-radius:50%; filter:blur(80px); }
+.hero-orb-3 { position:absolute; width:300px; height:300px; top:50%; left:55%; transform:translate(-50%,-50%); background:radial-gradient(circle,#fbbf24,transparent 65%); opacity:0.10; border-radius:50%; filter:blur(60px); }
+.hero-content { position:relative; z-index:2; text-align:center; }
+.hero-label { font-family:'EB Garamond',serif; font-size:12px; letter-spacing:6px; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:20px; }
+.hero-icon { font-size:64px; margin-bottom:20px; line-height:1; }
+.hero-title { font-family:'Noto Serif SC',serif; font-size:56px; font-weight:700; background:linear-gradient(135deg,#fde68a 0%,#f59e0b 50%,#d97706 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; letter-spacing:2px; }
+.hero-sub { font-size:15px; font-weight:300; color:rgba(255,255,255,0.40); letter-spacing:3px; margin-bottom:28px; }
+.hero-divider { width:48px; height:1px; background:linear-gradient(90deg,transparent,rgba(245,158,11,0.5),transparent); margin:0 auto 28px; }
+.hero-tagline { font-size:18px; font-weight:400; color:rgba(255,255,255,0.65); line-height:1.8; letter-spacing:1px; }
+.hero-tagline em { font-style:normal; background:linear-gradient(90deg,#fde68a,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:600; }
+.hero-stats { display:flex; gap:0; margin-top:36px; border-top:1px solid rgba(255,255,255,0.07); padding-top:28px; width:100%; justify-content:center; }
+.stat { flex:1; text-align:center; position:relative; }
+.stat+.stat::before { content:''; position:absolute; left:0; top:20%; height:60%; width:1px; background:rgba(255,255,255,0.08); }
+.stat-num { font-family:'EB Garamond',serif; font-size:36px; background:linear-gradient(135deg,#fde68a,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:6px; }
+.stat-label { font-size:12px; color:rgba(255,255,255,0.28); letter-spacing:2px; }
+
+.section { position:relative; padding:56px 64px; border-top:1px solid rgba(255,255,255,0.05); }
+.section-tag { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:5px; color:rgba(245,158,11,0.55); text-transform:uppercase; margin-bottom:12px; }
+.section-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:rgba(255,255,255,0.88); margin-bottom:20px; letter-spacing:1px; }
+.section-body { font-size:15px; line-height:2.0; color:rgba(255,255,255,0.45); font-weight:300; }
+
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.about-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:24px 22px; position:relative; overflow:hidden; }
+.about-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#f59e0b,transparent); }
+.about-card-icon { font-size:24px; margin-bottom:12px; }
+.about-card-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:8px; letter-spacing:1px; }
+.about-card-text { font-size:13px; color:rgba(255,255,255,0.35); line-height:1.8; font-weight:300; }
+
+/* 四大维度卡片 */
+.eq-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+.eq-card { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); padding:28px 24px; position:relative; overflow:hidden; }
+.eq-card-accent { position:absolute; top:0; left:0; right:0; height:2px; }
+.eq-num { font-family:'EB Garamond',serif; font-size:48px; color:rgba(245,158,11,0.12); position:absolute; top:16px; right:20px; line-height:1; font-weight:600; }
+.eq-icon { font-size:32px; margin-bottom:14px; }
+.eq-name { font-family:'Noto Serif SC',serif; font-size:20px; font-weight:700; color:rgba(255,255,255,0.88); margin-bottom:6px; }
+.eq-en { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:3px; color:rgba(245,158,11,0.45); margin-bottom:12px; }
+.eq-desc { font-size:13px; color:rgba(255,255,255,0.38); line-height:1.8; font-weight:300; }
+
+/* 心理年龄展示 */
+.age-bg { background:rgba(245,158,11,0.03); }
+.age-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:28px; }
+.age-card { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); padding:22px 20px; text-align:center; position:relative; overflow:hidden; }
+.age-card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(245,158,11,0.35),transparent); }
+.age-scene-icon { font-size:28px; margin-bottom:10px; }
+.age-scene-name { font-size:13px; color:rgba(255,255,255,0.45); margin-bottom:12px; letter-spacing:1px; }
+.age-value { font-family:'EB Garamond',serif; font-size:44px; background:linear-gradient(135deg,#fde68a,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:6px; }
+.age-unit { font-size:13px; color:rgba(245,158,11,0.45); letter-spacing:2px; }
+.age-note { font-size:11px; color:rgba(255,255,255,0.22); margin-top:8px; }
+
+/* 样本结果 */
+.sample-bg { background:rgba(245,158,11,0.03); }
+.sample-result { background:rgba(255,255,255,0.02); border:1px solid rgba(245,158,11,0.15); margin-top:24px; overflow:hidden; }
+.sample-header { background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(180,83,9,0.08)); padding:28px 28px 24px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sample-header-top { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.sample-icon { font-size:44px; }
+.sample-label { font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(245,158,11,0.6); text-transform:uppercase; margin-bottom:4px; }
+.sample-name { font-family:'Noto Serif SC',serif; font-size:28px; font-weight:700; color:#fcd34d; }
+.sample-subtitle { font-size:13px; color:rgba(255,255,255,0.35); letter-spacing:2px; }
+.sample-desc { font-size:14px; line-height:2.0; color:rgba(255,255,255,0.50); font-weight:300; }
+.sample-body { padding:24px 28px; }
+.sample-section-title { font-size:13px; font-weight:600; color:rgba(245,158,11,0.7); letter-spacing:2px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.sample-section-title::before { content:''; display:inline-block; width:16px; height:1px; background:rgba(245,158,11,0.5); }
+.dimension-bars { display:flex; flex-direction:column; gap:12px; }
+.dim-row { display:flex; align-items:center; gap:14px; }
+.dim-label-s { font-size:12px; color:rgba(255,255,255,0.30); width:80px; flex-shrink:0; letter-spacing:1px; }
+.dim-bg { flex:1; height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+.dim-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#f59e0b,#d97706); }
+.dim-val { font-family:'EB Garamond',serif; font-size:13px; color:rgba(245,158,11,0.55); width:36px; text-align:right; }
+
+.theory-bg { background:rgba(245,158,11,0.03); }
+.theory-quote { border-left:2px solid rgba(245,158,11,0.4); padding:18px 24px; margin:24px 0; background:rgba(245,158,11,0.04); }
+.theory-quote-text { font-family:'Noto Serif SC',serif; font-size:16px; color:rgba(255,255,255,0.60); line-height:1.9; font-style:italic; }
+.theory-quote-author { font-size:12px; color:rgba(245,158,11,0.5); letter-spacing:2px; margin-top:10px; font-family:'EB Garamond',serif; }
+
+.steps { display:flex; flex-direction:column; gap:0; margin-top:28px; }
+.step { display:flex; gap:20px; position:relative; padding-bottom:28px; }
+.step:last-child { padding-bottom:0; }
+.step-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+.step-num { width:36px; height:36px; border-radius:50%; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; font-family:'EB Garamond',serif; font-size:16px; color:rgba(245,158,11,0.7); flex-shrink:0; }
+.step-line { flex:1; width:1px; background:linear-gradient(180deg,rgba(245,158,11,0.2),transparent); margin-top:8px; }
+.step-content { padding-top:6px; }
+.step-title { font-size:15px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:6px; letter-spacing:1px; }
+.step-text { font-size:13px; color:rgba(255,255,255,0.33); line-height:1.8; font-weight:300; }
+
+.audience-list { display:flex; flex-direction:column; gap:14px; margin-top:24px; }
+.audience-item { display:flex; align-items:flex-start; gap:14px; padding:16px 18px; background:rgba(255,255,255,0.02); border-left:2px solid rgba(245,158,11,0.25); }
+.audience-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.audience-text { font-size:14px; color:rgba(255,255,255,0.45); line-height:1.7; font-weight:300; }
+.audience-text strong { color:rgba(255,255,255,0.72); font-weight:500; }
+
+.promise-bg { background:rgba(245,158,11,0.03); }
+.promise-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+.promise-item { text-align:center; padding:24px 16px; border:1px solid rgba(255,255,255,0.05); }
+.promise-icon { font-size:28px; margin-bottom:12px; }
+.promise-title { font-size:14px; font-weight:600; color:rgba(255,255,255,0.65); margin-bottom:8px; letter-spacing:1px; }
+.promise-text { font-size:12px; color:rgba(255,255,255,0.28); line-height:1.7; font-weight:300; }
+
+.cta { position:relative; padding:60px 64px; text-align:center; background:#080808; border-top:1px solid rgba(255,255,255,0.05); overflow:hidden; }
+.cta-orb { position:absolute; width:400px; height:400px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(circle,#f59e0b,transparent 60%); opacity:0.08; border-radius:50%; filter:blur(60px); pointer-events:none; }
+.cta-content { position:relative; z-index:1; }
+.cta-title { font-family:'Noto Serif SC',serif; font-size:30px; font-weight:700; background:linear-gradient(135deg,#fde68a 0%,#f59e0b 60%,#d97706 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:14px; }
+.cta-sub { font-size:14px; color:rgba(255,255,255,0.30); letter-spacing:3px; margin-bottom:32px; font-weight:300; }
+.cta-btn { display:inline-block; padding:14px 48px; border:1px solid rgba(245,158,11,0.40); color:rgba(245,158,11,0.80); font-size:14px; letter-spacing:4px; font-family:'Noto Sans SC',sans-serif; font-weight:300; background:rgba(245,158,11,0.06); }
+
+.footer { padding:28px 64px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); }
+.footer-brand { font-family:'EB Garamond',serif; font-size:13px; letter-spacing:4px; color:rgba(255,255,255,0.18); text-transform:uppercase; }
+.footer-note { font-size:11px; color:rgba(255,255,255,0.14); letter-spacing:1px; font-weight:300; }
+
+.page-break { width:100%; height:2px; background:linear-gradient(90deg,transparent,rgba(245,158,11,0.3),transparent); }
+.page-break-label { text-align:center; padding:8px; background:#111; font-family:'EB Garamond',serif; font-size:11px; letter-spacing:4px; color:rgba(245,158,11,0.3); text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div class="page-break-label">— Page 1 of 4 —</div>
+<div class="page">
+<div class="noise"></div>
+
+<div class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-orb-3"></div>
+  <div class="hero-content">
+    <div class="hero-label">Emotional Intelligence · Mayer-Salovey Model</div>
+    <div class="hero-icon">🧠</div>
+    <div class="hero-title">情绪智力测评</div>
+    <div class="hero-sub">你的情绪管理能力处于什么水平？</div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">
+      IQ 决定你能走多快，<br>
+      <em>EQ 决定你能走多远</em>——<br>
+      测出你在职场、感情、逆境中的真实情绪成熟度
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">40</div><div class="stat-label">测评题目</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">核心维度</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">场景年龄</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">分钟完成</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 关于测试 -->
+<div class="section">
+  <div class="section-tag">About This Test</div>
+  <div class="section-title">这个测评在测什么</div>
+  <div class="section-body">
+    基于 Mayer-Salovey 情绪智力四维度模型，通过 40 道专业题目，<strong style="color:rgba(255,255,255,0.72)">量化你在情绪感知、运用、理解和管理四个层面的能力</strong>，并计算你在不同人生场景中的「心理年龄」。
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-icon">🔬</div>
+      <div class="about-card-title">科学模型支撑</div>
+      <div class="about-card-text">Mayer-Salovey-Caruso 模型被认为是学术界最严谨的 EQ 评估框架，非坊间流传的简化版本。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">⏱️</div>
+      <div class="about-card-title">心理年龄诊断</div>
+      <div class="about-card-text">报告会揭示你在职场、家庭、感情、逆境四个场景各自的心理年龄，找出你的「情绪短板」。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">📈</div>
+      <div class="about-card-title">可量化可提升</div>
+      <div class="about-card-text">不同于 IQ，情绪智力是可以通过练习提升的能力。测评给出针对性的成长路径。</div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-icon">🌐</div>
+      <div class="about-card-title">覆盖多个维度</div>
+      <div class="about-card-text">从情绪识别到自我调节，完整呈现你的情绪处理链路，帮你找到「情绪卡壳」的具体环节。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 四大维度 -->
+<div class="section">
+  <div class="section-tag">Four Dimensions · EQ Framework</div>
+  <div class="section-title">情绪智力的四个层次</div>
+  <div class="section-body">这四个维度构成情绪处理的完整链条——从感知到管理，每一层都建立在上一层之上。</div>
+  <div class="eq-grid">
+    <div class="eq-card">
+      <div class="eq-card-accent" style="background:linear-gradient(90deg,#f59e0b,transparent)"></div>
+      <div class="eq-num">01</div>
+      <div class="eq-icon">👁️</div>
+      <div class="eq-name">情绪感知</div>
+      <div class="eq-en">Perceiving Emotions</div>
+      <div class="eq-desc">准确识别自己和他人的情绪，包括通过面部、声音、肢体语言读取情绪信号的能力。这是情绪智力的基础层。</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-card-accent" style="background:linear-gradient(90deg,#fbbf24,transparent)"></div>
+      <div class="eq-num">02</div>
+      <div class="eq-icon">🎯</div>
+      <div class="eq-name">情绪运用</div>
+      <div class="eq-en">Using Emotions</div>
+      <div class="eq-desc">将情绪信息整合进思维过程，让情绪成为创造力、决策力的助力而非阻力的能力。</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-card-accent" style="background:linear-gradient(90deg,#d97706,transparent)"></div>
+      <div class="eq-num">03</div>
+      <div class="eq-icon">🗺️</div>
+      <div class="eq-name">情绪理解</div>
+      <div class="eq-en">Understanding Emotions</div>
+      <div class="eq-desc">理解情绪的来源、变化规律和相互关系，能预测情绪走向，深度解读情感信号的复杂含义。</div>
+    </div>
+    <div class="eq-card">
+      <div class="eq-card-accent" style="background:linear-gradient(90deg,#c2410c,transparent)"></div>
+      <div class="eq-num">04</div>
+      <div class="eq-icon">⚙️</div>
+      <div class="eq-name">情绪管理</div>
+      <div class="eq-en">Managing Emotions</div>
+      <div class="eq-desc">在充分感受情绪的同时，有效调节自己和他人的情绪，做出建设性的情绪回应而非冲动反应。</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="page-break"></div>
+<div class="page-break-label">— Page 2 of 4 —</div>
+
+<div class="page">
+<div class="noise"></div>
+
+<!-- 心理年龄 -->
+<div class="section age-bg">
+  <div class="section-tag">Psychological Age · 4 Scenes</div>
+  <div class="section-title">你的多维心理年龄</div>
+  <div class="section-body">报告会计算你在四个人生场景中各自的「心理年龄」——你可能在职场很成熟，却在感情里还是个孩子。</div>
+  <div class="age-grid">
+    <div class="age-card">
+      <div class="age-scene-icon">💼</div>
+      <div class="age-scene-name">职场心理年龄</div>
+      <div class="age-value">28</div>
+      <div class="age-unit">岁（示例）</div>
+      <div class="age-note">主要测量情绪管理与情绪运用能力</div>
+    </div>
+    <div class="age-card">
+      <div class="age-scene-icon">🏠</div>
+      <div class="age-scene-name">家庭心理年龄</div>
+      <div class="age-value">24</div>
+      <div class="age-unit">岁（示例）</div>
+      <div class="age-note">主要测量情绪感知与情绪管理能力</div>
+    </div>
+    <div class="age-card">
+      <div class="age-scene-icon">💕</div>
+      <div class="age-scene-name">感情心理年龄</div>
+      <div class="age-value">21</div>
+      <div class="age-unit">岁（示例）</div>
+      <div class="age-note">主要测量情绪感知与情绪理解能力</div>
+    </div>
+    <div class="age-card">
+      <div class="age-scene-icon">🌊</div>
+      <div class="age-scene-name">挫折应对年龄</div>
+      <div class="age-value">32</div>
+      <div class="age-unit">岁（示例）</div>
+      <div class="age-note">主要测量情绪管理与情绪运用能力</div>
+    </div>
+  </div>
+</div>
+
+<!-- 结果示例 -->
+<div class="section sample-bg">
+  <div class="section-tag">Sample Result · 结果示例</div>
+  <div class="section-title">测试结果长这样</div>
+  <div class="section-body">以下为示例结果，实际报告包含总体 EQ 等级评定、四维度详细分析、场景心理年龄与提升建议。</div>
+  <div class="sample-result">
+    <div class="sample-header">
+      <div class="sample-header-top">
+        <div class="sample-icon">✨</div>
+        <div>
+          <div class="sample-label">Your EQ Level</div>
+          <div class="sample-name">情绪智力 · 成长型</div>
+        </div>
+      </div>
+      <div class="sample-subtitle">感知敏锐 · 理解深刻 · 管理待提升</div>
+    </div>
+    <div class="sample-body">
+      <div class="sample-desc" style="margin-bottom:20px">
+        你对情绪有较强的感知与理解能力，能敏锐地捕捉到自己和他人的情绪变化，也能洞察情绪背后的深层原因。你的「感情心理年龄」略低于实际年龄，这意味着你在亲密关系中有更多的成长空间。
+      </div>
+      <div class="sample-section-title">四维度得分</div>
+      <div class="dimension-bars">
+        <div class="dim-row">
+          <span class="dim-label-s">情绪感知</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:82%"></div></div>
+          <span class="dim-val">82%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">情绪运用</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:74%"></div></div>
+          <span class="dim-val">74%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">情绪理解</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:78%"></div></div>
+          <span class="dim-val">78%</span>
+        </div>
+        <div class="dim-row">
+          <span class="dim-label-s">情绪管理</span>
+          <div class="dim-bg"><div class="dim-fill" style="width:58%"></div></div>
+          <span class="dim-val">58%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 理论背景 -->
+<div class="section theory-bg">
+  <div class="section-tag">Theory Background</div>
+  <div class="section-title">情绪也是一种智慧</div>
+  <div class="section-body">
+    情绪智力的概念由 Peter Salovey 和 John Mayer 于 1990 年正式提出，Daniel Goleman 于 1995 年将其推广至大众视野。研究表明，EQ 对职业成就的影响超过 IQ 的影响。
+  </div>
+  <div class="theory-quote">
+    <div class="theory-quote-text">「情绪智力不是压制情绪，而是学会与情绪共处——让它成为你的向导，而非你的主人。」</div>
+    <div class="theory-quote-author">—— Daniel Goleman · 情绪智力理论奠基人</div>
+  </div>
+</div>
+
+<!-- 流程 -->
+<div class="section">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">测评怎么做</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-left"><div class="step-num">01</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">进入测评页面</div>
+        <div class="step-text">输入平台密码，进入 40 道情绪智力专项测评。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">02</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">根据真实感受作答</div>
+        <div class="step-text">每道题描述一个具体情绪场景，按 1-5 分评价自己真实的反应程度。选「应该怎样」是没有意义的。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">03</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-title">生成完整 EQ 报告</div>
+        <div class="step-text">立即获得四维度评分、四个场景心理年龄、EQ 等级评定与针对性的情绪成长建议。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-left"><div class="step-num">04</div></div>
+      <div class="step-content">
+        <div class="step-title">PDF 导出保存</div>
+        <div class="step-text">支持下载完整报告 PDF，随时回顾和对照成长轨迹。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 适合人群 -->
+<div class="section">
+  <div class="section-tag">Who Is This For</div>
+  <div class="section-title">这个测评适合你吗</div>
+  <div class="audience-list">
+    <div class="audience-item">
+      <div class="audience-icon">😤</div>
+      <div class="audience-text"><strong>容易被情绪「绑架」的人</strong>——明知道不该发火，但就是控制不住；明知道不该焦虑，但就是停不下来</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">💼</div>
+      <div class="audience-text"><strong>想提升职场软实力的人</strong>——技术能力没问题，但在处理冲突、读懂领导意图、团队协作上总是吃亏</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">💕</div>
+      <div class="audience-text"><strong>在感情里反复受伤的人</strong>——不明白为什么自己总是在关系中过度反应，或者总是压抑情绪直到崩溃</div>
+    </div>
+    <div class="audience-item">
+      <div class="audience-icon">🌱</div>
+      <div class="audience-text"><strong>想系统了解自己情绪模式的人</strong>——对自我成长有兴趣，想找到情绪问题的根源而不只是表面的「负面情绪」</div>
+    </div>
+  </div>
+</div>
+
+<!-- 品牌承诺 -->
+<div class="section promise-bg">
+  <div class="section-tag">Our Promise</div>
+  <div class="section-title">关于这份测评</div>
+  <div class="promise-grid">
+    <div class="promise-item">
+      <div class="promise-icon">🔒</div>
+      <div class="promise-title">数据不留存</div>
+      <div class="promise-text">所有计算在本地完成，服务器不记录任何答题数据</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">🎓</div>
+      <div class="promise-title">学术级模型</div>
+      <div class="promise-text">基于 Mayer-Salovey-Caruso 专业模型，非简化娱乐版</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-icon">🗓️</div>
+      <div class="promise-title">可重复测评</div>
+      <div class="promise-text">建议间隔 3-6 个月重测，追踪自己的情绪成长轨迹</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-orb"></div>
+  <div class="cta-content">
+    <div class="cta-title">你的情绪 IQ 有多高？</div>
+    <div class="cta-sub">8 分钟 · 40 题 · 立即查看结果</div>
+    <div class="cta-btn">开 始 测 评</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="footer-brand">宇宙认知盐究所 · Spacesaltlab</span>
+  <span class="footer-note">测评结果仅供参考，不构成心理诊断</span>
+</div>
+</div>
+
+</body>
+</html>
