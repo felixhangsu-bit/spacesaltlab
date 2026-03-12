@@ -286,44 +286,54 @@ function getPsychologicalAges(scores, realAge) {
     }
   };
 
-  // 根据得分比例计算心理年龄
+  // 根据得分比例计算心理年龄（允许与实际年龄有较大差距）
   Object.keys(scenes).forEach(key => {
     const ratio = scenes[key].score;
     let psychAge;
 
-    if (ratio >= 0.85) {
-      // 非常成熟，心理年龄高于实际年龄
-      psychAge = Math.round(realAge + (ratio - 0.7) * 20);
-    } else if (ratio >= 0.7) {
-      // 成熟，心理年龄略高于实际年龄
-      psychAge = Math.round(realAge + (ratio - 0.7) * 15);
-    } else if (ratio >= 0.55) {
-      // 符合年龄
-      psychAge = Math.round(realAge - (0.7 - ratio) * 8);
-    } else if (ratio >= 0.4) {
-      // 略显稚嫩
-      psychAge = Math.round(realAge - (0.7 - ratio) * 12);
+    // 使用非线性映射，让极端分数产生戏剧性差距
+    // ratio 范围 0~1，以 0.5 为分水岭
+    // 最高分可比真实年龄大30岁，最低分可小25岁
+    if (ratio >= 0.9) {
+      // 极致情绪成熟，比真实年龄老20~30岁
+      psychAge = Math.round(realAge + 20 + (ratio - 0.9) * 100);
+    } else if (ratio >= 0.75) {
+      // 成熟，比真实年龄老10~20岁
+      psychAge = Math.round(realAge + 10 + (ratio - 0.75) * 67);
+    } else if (ratio >= 0.6) {
+      // 略微成熟，比真实年龄老0~10岁
+      psychAge = Math.round(realAge + (ratio - 0.6) * 67);
+    } else if (ratio >= 0.45) {
+      // 略显稚嫩，比真实年龄小0~10岁
+      psychAge = Math.round(realAge - (0.6 - ratio) * 67);
+    } else if (ratio >= 0.3) {
+      // 情绪较不成熟，比真实年龄小10~18岁
+      psychAge = Math.round(realAge - 10 - (0.45 - ratio) * 53);
     } else {
-      // 需要成长
-      psychAge = Math.round(realAge - (0.7 - ratio) * 15);
+      // 情绪极不成熟，比真实年龄小18~25岁
+      psychAge = Math.round(realAge - 18 - (0.3 - ratio) * 23);
     }
 
     // 确保心理年龄在合理范围内
-    psychAge = Math.max(12, Math.min(80, psychAge));
+    psychAge = Math.max(5, Math.min(90, psychAge));
     scenes[key].age = psychAge;
 
     // 生成描述
     const diff = psychAge - realAge;
-    if (diff >= 8) {
-      scenes[key].desc = '远超同龄人的成熟度';
-    } else if (diff >= 3) {
+    if (diff >= 20) {
+      scenes[key].desc = '智慧远超同龄，如历经沧桑的老灵魂';
+    } else if (diff >= 12) {
+      scenes[key].desc = '远超同龄人的情绪成熟度';
+    } else if (diff >= 5) {
       scenes[key].desc = '展现出超越年龄的智慧';
-    } else if (diff >= -2) {
+    } else if (diff >= -4) {
       scenes[key].desc = '与实际年龄相符';
-    } else if (diff >= -6) {
-      scenes[key].desc = '有成长空间';
+    } else if (diff >= -12) {
+      scenes[key].desc = '有较大成长空间';
+    } else if (diff >= -20) {
+      scenes[key].desc = '情绪处理还在青涩阶段';
     } else {
-      scenes[key].desc = '需要更多历练';
+      scenes[key].desc = '如同孩子般的情绪世界，纯粹而需要磨砺';
     }
   });
 
@@ -334,21 +344,27 @@ function getPsychologicalAges(scores, realAge) {
   let mainType, mainDesc;
   const diff = avgPsychAge - realAge;
 
-  if (diff >= 10) {
+  if (diff >= 20) {
+    mainType = '老灵魂觉醒者';
+    mainDesc = '你的情绪世界比实际年龄老熟得多——那种看透人心、泰然处世的能力，不是靠年岁积累，而是靠对情绪的深刻观察与内省磨练出来的。荣格称这类人为"与无意识对话者"，他们能感知他人感知不到的情绪暗流，也能在混沌中保持自己的重心。你的情绪成熟度是罕见的礼物，请学会善用它，而不只是用它承接他人的情绪重量。';
+  } else if (diff >= 12) {
     mainType = '智慧长者型';
-    mainDesc = '你的情绪智力远超同龄人，在各种场景下都展现出卓越的情绪觉察和管理能力。你是朋友和同事眼中的"老灵魂"，总能给出成熟稳重的建议，是大家信赖的情感支柱。';
+    mainDesc = '你的情绪智力远超同龄人，在各种场景下都展现出卓越的情绪觉察和管理能力。你是朋友和同事眼中的"老灵魂"，总能给出成熟稳重的建议，是大家信赖的情感支柱。斯多葛哲学家马可·奥勒留说："你有权力管控的，是你对事物的看法。"你已在实践这一点。';
   } else if (diff >= 5) {
     mainType = '成熟稳重型';
     mainDesc = '你的情绪成熟度明显高于同龄人，在面对复杂的人际关系和情绪情境时，你通常能保持冷静和理性。你善于理解他人、调节情绪，这让你在工作和生活中都更加游刃有余。';
-  } else if (diff >= 0) {
+  } else if (diff >= -4) {
     mainType = '同龄优秀型';
     mainDesc = '你的情绪智力与实际年龄相符，并且在某些方面展现出优于同龄人的特质。你懂得识别和管理自己的情绪，在人际交往中表现得体。继续保持，你正在稳步成长。';
-  } else if (diff >= -5) {
+  } else if (diff >= -12) {
     mainType = '成长进行型';
-    mainDesc = '你正在情绪智力的成长道路上前行。虽然在某些情境下可能会感到困惑或难以控制情绪，但这正是学习和成长的机会。每一次情绪体验都是提升的契机，相信你会越来越好。';
+    mainDesc = '你正在情绪智力的成长道路上前行。虽然在某些情境下可能会感到困惑或难以控制情绪，但这正是学习和成长的机会。尼采说："那杀不死我的，使我更强。"每一次情绪的冲撞都是磨砺，请允许自己慢慢来。';
+  } else if (diff >= -20) {
+    mainType = '情绪少年型';
+    mainDesc = '在情绪处理上，你还保留着某种少年式的纯粹与直接——喜怒形于色，还没学会在情绪和表达之间建立一道缓冲。这既是局限，也是礼物：你比大多数人更真实，只是还需要时间学习如何与自己的情绪做朋友，而不只是被它们带着走。';
   } else {
-    mainType = '潜力无限型';
-    mainDesc = '你的情绪智力还有广阔的发展空间，这意味着你有着巨大的成长潜力！目前你可能在情绪觉察和管理方面遇到一些挑战，但请记住：情绪智力是可以通过学习和练习来提升的。每个人都有自己的成长节奏，你正站在成长的起点上。';
+    mainType = '原始情绪型';
+    mainDesc = '你的情绪世界像一片未被驯化的荒野——强烈、直接、几乎没有过滤。心理学家温尼科特说，人需要一个"足够好的环境"才能学会情绪调节。也许你还没有遇到那样的环境，但这不是你的错。情绪智力的核心不是压抑感受，而是学会与之共存。你还有很远的路可以走。';
   }
 
   return {
@@ -700,7 +716,7 @@ function showResult() {
         labels: ['情绪感知', '情绪运用', '情绪理解', '情绪管理'],
         datasets: [{ data: [scores.perceive, scores.facilitate, scores.understand, scores.manage], backgroundColor: 'rgba(139, 92, 246, 0.15)', borderColor: 'rgba(139, 92, 246, 0.8)', borderWidth: 2, pointBackgroundColor: 'rgba(139, 92, 246, 1)' }]
       },
-      options: { scales: { r: { beginAtZero: true, max: 40, ticks: { stepSize: 10, color: 'rgba(255,255,255,0.38)' }, grid: { color: 'rgba(255,255,255,0.07)' }, angleLines: { color: 'rgba(255,255,255,0.07)' }, pointLabels: { color: 'rgba(255,255,255,0.88)' } } }, plugins: { legend: { display: false } } }
+      options: { scales: { r: { beginAtZero: true, max: 40, ticks: { stepSize: 10, color: 'rgba(255,255,255,0.38)', backdropColor: 'transparent' }, grid: { color: 'rgba(255,255,255,0.07)' }, angleLines: { color: 'rgba(255,255,255,0.07)' }, pointLabels: { color: 'rgba(255,255,255,0.88)' } } }, plugins: { legend: { display: false } } }
     });
   }, 100);
 }

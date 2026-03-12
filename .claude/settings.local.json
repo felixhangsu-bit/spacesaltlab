@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git clone https://github.com/felixhangsu-bit/spacesaltlab.git d:/Projects/Spacesaltlab/)",
       "Bash(python scripts/generate_desire_covers.py)",
-      "Bash(PYTHONIOENCODING=utf-8 python scripts/generate_desire_covers.py)"
+      "Bash(PYTHONIOENCODING=utf-8 python scripts/generate_desire_covers.py)",
+      "Bash(grep -o 'dim: \"\"\"\"[^\"\"\"\"]*\"\"\"\"' d:/Projects/Spacesaltlab/desire/test.html)"
     ]
   }
 }

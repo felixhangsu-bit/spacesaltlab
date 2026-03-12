@@ -673,7 +673,7 @@ function showResult() {
         labels: ['情绪韧性', '认知灵活', '社会支持', '自我效能'],
         datasets: [{ data: [scores.emotional, scores.cognitive, scores.social, scores.efficacy], backgroundColor: 'rgba(102, 126, 234, 0.2)', borderColor: 'rgba(102, 126, 234, 1)', borderWidth: 2, pointBackgroundColor: 'rgba(102, 126, 234, 1)' }]
       },
-      options: { scales: { r: { beginAtZero: true, max: 28, ticks: { stepSize: 7, color: '#94a3b8', backdropColor: 'transparent' }, grid: { color: '#334155' }, angleLines: { color: '#334155' }, pointLabels: { color: '#e2e8f0' } } }, plugins: { legend: { display: false } } }
+      options: { scales: { r: { beginAtZero: true, max: 28, ticks: { stepSize: 7, color: 'rgba(255,255,255,0.38)', backdropColor: 'transparent' }, grid: { color: 'rgba(255,255,255,0.07)' }, angleLines: { color: 'rgba(255,255,255,0.07)' }, pointLabels: { color: 'rgba(255,255,255,0.75)' } } }, plugins: { legend: { display: false } } }
     });
   }, 100);
 }

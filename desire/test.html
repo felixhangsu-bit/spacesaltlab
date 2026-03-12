@@ -463,6 +463,14 @@ const desireTypes = {
     analysis: "加缪写过一个推石头上山的西西弗斯。大多数人看到的是徒劳，但加缪说「应当想象西西弗斯是幸福的」——因为那块石头就是他存在的证明。你和西西弗斯很像，只是你的石头是作品、成绩、头衔、或者任何可以被指着说「这是我做的」的东西。这种驱动力本身极其强大，它让你比大多数人更自律、更能忍受延迟满足、更愿意在别人放弃的地方坚持。人类文明的大部分成就，都是被这种驱动力推着走的。",
     shadow: "你最容易掉进的陷阱是「空心的勋章」。你可能在某个深夜突然发现：履历很漂亮，奖杯摆了一排，但内心有一个洞，每一次成就填进去都会漏掉。这是因为成就驱动的底层往往不是「我想变得更好」，而是「我需要证明我足够好」。前者的动力来自内在，永远充沛；后者的动力来自匮乏，永远不够。真正需要回答的问题不是「我还能做到什么」，而是「如果我什么都不做，我还是不是我？」"
   },
+  freedom_driven: {
+    name: "自由至上型",
+    icon: "🦅",
+    subtitle: "你丈量一切的尺度，是它是否让你窒息",
+    desc: "你活在一条隐形的红线上——任何试图越过这条线的东西，无论是人、制度、还是期待，都会激活你最原始的反抗本能。你不是叛逆，你只是比大多数人更早、更清楚地意识到：一个人一旦失去选择权，拥有再多也是一种形式的贫穷。你做选择的方式是排除法——不是「我想要什么」，而是「什么会让我感到被困住」。",
+    analysis: "萨特说「人被判处为自由的」——对大多数人来说这是一个哲学命题，对你来说这是日常体验。你的自由不是放纵或逃避责任，而是一种对自我主权的本能守护。你可能是那个在所有人都顺从时提出异议的人，在所有人都留下时选择离开的人，在规则面前永远先问「为什么」的人。这种特质让你不容易被外界定义，也不容易被任何系统收编。尼采所说的「骆驼-狮子-孩童」三重变化中，你天然就是那头狮子——你对一切「你应该」说「我偏不」。",
+    shadow: "你最容易掉进的陷阱是「自由的监狱」。当你把「不被束缚」变成最高原则时，它本身就成了一种束缚——你可能会拒绝一切长期承诺、回避任何需要持续投入的关系、在任何事情变得稍微固定时就感到窒息。你以为你在追求自由，但有时你其实在逃避深度。存在主义说自由和责任是硬币两面，你拿了自由那一面，却把责任那面藏了起来。真正的自由不是永远在路上——是你可以选择停下来，但你知道你随时可以再出发。"
+  },
   desire_split: {
     name: "欲望分裂型",
     icon: "🎭",
@@ -565,16 +573,30 @@ function getDesireType(scores) {
   const highest = sorted[0];
   const second = sorted[1];
 
-  // 检查是否分裂型
+  // 只有当所有维度得分非常接近时才判定为分裂型（极差 <= 3）
   const range = sorted[0][1] - sorted[sorted.length - 1][1];
-  if (range < 8) return "desire_split";
+  if (range <= 3) return "desire_split";
 
   // 根据主导欲望判断类型
-  if (highest[0] === "security") return "security_driven";
-  if (highest[0] === "emotion") return "emotion_driven";
-  if (highest[0] === "achievement" || highest[0] === "desired") return "achievement_driven";
-  if (highest[0] === "money") return highest[1] - second[1] > 4 ? "achievement_driven" : "security_driven";
-  if (highest[0] === "freedom") return second[0] === "emotion" ? "emotion_driven" : "desire_split";
+  const top = highest[0];
+  if (top === "security") return "security_driven";
+  if (top === "emotion") return "emotion_driven";
+  if (top === "achievement" || top === "desired") return "achievement_driven";
+  if (top === "freedom") return "freedom_driven";
+  if (top === "money") {
+    // 金钱主导时，看第二高维度来辅助判断
+    if (second[0] === "achievement" || second[0] === "desired") return "achievement_driven";
+    if (second[0] === "security") return "security_driven";
+    if (second[0] === "freedom") return "freedom_driven";
+    return "achievement_driven";
+  }
+
+  // 根据前两维度的组合做最终判断
+  const topTwo = new Set([highest[0], second[0]]);
+  if (topTwo.has("security")) return "security_driven";
+  if (topTwo.has("emotion")) return "emotion_driven";
+  if (topTwo.has("achievement") || topTwo.has("desired")) return "achievement_driven";
+  if (topTwo.has("freedom")) return "freedom_driven";
 
   return "desire_split";
 }
@@ -620,6 +642,7 @@ function getRisk(scores, type) {
     security_driven: "你最大的风险不是外部的灾难，而是你为了防范灾难而搭建的堡垒本身。当安全感成为最高优先级，你可能不自觉地把生活的面积越缩越小——只去去过的餐厅、只做有把握的事、只维持不会受伤的关系。最终你守住了安全，但失去了面积。尼采说过一句残忍但准确的话：「那些不能杀死你的，会使你更强大。」你需要的不是更厚的城墙，而是一次在城墙外过夜、并且发现黎明照常升起的经验。允许自己「小范围地失控」，你会发现世界没有你想的那么危险。",
     emotion_driven: "你最大的风险是「以爱为名的自我遗失」。当你太在意关系中对方的感受，你会不自觉地变成一面镜子——对方想看到什么，你就反射什么。时间久了，你可能在某个瞬间发现：你知道所有人需要什么，唯独不知道自己需要什么。更危险的是，你可能把「被需要」等同于「被爱」——你通过付出来换取存在感，一旦对方不再需要你，你会觉得自己失去了全部价值。哲学家列维纳斯说：真正的伦理关系是面对一张脸，而不是面对一面镜子。你需要做的是：在照顾所有人之前，先看见自己的那张脸。",
     achievement_driven: "你最大的风险是「跑步机效应」——你一直在跑，速度越来越快，但你跑的是一条没有终点线的跑道。每次达成一个目标，多巴胺维持不了三天，你就开始瞄准下一个。你以为自己在进步，其实你在逃跑——你在逃避一个念头：「如果我停下来，我还是谁？」叔本华说人生在痛苦和无聊之间摆动，对你来说可能要加一条：在「还不够」和「又不够」之间摆动。试着做一个实验：花一整天什么目标都不设，看看那种空白让你有什么感觉。如果是恐惧，那就找到了真正需要面对的东西。",
+    freedom_driven: "你最大的风险是「永远在路上，从未真正抵达」。你可能换了很多城市、很多工作、很多圈子——每一次离开都很潇洒，但每一次出发都带着上一次未完成的东西。你把「不被束缚」当作生命的最高原则，但有时候你逃离的不是束缚，而是深度。一段关系变得认真了——你走了；一份工作开始触碰核心了——你换了。萨特说自由是一种「被抛弃的存在」，你享受了自由的部分，却回避了被抛弃的部分。真正的自由不是永远漂泊——是你有能力停下来，也有能力再出发。",
     desire_split: "你最大的风险是「永恒的彩排，从未正式演出」。因为你的每一种欲望都足够强烈，你在做选择时总是觉得「现在还不是最好的时机」「等我想清楚再说」。你花了大量的时间在权衡、在比较、在等待一个所有条件都对齐的完美时刻——但那个时刻不会来。克尔凯郭尔有一句话仿佛就是写给你的：「如果你不做选择，那也是一种选择——你选择了不选择。」你需要接受一个残酷但解放的事实：每一个选择都意味着放弃，但不选择意味着放弃所有。"
   };
   return risks[type];
@@ -645,6 +668,12 @@ function getTypeSuggestions(type, scores) {
       "区分「内驱」和「外驱」：列出你最近在做的三件事，在每件旁边标注：这是因为我真的想做，还是因为做了别人会觉得厉害？如果大部分是后者，你可能在给别人的期待打工",
       "允许自己「做一个普通人」的时间：不是永远，只是偶尔。去做一些完全不会出现在简历上的事——学烤面包、在公园发呆、和老人下棋。感受那种「无用的快乐」"
     ],
+    freedom_driven: [
+      "区分「逃离」和「奔向」：下次你想离开某个地方、某段关系或某份工作时，问自己一个问题：「我是在逃避什么，还是在走向什么？」如果你只有逃离的理由，没有目的地，那你需要的可能不是自由，是勇气——留下来面对那个让你窒息的东西",
+      "做一个「自由审计」：列出你生活中所有让你感到被束缚的东西，然后在每一项后面写：「如果我接受它，我会失去什么？」你会发现很多你以为不可忍受的东西，其实成本远低于你的想象",
+      "尝试一次「主动选择的束缚」：选一件事坚持做90天——学一门技能、维护一段关系、或者只是每天在同一个时间做同一件事。感受在重复中出现的深度，那是漂泊永远给不了你的东西",
+      "问自己一个萨特式的问题：「如果我是绝对自由的，我会做什么？」然后诚实回答。如果答案和你现在的生活差不多，那你已经拥有了你需要的自由。如果差很远，那就去做——但这次不是逃，是选择"
+    ],
     desire_split: [
       "用「身体投票法」做决定：当理性分析把你带进死胡同时，闭上眼想象两个选项，感受身体的反应——哪个让你肩膀松下来？哪个让你不自觉地往前倾？身体的智慧往往比大脑的算计更诚实",
       "接受「70分选择」：你追求的不是最优解，而是此刻的最优解。一个70分的决定立刻执行，好过一个100分的决定永远在等。完美主义不是你的朋友，行动力才是",
@@ -653,6 +682,87 @@ function getTypeSuggestions(type, scores) {
     ]
   };
   return suggestions[type] || suggestions.desire_split;
+}
+
+function getTrueDrive(scores) {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const top = sorted[0];
+  const second = sorted[1];
+  const topDim = dimensions[top[0]];
+  const secondDim = dimensions[second[0]];
+
+  const driveMap = {
+    emotion: {
+      surface: "你可能以为自己在追求成功、安全、或者独立——但数据不会撒谎。你做的每一个重大决定，最终都会回到一个隐藏的问题：「这会让我离重要的人更近，还是更远？」",
+      deep: "你的真实引擎是「被连接」。你选城市看朋友在哪，选工作看团队氛围，甚至买东西时脑子里闪过的也是「谁会喜欢这个」。你不是不独立——你只是从骨子里相信：一个没有深度连接的人生，再成功也是空转。",
+      risk: "但这也意味着：你可能已经在不知不觉中，把自己的人生坐标系建在了别人身上。"
+    },
+    security: {
+      surface: "你可能觉得自己是一个理性、务实的人，做选择靠分析不靠冲动。但你的「理性」底下，藏着一个更原始的声音：「我不能让自己处于不可控的境地。」",
+      deep: "你的真实引擎是「掌控感」。你存钱不只是为了花，是为了「万一」。你做计划不只是为了效率，是为了把变量控制在你能承受的范围内。你活得像一个永远在做最坏打算的人——不是因为悲观，而是你比大多数人更早意识到世界的不确定性。",
+      risk: "但问题是：你为了防御未来而搭建的堡垒，可能正在缩小你现在能活的面积。"
+    },
+    money: {
+      surface: "你大概不会在社交场合说「我最在乎钱」——但你的得分说了。这不是肤浅，这是一种被误解的清醒。",
+      deep: "你的真实引擎是「选择权」。你追求物质的底层动力不是贪婪，是你深刻理解一个事实：没钱的时候，你的「选择」只是别人给你画好的选项。你想要的不是奢侈，是「不必将就」的底气——不必将就工作、不必将就关系、不必将就任何你内心说「不」的东西。",
+      risk: "但你需要检查一件事：你是在「用钱换自由」，还是在「用赚钱来回避更难面对的东西」？"
+    },
+    achievement: {
+      surface: "你可能告诉自己你追求成就是因为「热爱」或者「想做有意义的事」。这没有错，但数据显示了一个更深的驱动力。",
+      deep: "你的真实引擎是「存在的证明」。你需要一个有形的东西——一个结果、一份认可、一行可以写进履历的成就——来回答一个你可能不愿意直视的问题：「我的存在有价值吗？」加缪说西西弗斯推石头上山是为了证明存在本身的意义——你推的那块石头叫「成就」。",
+      risk: "但如果你停下来呢？如果你什么都不做呢？那个时候的你——还是你吗？这个问题的答案，决定了你的成就驱动是力量还是枷锁。"
+    },
+    freedom: {
+      surface: "你可能觉得自己只是「不喜欢被约束」——但你的自由需求得分显示，这远不是一个偏好，这是你整个人格的地基。",
+      deep: "你的真实引擎是「自我主权」。你做每一个决定时，心里都有一条红线在检查：「这是我自己选的，还是被安排的？」一旦那条线被触碰——哪怕是一件小事——你就会本能地退缩或反抗。你不是不合群，你是对「被定义」有一种近乎过敏的反应。",
+      risk: "但要诚实地问自己：你追求的到底是自由本身，还是在用「保持自由」来回避那些需要你扎根、停留、承诺的东西？"
+    },
+    desired: {
+      surface: "这是一个大多数人不愿意承认的需求：你最深处的渴望不是钱、不是自由、不是成就——而是「被想要」。",
+      deep: "你的真实引擎是「存在被渴望」。你不只是想被爱，你想被选择、被追求、被那个人从人群中一眼看见。这种需求不是虚荣——它比虚荣深得多。它的根源可能在于你的早期经历中，有一种「我需要证明自己值得被要」的信念悄悄种下了。温尼科特说真正的自我只有在被无条件看见时才能生长——你可能一直在寻找那个「无条件看见你」的眼睛。",
+      risk: "问题是：你是否因此开始表演一个「更容易被喜欢的版本」，而那个版本，和真实的你之间，已经有了一道裂缝？"
+    }
+  };
+
+  const drive = driveMap[top[0]];
+  return {
+    topDim: topDim,
+    topScore: top[1],
+    secondDim: secondDim,
+    secondScore: second[1],
+    surface: drive.surface,
+    deep: drive.deep,
+    risk: drive.risk
+  };
+}
+
+function getBlindSpot(scores) {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const top = sorted[0];
+  const bottom = sorted[sorted.length - 1];
+  const gap = top[1] - bottom[1];
+  const topInfo = dimensions[top[0]];
+  const bottomInfo = dimensions[bottom[0]];
+
+  let insight = '';
+  if (gap >= 12) {
+    insight = '你的欲望结构呈现出极端的「单极化」——' + topInfo.name + '（' + top[1] + '分）像一颗恒星一样吞噬了你几乎所有的心理能量，而' + bottomInfo.name + '（' + bottom[1] + '分）几乎处于休眠状态。这种结构说明你在过去的某个时间点做出了一个（可能是无意识的）决定：你把全部赌注押在了一种需求上。这种聚焦给了你巨大的驱动力，但也制造了一个巨大的盲区——你的' + bottomInfo.name + '需求不是不存在，只是你已经听不见它的声音了。当这种被压抑的需求积累到临界点，它不会礼貌地敲门——它会破门而入。';
+  } else if (gap >= 8) {
+    insight = '你的' + topInfo.name + '（' + top[1] + '分）和' + bottomInfo.name + '（' + bottom[1] + '分）之间有' + gap + '分的落差。这个落差意味着：你生活中的大部分决策都在被一种你可能没有完全意识到的力量牵引，同时你正在系统性地忽视另一种需求。你以为你「不在乎」' + bottomInfo.name + '，但更可能的事实是：你把它压低了，因为正视它太麻烦、太痛苦、或者太不符合你对自己的定义。';
+  } else if (gap >= 5) {
+    insight = '你的欲望结构相对平衡，但' + topInfo.name + '和' + bottomInfo.name + '之间仍然有一个值得注意的' + gap + '分差距。这不是一个危险信号，而是一个窗口——它告诉你，在日常的忙碌中，哪一种需求正在被你习惯性地放在最后。';
+  } else {
+    insight = '你的欲望结构异常均衡。六种需求的得分非常接近，这意味着你内心是一个复杂的议会而非一个独裁者——每种声音都有发言权，但也因此，你在做选择时可能常常感到内耗。你的盲点不是忽视了某种需求，而是你可能太民主了——每种需求都在说话，但没有人拍板。';
+  }
+
+  return {
+    gap: gap,
+    topDim: top[0],
+    topScore: top[1],
+    bottomDim: bottom[0],
+    bottomScore: bottom[1],
+    insight: insight
+  };
 }
 
 function goToHome() { window.location.href = '../platform.html'; }
@@ -694,6 +804,8 @@ function showResult() {
   const sortedDims = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
   const typeSuggestions = getTypeSuggestions(typeKey, scores);
+  const trueDrive = getTrueDrive(scores);
+  const blindSpot = getBlindSpot(scores);
 
   // 获取维度解读
   function getDimInterp(dim, score) {
@@ -712,87 +824,156 @@ function showResult() {
     </div>
 
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#2e1065">🎯</div>核心类型解读</div>
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.6);text-transform:uppercase;margin-bottom:12px;">YOUR DESIRE TYPE</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(88,28,135,0.4)">🎯</div>核心类型解读</div>
       <div class="type-main">
         <div class="type-icon">${type.icon}</div>
         <div class="type-name">${type.name}</div>
         <div class="type-subtitle">${type.subtitle}</div>
         <div class="type-desc">${type.desc}</div>
       </div>
-      <div style="padding:20px 0;font-size:14px;color:var(--text);line-height:1.8;">
-        <div style="font-weight:600;color:var(--primary);margin-bottom:12px;">深层心理分析</div>
+      <div style="padding:20px 0;font-size:14px;color:rgba(255,255,255,0.6);line-height:2;">
+        <div style="font-family:'Noto Serif SC',serif;font-weight:600;color:var(--primary);margin-bottom:12px;">深层心理分析</div>
         <p style="margin-bottom:16px;">${type.analysis}</p>
-        <div style="font-weight:600;color:#f87171;margin-bottom:12px;">你的阴影面</div>
+        <div style="font-family:'Noto Serif SC',serif;font-weight:600;color:#f87171;margin-bottom:12px;">你的阴影面</div>
         <p>${type.shadow}</p>
       </div>
     </div>
 
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
+    <div class="card" style="border-left:2px solid rgba(139,92,246,0.4);">
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.7);text-transform:uppercase;margin-bottom:12px;">TRUE DRIVING FORCE</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(88,28,135,0.4)">🔑</div>你的真实驱动力</div>
+      <div style="padding:16px;background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.1);margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="font-family:'EB Garamond',serif;font-size:36px;color:rgba(139,92,246,0.7);font-weight:600;">#1</div>
+          <div>
+            <div style="font-family:'Noto Serif SC',serif;font-size:18px;color:rgba(255,255,255,0.88);font-weight:700;">${trueDrive.topDim.icon} ${trueDrive.topDim.name}</div>
+            <div style="font-family:'EB Garamond',serif;font-size:14px;color:rgba(139,92,246,0.6);">${trueDrive.topScore} / ${maxScore}</div>
+          </div>
+        </div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:2;">${trueDrive.surface}</div>
+      </div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.65);line-height:2;padding-left:16px;border-left:2px solid rgba(139,92,246,0.15);margin-bottom:16px;">${trueDrive.deep}</div>
+      <div style="padding:14px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.1);">
+        <div style="font-family:'EB Garamond',serif;font-size:10px;letter-spacing:2px;color:rgba(239,68,68,0.5);text-transform:uppercase;margin-bottom:6px;">CAUTION</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.8;font-style:italic;">${trueDrive.risk}</div>
+      </div>
+    </div>
+
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#1e3a5f">📊</div>欲望结构雷达图</div>
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.6);text-transform:uppercase;margin-bottom:12px;">DESIRE STRUCTURE</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(30,58,95,0.6)">📊</div>欲望结构雷达图</div>
       <div class="chart-container">
         <canvas id="radarChart"></canvas>
       </div>
     </div>
 
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#78350f">📈</div>六维度欲望解析</div>
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.6);text-transform:uppercase;margin-bottom:12px;">SIX DIMENSIONS</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(120,53,15,0.5)">📈</div>六维度欲望解析</div>
       ${sortedDims.map(([dim, score], i) => {
         const info = dimensions[dim];
         const pct = (score / maxScore) * 100;
         const level = pct >= 70 ? '主导' : pct >= 50 ? '中等' : '较低';
         const levelColor = pct >= 70 ? '#059669' : pct >= 50 ? '#d97706' : '#6b7280';
-        const levelBg = pct >= 70 ? '#064e3b' : pct >= 50 ? '#78350f' : '#1e293b';
+        const levelBg = pct >= 70 ? 'rgba(6,78,59,0.4)' : pct >= 50 ? 'rgba(120,53,15,0.4)' : 'rgba(30,41,59,0.4)';
         const interp = getDimInterp(dim, score);
         return '<div class="dim-item">' +
           '<div class="dim-header">' +
             '<div class="dim-name"><div class="dim-icon" style="background:' + info.bg + '">' + info.icon + '</div>' + info.name + '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;">' +
               '<span class="dim-level" style="background:' + levelBg + ';color:' + levelColor + '">' + level + '</span>' +
-              '<span style="font-weight:600;color:var(--primary);">' + score + '/' + maxScore + '</span>' +
+              '<span style="font-family:EB Garamond,serif;font-weight:600;color:var(--primary);">' + score + '/' + maxScore + '</span>' +
             '</div>' +
           '</div>' +
           '<div class="dim-bar"><div class="dim-bar-fill" style="width:' + pct + '%;background:' + info.color + '"></div></div>' +
-          '<div style="margin-top:12px;font-size:13px;color:#94a3b8;line-height:1.8;">' + interp + '</div>' +
+          '<div style="margin-top:12px;font-size:13px;color:rgba(255,255,255,0.45);line-height:1.8;">' + interp + '</div>' +
         '</div>';
       }).join('')}
     </div>
 
-    <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#312e81">🔮</div>被压抑的欲望</div>
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
+    <div class="card" style="border-left:2px solid rgba(245,158,11,0.4);">
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(245,158,11,0.6);text-transform:uppercase;margin-bottom:12px;">BLIND SPOT</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(120,53,15,0.5)">👁️</div>你的欲望盲区</div>
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <div style="flex:1;padding:14px;background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.1);text-align:center;">
+          <div style="font-family:'EB Garamond',serif;font-size:10px;letter-spacing:2px;color:rgba(139,92,246,0.5);text-transform:uppercase;margin-bottom:6px;">STRONGEST</div>
+          <div style="font-size:20px;margin-bottom:4px;">${dimensions[blindSpot.topDim].icon}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);">${dimensions[blindSpot.topDim].name}</div>
+          <div style="font-family:'EB Garamond',serif;font-size:24px;color:rgba(139,92,246,0.7);margin-top:4px;">${blindSpot.topScore}</div>
+        </div>
+        <div style="display:flex;align-items:center;color:rgba(255,255,255,0.15);font-size:24px;">⇄</div>
+        <div style="flex:1;padding:14px;background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.08);text-align:center;">
+          <div style="font-family:'EB Garamond',serif;font-size:10px;letter-spacing:2px;color:rgba(239,68,68,0.4);text-transform:uppercase;margin-bottom:6px;">WEAKEST</div>
+          <div style="font-size:20px;margin-bottom:4px;">${dimensions[blindSpot.bottomDim].icon}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);">${dimensions[blindSpot.bottomDim].name}</div>
+          <div style="font-family:'EB Garamond',serif;font-size:24px;color:rgba(239,68,68,0.5);margin-top:4px;">${blindSpot.bottomScore}</div>
+        </div>
+      </div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.55);line-height:2;padding:14px;background:rgba(245,158,11,0.03);border:1px solid rgba(245,158,11,0.08);">${blindSpot.insight}</div>
+    </div>
+
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
+    <div class="card" style="border-left:2px solid rgba(168,85,247,0.4);">
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(168,85,247,0.6);text-transform:uppercase;margin-bottom:12px;">SUPPRESSED NEED</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(49,46,129,0.5)">🔮</div>被压抑的欲望</div>
+      <div style="text-align:center;padding:16px 0;margin-bottom:16px;">
+        <div style="font-size:36px;margin-bottom:8px;">${suppressed.info.icon}</div>
+        <div style="font-family:'Noto Serif SC',serif;font-size:20px;color:rgba(255,255,255,0.85);font-weight:700;">${suppressed.info.name}</div>
+        <div style="font-size:13px;color:rgba(168,85,247,0.6);margin-top:4px;">你最深处没有被听见的声音</div>
+      </div>
       <div class="suppressed-box">
-        <div class="suppressed-title">${suppressed.info.icon} ${suppressed.info.name}——你最深处没有被听见的声音</div>
-        <div class="suppressed-content">${suppressed.interpretation}</div>
+        <div class="suppressed-content" style="font-size:14px;line-height:2.0;color:rgba(255,255,255,0.55);">${suppressed.interpretation}</div>
       </div>
     </div>
 
-    ${conflict ? '<div class="card"><div class="section-title"><div class="section-icon" style="background:#78350f">⚔️</div>欲望冲突结构</div><div class="conflict-box"><div class="conflict-title">⚔️ 你内心的拉锯战</div><div class="conflict-content">' + conflict.desc + '</div></div></div>' : ''}
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
 
-    <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#450a0a">⚠️</div>风险觉察</div>
+    ${conflict ? '<div class="card"><div style="font-family:EB Garamond,serif;font-size:11px;letter-spacing:3px;color:rgba(245,158,11,0.6);text-transform:uppercase;margin-bottom:12px;">INNER CONFLICT</div><div class="section-title"><div class="section-icon" style="background:rgba(120,53,15,0.5)">⚔️</div>欲望冲突结构</div><div class="conflict-box"><div class="conflict-title">⚔️ 你内心的拉锯战</div><div class="conflict-content" style="font-size:14px;line-height:2.0;color:rgba(255,255,255,0.55);">' + conflict.desc + '</div></div></div><div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>' : ''}
+
+    <div class="card" style="border-left:2px solid rgba(239,68,68,0.3);">
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(239,68,68,0.5);text-transform:uppercase;margin-bottom:12px;">RISK AWARENESS</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(69,10,10,0.5)">⚠️</div>风险觉察</div>
       <div class="risk-box">
-        <div class="risk-title">你最可能掉进的陷阱</div>
-        <div class="risk-content">${risk}</div>
+        <div class="risk-title" style="color:rgba(239,68,68,0.6);">你最可能掉进的陷阱</div>
+        <div class="risk-content" style="font-size:14px;line-height:2.0;color:rgba(255,255,255,0.55);">${risk}</div>
       </div>
     </div>
 
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
     <div class="card">
-      <div class="section-title"><div class="section-icon" style="background:#064e3b">💡</div>写给你的行动处方</div>
-      ${typeSuggestions.map((t, i) => '<div class="tip-item"><div class="tip-num">' + (i+1) + '</div><div class="tip-text">' + t + '</div></div>').join('')}
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.6);text-transform:uppercase;margin-bottom:12px;">ACTION PLAN</div>
+      <div class="section-title"><div class="section-icon" style="background:rgba(6,78,59,0.4)">💡</div>写给你的行动处方</div>
+      ${typeSuggestions.map((t, i) => '<div class="tip-item"><div class="tip-num">' + (i+1) + '</div><div class="tip-text" style="font-size:14px;line-height:2.0;color:rgba(255,255,255,0.55);">' + t + '</div></div>').join('')}
     </div>
 
-    <div class="card" style="text-align:center;background:linear-gradient(135deg,#2e1065 0%,#1e1b4b 100%)">
-      <div style="font-size:32px;margin-bottom:16px;">🌊</div>
-      <p style="font-size:16px;color:#c4b5fd;line-height:2;font-weight:500;">
+    <div style="height:1px;background:rgba(255,255,255,0.05);margin:24px 0;"></div>
+
+    <div class="card" style="text-align:center;background:rgba(255,255,255,0.015);border:1px solid rgba(139,92,246,0.08);">
+      <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.4);text-transform:uppercase;margin-bottom:16px;">CLOSING</div>
+      <p style="font-family:'Noto Serif SC',serif;font-size:16px;color:rgba(255,255,255,0.6);line-height:2.2;font-weight:300;">
         欲望不是你的敌人，它是你最诚实的翻译官<br>
-        它把你内心真正在乎的东西，翻译成了行动、翻译成了选择、翻译成了每一个辗转难眠的夜晚
+        它把你内心真正在乎的东西<br>
+        翻译成了行动、选择、和每一个辗转难眠的夜晚
       </p>
-      <p style="font-size:14px;color:#a78bfa;line-height:1.8;margin-top:16px;">
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,0.15),transparent);margin:20px auto;max-width:200px;"></div>
+      <p style="font-size:14px;color:rgba(255,255,255,0.35);line-height:1.8;font-style:italic;">
         苏格拉底说「未经审视的人生不值得过」<br>
-        而你刚刚做的，就是审视<br>
+        你刚刚做的，就是审视<br>
         看见自己的欲望结构，不是为了控制它<br>
         而是为了在下一个十字路口<br>
-        你能分清——<br>
-        哪个方向是恐惧在推你，哪个方向是渴望在拉你
+        分清——哪个方向是恐惧在推你<br>
+        哪个方向是渴望在拉你
       </p>
     </div>
 
@@ -833,7 +1014,10 @@ function showResult() {
           r: {
             beginAtZero: true,
             max: 24,
-            ticks: { stepSize: 6 }
+            ticks: { stepSize: 6, color: 'rgba(255,255,255,0.38)', backdropColor: 'transparent' },
+            grid: { color: 'rgba(255,255,255,0.07)' },
+            angleLines: { color: 'rgba(255,255,255,0.07)' },
+            pointLabels: { color: 'rgba(255,255,255,0.75)' }
           }
         },
         plugins: { legend: { display: false } }
