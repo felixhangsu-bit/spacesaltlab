@@ -8,68 +8,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="../shared/test-common.css">
 <style>
-:root {
-  --primary: #8b5cf6;
-  --primary-dark: #7c3aed;
-  --primary-light: #a78bfa;
-  --bg: #0a0a0a;
-  --card: rgba(255,255,255,0.025);
-  --card-border: rgba(255,255,255,0.07);
-  --text: rgba(255,255,255,0.88);
-  --text-muted: rgba(255,255,255,0.38);
-  --border: rgba(255,255,255,0.07);
-  --accent: rgba(139,92,246,0.55);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-weight: 300; }
-.noise { position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
-.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
-.page.active { display: block; }
-
-/* 测试页 */
-#testPage { background: var(--bg); padding: 20px; }
-.test-container { max-width: 700px; margin: 0 auto; }
-.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 0; transition: all 0.2s; font-family: 'Noto Sans SC', sans-serif; letter-spacing: 1px; }
-.back-btn:hover { border-color: rgba(139,92,246,0.4); color: var(--text); }
-.progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
-.progress-bar { width: 180px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 0; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); border-radius: 0; transition: width 0.3s; }
-.question-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 40px; position: relative; overflow: hidden; }
-.question-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#8b5cf6,transparent); }
-.q-num { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-family: 'EB Garamond', serif; letter-spacing: 3px; }
-.q-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 32px; font-family: 'Noto Serif SC', serif; color: var(--text); }
-.options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.04); }
-.opt.selected { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.08); }
-.opt-radio { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
-.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
-.opt-text { font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 2.0; }
-.opt.selected .opt-text { color: var(--text); }
-.nav-btns { display: flex; gap: 12px; margin-top: 32px; }
-.nav-btn { flex: 1; padding: 14px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-.nav-btn.secondary:hover { border-color: rgba(139,92,246,0.4); }
-.nav-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-.nav-btn.primary:hover { background: rgba(139,92,246,0.25); }
-.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* 结果页 */
-#resultPage { background: var(--bg); }
-.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-.result-header { text-align: center; margin-bottom: 40px; }
-.result-logo { font-size: 64px; margin-bottom: 16px; }
-.result-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: 'Noto Serif SC', serif; }
-.result-subtitle { color: var(--text-muted); font-size: 15px; font-weight: 300; }
-.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 32px; margin-bottom: 24px; position: relative; overflow: hidden; }
-.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#8b5cf6,transparent); }
-.section-title { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--text); font-family: 'Noto Serif SC', serif; }
-.section-icon { width: 36px; height: 36px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-
 /* 动物人格卡片 */
 .animal-main { display: flex; gap: 24px; align-items: center; padding: 24px; background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.15); border-radius: 0; margin-bottom: 20px; position: relative; overflow: hidden; }
 .animal-main::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#8b5cf6,transparent); }
@@ -100,38 +40,6 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .switch-title { font-weight: 600; color: var(--primary-light); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-family: 'Noto Serif SC', serif; }
 .switch-content { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 2.0; font-weight: 300; }
 
-/* 建议 */
-.tip-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.tip-item:last-child { border-bottom: none; }
-.tip-num { width: 28px; height: 28px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); border-radius: 0; display: flex; align-items: center; justify-content: center; color: var(--primary-light); font-size: 14px; font-weight: 600; flex-shrink: 0; font-family: 'EB Garamond', serif; }
-.tip-text { font-size: 14px; color: var(--text-muted); line-height: 2.0; font-weight: 300; }
-
-/* 按钮 */
-.action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
-.action-btn { flex: 1; min-width: 140px; padding: 16px 24px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.action-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-.action-btn.primary:hover { background: rgba(139,92,246,0.25); }
-.action-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-.action-btn.secondary:hover { border-color: rgba(139,92,246,0.4); }
-.restart-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 16px 24px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.restart-btn:hover { border-color: rgba(139,92,246,0.4); }
-
-/* 弹窗 */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 0; padding: 40px; max-width: 400px; text-align: center; }
-.modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 20px; margin-bottom: 12px; font-family: 'Noto Serif SC', serif; }
-.modal-content p { color: var(--text-muted); margin-bottom: 24px; font-weight: 300; }
-.modal-btn { padding: 14px 32px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 2px; }
-.modal-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-
-/* loading */
-.loading-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
-.loading-overlay.show { opacity: 1; visibility: visible; }
-.loading-spinner { width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.07); border-top: 1px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
 /* 天赋点系统 */
 .talent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
 .talent-item { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; padding: 16px; }
@@ -156,14 +64,6 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .talent-growth { background: rgba(139,92,246,0.04); border: 1px solid rgba(139,92,246,0.1); border-radius: 0; padding: 16px; margin-top: 16px; }
 .talent-growth-title { font-size: 14px; font-weight: 600; color: var(--primary-light); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-family: 'Noto Serif SC', serif; }
 .talent-growth-content { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 2.0; font-weight: 300; }
-
-/* 渐变文字效果 */
-.gradient-text {
-  background: linear-gradient(135deg, #ddd6fe, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
 
 /* 章节装饰分隔线 */
 .section-divider {
@@ -321,7 +221,6 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 
 @media (max-width: 640px) {
   .animal-main { flex-direction: column; text-align: center; }
-  .action-buttons { flex-direction: column; }
   .talent-grid { grid-template-columns: 1fr; }
 }
 </style>
@@ -372,27 +271,27 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 const questions = [
   // 放松安全时 (4题)
   { q: "如果你的内心是一间房子，没有客人的时候，房间里会是什么样子？", situation: "relax", options: [
-    { text: "窗帘半掩，一本翻到一半的书搁在扶手上，安静得能听见灰尘落地", animals: ["cat", "owl"] },
+    { text: "窗帘半掩，一本翻到一半的书搁在扶手上，安静得能听见灰尘落地", animals: ["cat", "rabbit"] },
     { text: "门虚掩着，桌上有两杯没喝完的茶，仿佛随时有人会推门进来", animals: ["dog", "dolphin"] },
-    { text: "墙上挂满了地图和笔记，某个角落堆着还没拆封的新工具", animals: ["owl", "fox"] },
-    { text: "花瓶里插着今早刚剪的花，桌上摊开着写了一半的信", animals: ["fox", "deer"] }
+    { text: "墙上挂满了地图和笔记，某个角落堆着还没拆封的新工具", animals: ["horse", "fox"] },
+    { text: "花瓶里插着今早刚剪的花，桌上摊开着写了一半的信", animals: ["deer", "snake"] }
   ]},
   { q: "你漂流到一座无人岛，发现这里什么都有。第一个黄昏，你会做什么？", situation: "relax", options: [
-    { text: "找一块高处的岩石坐下来，安静地看一场完整的日落", animals: ["cat", "owl"] },
+    { text: "找一块高处的岩石坐下来，安静地看一场完整的日落", animals: ["cat", "eagle"] },
     { text: "对着大海喊话，然后写一封漂流瓶的信寄给某个人", animals: ["dog", "dolphin"] },
-    { text: "沿着海岸线走一圈，弄清这座岛的边界和秘密", animals: ["fox", "owl"] },
-    { text: "在沙滩上画画，用贝壳拼一幅送给自己的礼物", animals: ["deer", "dolphin"] }
+    { text: "沿着海岸线走一圈，弄清这座岛的边界和秘密", animals: ["fox", "horse"] },
+    { text: "在沙滩上画画，用贝壳拼一幅送给自己的礼物", animals: ["deer", "rabbit"] }
   ]},
   { q: "在梦里你获得了一种超能力，醒来后隐约还记得——那大概是什么？", situation: "relax", options: [
-    { text: "隐身术，可以自由地消失在人群中不被任何人发现", animals: ["cat", "wolf"] },
+    { text: "隐身术，可以自由地消失在人群中不被任何人发现", animals: ["cat", "snake"] },
     { text: "让任何靠近你的人都感到温暖，像壁炉旁的毯子", animals: ["dog", "dolphin"] },
-    { text: "读懂万物的语言，包括风声、雨滴和墙上的裂纹", animals: ["fox", "owl"] },
+    { text: "读懂万物的语言，包括风声、雨滴和墙上的裂纹", animals: ["owl", "snake"] },
     { text: "触碰任何枯萎的东西都能让它重新开花", animals: ["deer", "dog"] }
   ]},
   { q: "如果时间是一条河流，你在最自在的时刻，和它是什么关系？", situation: "relax", options: [
     { text: "坐在河岸上，看它流过，不想也不必跳进去", animals: ["cat", "owl"] },
-    { text: "和喜欢的人一起顺流而下，水花溅到脸上也很开心", animals: ["dog", "dolphin"] },
-    { text: "逆流而上，想看看源头到底藏着什么", animals: ["fox", "wolf"] },
+    { text: "和喜欢的人一起顺流而下，水花溅到脸上也很开心", animals: ["dog", "horse"] },
+    { text: "逆流而上，想看看源头到底藏着什么", animals: ["eagle", "wolf"] },
     { text: "在河中央漂浮，闭上眼睛感受水温的变化", animals: ["deer", "dolphin"] }
   ]},
 
@@ -400,77 +299,77 @@ const questions = [
   { q: "有人递给你一把钥匙，说「这是通往我内心的门」。你的第一反应是？", situation: "intimate", options: [
     { text: "收下，但同时确认自己这边的门还可以锁上", animals: ["cat", "wolf"] },
     { text: "感动得想哭，立刻也把自己的钥匙递过去", animals: ["dog", "bear"] },
-    { text: "仔细看看钥匙的形状，想象门后面的世界是什么样的", animals: ["owl", "fox"] },
-    { text: "小心翼翼地握在手心里，害怕一不小心弄丢", animals: ["deer", "dolphin"] }
+    { text: "仔细看看钥匙的形状，想象门后面的世界是什么样的", animals: ["owl", "rabbit"] },
+    { text: "小心翼翼地握在手心里，害怕一不小心弄丢", animals: ["deer", "rabbit"] }
   ]},
   { q: "深夜里，你最在意的人突然沉默了。你内心的第一个画面是？", situation: "intimate", options: [
     { text: "他/她需要一个人待着，就像月亮需要云层", animals: ["cat", "owl"] },
     { text: "想立刻出现在他/她身边，哪怕只是坐着也好", animals: ["dog", "bear"] },
-    { text: "试图从沉默的形状里推测出发生了什么", animals: ["fox", "owl"] },
+    { text: "试图从沉默的形状里推测出发生了什么", animals: ["fox", "snake"] },
     { text: "心突然揪了一下，像是自己也被那片沉默淹没了", animals: ["deer", "dolphin"] }
   ]},
   { q: "如果爱情是一座花园，你更可能是花园里的什么？", situation: "intimate", options: [
-    { text: "一棵只在月光下开花的植物，美丽但不轻易被看见", animals: ["cat", "fox"] },
+    { text: "一棵只在月光下开花的植物，美丽但不轻易被看见", animals: ["snake", "fox"] },
     { text: "缠绕在栅栏上的藤蔓，渴望把一切都连接在一起", animals: ["dog", "bear"] },
     { text: "花园深处的一口古井，安静地映照着天空的变化", animals: ["owl", "wolf"] },
-    { text: "随风飘散的蒲公英，把温柔送到每个需要的角落", animals: ["deer", "dolphin"] }
+    { text: "随风飘散的蒲公英，把温柔送到每个需要的角落", animals: ["dolphin", "horse"] }
   ]},
   { q: "一段关系出现裂痕时，你内心浮现的第一个念头更接近哪个？", situation: "intimate", options: [
-    { text: "退后一步看全局，裂痕也许是光照进来的地方", animals: ["cat", "owl"] },
-    { text: "用力握紧，哪怕手被碎片扎破也不松手", animals: ["dog", "deer"] },
+    { text: "退后一步看全局，裂痕也许是光照进来的地方", animals: ["eagle", "owl"] },
+    { text: "用力握紧，哪怕手被碎片扎破也不松手", animals: ["dog", "bear"] },
     { text: "拿起放大镜，想看清裂痕的走向才能决定怎么修", animals: ["fox", "owl"] },
     { text: "先抚平对方的疼痛，自己的伤口可以晚一点看", animals: ["deer", "dolphin"] }
   ]},
 
   // 冲突压力下 (4题)
   { q: "暴风雨突然来了，你正站在旷野中。你的本能反应是？", situation: "conflict", options: [
-    { text: "面无表情地穿上风衣，找到一块岩石背风处等它过去", animals: ["cat", "owl"] },
-    { text: "迎着风跑，大声喊叫，把胸腔里的力量全部释放出来", animals: ["wolf", "bear"] },
-    { text: "迅速环顾四周，找到最有利的避难位置和最佳路线", animals: ["fox", "owl"] },
-    { text: "蹲下来抱住自己，等风小一点再决定往哪里走", animals: ["deer", "dolphin"] }
+    { text: "面无表情地穿上风衣，找到一块岩石背风处等它过去", animals: ["cat", "snake"] },
+    { text: "迎着风跑，大声喊叫，把胸腔里的力量全部释放出来", animals: ["wolf", "horse"] },
+    { text: "迅速环顾四周，找到最有利的避难位置和最佳路线", animals: ["fox", "rabbit"] },
+    { text: "蹲下来抱住自己，等风小一点再决定往哪里走", animals: ["deer", "rabbit"] }
   ]},
   { q: "你发现一面镜子被人恶意打碎了。你对着碎片会怎么想？", situation: "conflict", options: [
     { text: "镜子碎了就碎了，该划清的界限更清晰了", animals: ["cat", "wolf"] },
-    { text: "找到打碎它的人，让他为此负责", animals: ["wolf", "bear"] },
-    { text: "把碎片重新拼起来，也许能看到比完整镜子更多的角度", animals: ["fox", "owl"] },
+    { text: "找到打碎它的人，让他为此负责", animals: ["wolf", "eagle"] },
+    { text: "把碎片重新拼起来，也许能看到比完整镜子更多的角度", animals: ["fox", "snake"] },
     { text: "心疼那些碎片，好像每一片都在疼", animals: ["deer", "dolphin"] }
   ]},
   { q: "如果压力是一种液体，正在缓缓注入一个容器——那个容器和你的反应是？", situation: "conflict", options: [
-    { text: "容器是钢制的，液面再高也不会溢出一滴情绪", animals: ["cat", "owl"] },
+    { text: "容器是钢制的，液面再高也不会溢出一滴情绪", animals: ["eagle", "owl"] },
     { text: "容器在震动、发烫，快要沸腾，需要找到一个出口", animals: ["wolf", "bear"] },
-    { text: "容器底部有暗门，你一直在悄悄把压力导向别处", animals: ["fox", "wolf"] },
-    { text: "容器是玻璃做的，已经能看到裂纹在蔓延", animals: ["deer", "dolphin"] }
+    { text: "容器底部有暗门，你一直在悄悄把压力导向别处", animals: ["fox", "snake"] },
+    { text: "容器是玻璃做的，已经能看到裂纹在蔓延", animals: ["deer", "rabbit"] }
   ]},
   { q: "一场激烈的对峙结束了。夜深人静时，你脑海中的画面是？", situation: "conflict", options: [
-    { text: "像翻过一页书，已经在看下一章了", animals: ["cat", "fox"] },
+    { text: "像翻过一页书，已经在看下一章了", animals: ["cat", "horse"] },
     { text: "反复回放自己没出拳的那几秒，想着下次一定不忍", animals: ["wolf", "bear"] },
-    { text: "像下棋复盘一样，一步步推演哪里可以走得更好", animals: ["fox", "owl"] },
+    { text: "像下棋复盘一样，一步步推演哪里可以走得更好", animals: ["eagle", "owl"] },
     { text: "闭上眼还能感受到当时胸口发紧的感觉，像余震", animals: ["deer", "dolphin"] }
   ]},
 
   // 被需要/被期待时 (4题)
   { q: "有人在你肩上放了一个沉甸甸的包裹，说「我只信任你」。你的身体反应是？", situation: "expected", options: [
-    { text: "肩膀不自觉地往后缩了一下，想先确认自己还能不能自由转身", animals: ["cat", "wolf"] },
-    { text: "站直了身体，感觉脊背因为被信赖而挺得更直", animals: ["dog", "bear"] },
+    { text: "肩膀不自觉地往后缩了一下，想先确认自己还能不能自由转身", animals: ["cat", "horse"] },
+    { text: "站直了身体，感觉脊背因为被信赖而挺得更直", animals: ["bear", "eagle"] },
     { text: "先掂量一下重量，然后打开包裹看看到底是什么", animals: ["fox", "owl"] },
     { text: "双手接住，即使膝盖在发抖也不想让它掉在地上", animals: ["deer", "dolphin"] }
   ]},
   { q: "你站在一条分岔路口，一边写着「有人在等你」，另一边写着「没人知道你去了哪」。你望向哪边？", situation: "expected", options: [
-    { text: "望向无人知晓的那条路，呼吸突然变得轻松", animals: ["cat", "fox"] },
+    { text: "望向无人知晓的那条路，呼吸突然变得轻松", animals: ["horse", "fox"] },
     { text: "毫不犹豫走向有人等的方向，被等待是世界上最好的事", animals: ["dog", "bear"] },
-    { text: "站在路口，想搞清楚两条路最终是否通向同一个地方", animals: ["owl", "fox"] },
-    { text: "想走那条自由的路，脚步却不由自主转向有人等的方向", animals: ["deer", "dolphin"] }
+    { text: "站在路口，想搞清楚两条路最终是否通向同一个地方", animals: ["owl", "snake"] },
+    { text: "想走那条自由的路，脚步却不由自主转向有人等的方向", animals: ["rabbit", "dolphin"] }
   ]},
   { q: "在一场旅途中，你们迷路了，所有人看向你。这个瞬间你心里的声音是？", situation: "expected", options: [
-    { text: "「我先找到自己的方向，再告诉你们」", animals: ["cat", "owl"] },
+    { text: "「我先找到自己的方向，再告诉你们」", animals: ["eagle", "owl"] },
     { text: "「跟我走」——你甚至不确定路，但你知道他们需要确定的声音", animals: ["wolf", "bear"] },
-    { text: "「等一下，让我把所有线索理一遍」", animals: ["fox", "owl"] },
-    { text: "「别怕，我们一起想办法，至少我们还在一起」", animals: ["deer", "dolphin"] }
+    { text: "「等一下，让我把所有线索理一遍」", animals: ["fox", "snake"] },
+    { text: "「别怕，我们一起想办法，至少我们还在一起」", animals: ["dog", "dolphin"] }
   ]},
   { q: "你为某个人倾注了大量心血。故事的最后一页，你希望上面写着什么？", situation: "expected", options: [
     { text: "「他/她从未因此亏欠我，因为我也守住了自己的完整」", animals: ["cat", "wolf"] },
     { text: "「多年后他/她还记得那段被照亮的日子」", animals: ["dog", "bear"] },
-    { text: "「他/她后来学会了自己找路，这是我最得意的作品」", animals: ["fox", "owl"] },
+    { text: "「他/她后来学会了自己找路，这是我最得意的作品」", animals: ["eagle", "fox"] },
     { text: "「他/她不知道我做了什么，但他/她过得很好，这就够了」", animals: ["deer", "dolphin"] }
   ]}
 ];
@@ -483,7 +382,11 @@ const animals = {
   deer: { name: "心比世界细的鹿", icon: "🦌", trait: "敏感温柔", color: "#10b981", figure: "林黛玉", quote: "「世界粗糙，但你的心是一面湖水，能映出别人看不见的月光。」", desc: "你的感知力像是一对长在灵魂上的触角——别人还没说出口的悲伤，你已经在心里替他们疼了一遍。你有鹿一般的敏感天性，就像林黛玉那样，不是脆弱，而是对这个世界保持着一种过于清晰的感受力。你能听见花落的声音、感知到语气里的暗流、读懂一个眼神背后的整个故事。你天性善良，容易心软，有时会因为太在意别人的感受而忘了保护自己。你需要一片安全的林地才能真正放松，因为你那颗过于精密的心，在嘈杂中很容易过载。但正是这份敏感，让你成为人群中最温柔的存在——你的善意不是表演，是本能。", way: "你先感受一个人的状态，再决定说什么。面对冲突，你的第一反应是「我哪里做错了」，即使很可能不是你的问题。你给的建议都是别人真正需要听的，而非他们期待听的——只是你说得非常温柔。你对环境的舒适度极其敏感，一个不对的眼神就能让你心神不宁。当你感到安全时，你是整个房间里最细腻、最周到的那个人。", social: "你的社交能量有限但质量极高——你和少数几个人建立的连接，比大多数人一辈子的泛泛之交更深。你不喜欢大型聚会，你喜欢深夜的长谈和二人的安静同在。", talent: "你能记住别人说过的、可能连他们自己都忘了的话——然后在多年后的某个时刻，拿出来让他们觉得「世界上有人真正懂我」。这是你最珍贵也最隐秘的天赋。", weakness: "你太在意别人的感受，有时会忘了你也有感受——而且同样重要。你的敏感是礼物，但保护自己不是背叛那份敏感，而是让它能持续存在。", bio: "「我听到你没说出来的那部分了。」" },
   bear: { name: "大力但最软的熊", icon: "🐻", trait: "力量担当", color: "#8b5cf6", figure: "张飞（细腻版）", quote: "「真正的力量不是击倒对手，而是让身后的人永远不需要害怕。」", desc: "你是那种平时看起来最随和、最好说话的人，但当你在意的人受到威胁时，你会瞬间变成一座不可翻越的山。你有熊的力量感和担当——像张飞在长坂坡那样，表面粗犷，实则粗中有细。你享受被信任、被依赖的感觉，那是你存在价值的核心燃料。你照顾人的方式不是嘘寒问暖的话语，而是默默把所有重担扛在自己肩上。你的温和是一种选择，因为你知道自己的力量足以伤害人，所以你把最大的温柔留给了最近的人。唯一要注意的是，过度保护有时会让被保护的人失去成长的空间——学会放手，也是一种更深沉的爱。", way: "解决问题的方式是：先扛在自己身上，再看要不要告诉别人。你不善言辞，但你的行动是最清晰的语言。当有人需要你的时候，无论你自己状态如何，你都会出现。你对自己吝啬，对你在意的人慷慨到近乎偏执。你慢热，但一旦认定，就是终身。", social: "你的社交是「我选择你」式的——你不主动扩展，但对已经进入你世界的人，你是最稳定、最可靠的那份存在。你的朋友知道：有你在的地方，就是安全的，就是有退路的。", talent: "你天生知道如何用最少的语言让人感到「有人在」——不是靠话，是靠你的重量感。这种「静默的在场」是一种极少数人天生具备的能力。", weakness: "你已经习惯了承担，以至于有些重量你已经忘了还在压着你——而你从不告诉任何人。你的坚强是真实的，但坚强也是可以被允许有缺口的。", bio: "「不打扰是我的温柔，但需要我时我就在。」" },
   owl: { name: "只说真话的猫头鹰", icon: "🦉", trait: "智慧洞察", color: "#64748b", figure: "维特根斯坦", quote: "「对于不可言说之事，必须保持沉默——但沉默本身就是最深的洞见。」", desc: "你的内在世界像一座运转精密的天文台——不断观测、记录、推演，把混沌的现实翻译成可以理解的星图。你有猫头鹰般的洞察力，像维特根斯坦那样，你更信任思考而非感觉，更擅长在黑暗中看见别人看不见的东西。你不轻易表态，因为你知道轻率的判断是对智识的侮辱。你可能被误解为高冷或不近人情，但那只是因为你选择用沉默代替肤浅的附和。你重视知识、理性和对真相的追问，在一个流行情绪化的世界里，你的冷静是一种稀缺的清醒。你的发言或许不多，但每一句都像深夜里的灯塔，精准、沉稳、照亮方向。", way: "你在开口之前已经把这个话题想了比别人多三倍。你对「差不多」和「大概」有本能的过敏反应——你需要精确。你不轻易给建议，但一旦开口，那是你认为真正有用的东西，不是安慰，是真相。你的工作方式是独立思考先行，协作可以但不依赖。你对浪费时间的会议有一种隐秘的愤怒，通常以沉默表达。", social: "你的社交是「用价值换时间」的体系——你的注意力是稀缺资源，你只给那些值得深度对话的人。你不擅长寒暄，但一旦找到频道相同的人，你可以聊到天亮，而且那种对话会让双方都觉得值了。", talent: "你能在嘈杂中找到信号、剔除噪音——无论是数据分析、战略判断还是识别真假信息，你几乎从不被表象迷惑。这种穿透力是你身上最有价值的资产之一。", weakness: "你习惯了用理性解释所有事情，以至于有些感受你连命名都困难——但它们真实存在，也需要被好好对待，就像你对待任何值得研究的事物那样。", bio: "「我不是高冷，我只是不想用寒暄来浪费我们彼此的时间。」" },
-  dolphin: { name: "治愈所有人的海豚", icon: "🐬", trait: "共情治愈", color: "#06b6d4", figure: "特蕾莎修女", quote: "「我们以为自己在治愈别人，其实每一次共鸣都是在完成自己。」", desc: "你的灵魂像一片温暖的海域——任何漂流至此的人都会感到被接住、被理解、被允许脆弱。你有海豚般强大的共情天赋，像特蕾莎修女那样，你天生能感知他人的痛苦，并且本能地想要治愈它。你是聚会中让所有人感到安全的那个频率，是冲突中第一个伸出橄榄枝的温柔力量。你喜欢和谐远胜于胜利，愿意为了群体的平静牺牲自己的立场。你的共情不是技巧，是一种近乎超自然的感受力——你真的能「感同身受」，像声呐一样读取别人的情绪波纹。但这份天赋也是双刃剑：你太容易把别人的悲伤装进自己的身体里，记得时常浮上水面，呼吸属于自己的空气。", way: "你的处理方式是：先让所有人都感到被看见，然后再解决问题。面对冲突，你的本能是找到让所有人都不难受的出口——即使包括曾经伤害过你的人。你能感知到一个人说「没事」时是否真的没事，然后悄悄做些什么。你把团队或群体的氛围当成自己的责任——你是那个在大家都沉默时最先打破僵局的人。", social: "你的社交是流动的、全方位的——你很难对任何人真正冷漠，即使是不那么喜欢你的人，你也会给他们一份基础的温柔。这让你极受欢迎，也让你极易疲惫。你需要定期独处来清空那些你从别人那里接收到的情绪残留。", talent: "你天生具有「治愈场」——你不需要做任何事，只是你的存在本身，就能让紧张的氛围松弛下来。这是无法靠练习获得的能力，你拥有它，它也在某种程度上拥有你。", weakness: "你太擅长感知别人的情绪了，以至于常常将它们当成自己的来承担——而你装进了太多别人的悲伤，却很少有人知道。记得：治愈别人之前，先确保自己不是空的。", bio: "「我只是想让每个人都好好的，这有什么问题吗。」" }
+  dolphin: { name: "治愈所有人的海豚", icon: "🐬", trait: "共情治愈", color: "#06b6d4", figure: "特蕾莎修女", quote: "「我们以为自己在治愈别人，其实每一次共鸣都是在完成自己。」", desc: "你的灵魂像一片温暖的海域——任何漂流至此的人都会感到被接住、被理解、被允许脆弱。你有海豚般强大的共情天赋，像特蕾莎修女那样，你天生能感知他人的痛苦，并且本能地想要治愈它。你是聚会中让所有人感到安全的那个频率，是冲突中第一个伸出橄榄枝的温柔力量。你喜欢和谐远胜于胜利，愿意为了群体的平静牺牲自己的立场。你的共情不是技巧，是一种近乎超自然的感受力——你真的能「感同身受」，像声呐一样读取别人的情绪波纹。但这份天赋也是双刃剑：你太容易把别人的悲伤装进自己的身体里，记得时常浮上水面，呼吸属于自己的空气。", way: "你的处理方式是：先让所有人都感到被看见，然后再解决问题。面对冲突，你的本能是找到让所有人都不难受的出口——即使包括曾经伤害过你的人。你能感知到一个人说「没事」时是否真的没事，然后悄悄做些什么。你把团队或群体的氛围当成自己的责任——你是那个在大家都沉默时最先打破僵局的人。", social: "你的社交是流动的、全方位的——你很难对任何人真正冷漠，即使是不那么喜欢你的人，你也会给他们一份基础的温柔。这让你极受欢迎，也让你极易疲惫。你需要定期独处来清空那些你从别人那里接收到的情绪残留。", talent: "你天生具有「治愈场」——你不需要做任何事，只是你的存在本身，就能让紧张的氛围松弛下来。这是无法靠练习获得的能力，你拥有它，它也在某种程度上拥有你。", weakness: "你太擅长感知别人的情绪了，以至于常常将它们当成自己的来承担——而你装进了太多别人的悲伤，却很少有人知道。记得：治愈别人之前，先确保自己不是空的。", bio: "「我只是想让每个人都好好的，这有什么问题吗。」" },
+  eagle: { name: "俯瞰全局的鹰", icon: "🦅", trait: "远见野心", color: "#ef4444", figure: "拿破仑", quote: "「飞得足够高，所有的噪音都会变成风声——而风声，是属于征服者的安魂曲。」", desc: "你的视线永远落在地平线之外——当别人还在纠结脚下的泥泞时，你已经在丈量远处的山脉。你有鹰一般的战略眼光和拿破仑式的宏大野心：你不是不关心细节，而是你天生被更大的图景所召唤。你习惯从高处俯瞰，把混乱的碎片整合成清晰的蓝图。你的孤独不是被遗弃，而是一种主动选择的高度——你不飞入鸟群，因为鸟群的方向不是你的方向。你的野心不是贪婪，是对平庸的过敏反应，是骨子里那种「我知道自己能走得更远」的笃定。只是有时候，你飞得太高，会忘记地面上那些正在挥手的人——他们不是在拦你，是在等你偶尔降落。", way: "你做任何事都先画全景图，再拆解步骤——你不允许自己在没有方向的情况下出发。你的决策快、准、狠，因为你在别人还在收集信息的时候已经完成了推演。你对「没有意义的忙碌」有本能的厌恶，你需要看见终点才能出发。你不轻易妥协，因为你的标准不是别人设定的，是你自己的。当你锁定目标，整个世界都变成了路径和障碍的组合——你的专注力是一种近乎可怕的天赋。", social: "你的社交是金字塔式的——你尊重所有人，但你的深度交往只发生在你认为「值得并肩飞行」的少数人之间。你不善于也不屑于寒暄，但当你认可一个人，你会给予他们你最珍贵的东西：你的时间和你的信任。你在人群中往往是那个沉默的观察者，直到需要有人站出来的时刻。", talent: "你天生具备把模糊愿景变成可执行战略的能力——这种「从终局倒推现在」的思维方式，是大多数人需要花一生才能学会的东西，而你与生俱来。", weakness: "你飞得太高，有时会忘记不是所有人都能看到你看到的东西——你的远见对你来说是清晰的，但对身边的人可能只是一片迷雾。学会把你的蓝图翻译成别人听得懂的语言，你的翅膀才能带动更多人。", bio: "「不是我不合群，是我的群在更高的地方。」" },
+  snake: { name: "蜕皮重生的蛇", icon: "🐍", trait: "蜕变神秘", color: "#14b8a6", figure: "尼采", quote: "「蛇不能蜕皮就会死亡，人不能蜕变思想就会灭亡——成为你自己，是唯一值得的冒险。」", desc: "你的生命是一场持续的蜕变——每隔一段时间，你就会悄悄脱下旧的自己，以一种让所有人都意想不到的姿态重新出现。你有蛇一般的耐心和尼采式的自我超越精神：你不害怕改变，因为你知道每一次死亡都是更高形态的诞生。你习惯等待，像蛇在草丛中一动不动地感知猎物的体温——你的耐心不是被动的，是一种精密的能量管理。你常常被误读为冷血或疏离，但那只是因为你的温度不在表面，而在你选择袒露的那一刻。你对「成为谁」这个问题不感焦虑，因为你知道答案不是固定的——它是一层层蜕下的旧皮，和每一次崭新的、闪着光泽的重生。", way: "你从不急于行动，但一旦出手，往往一击即中。你有一种本能的直觉，知道什么时候该静止、什么时候该出击。你的变化不是随波逐流，而是有意识的自我迭代——你会定期审视自己的信念、关系和生活方式，然后毫不犹豫地丢弃那些不再适合你的东西。你善于读懂隐藏的信号，人们的话外之音对你来说清晰得像字幕。你不轻易展露底牌，因为你知道神秘本身就是一种力量。", social: "你的社交是选择性的、深层的——你不需要很多人围着你，但你需要几个真正见证过你蜕变的人。你的朋友经常惊讶于你的变化，但真正了解你的人知道，变化本身就是你最恒定的特质。你对虚伪的社交有本能的抗拒，你宁可孤独也不愿戴着旧皮假装。", talent: "你天生具备自我重塑的能力——在别人被困在旧模式里痛苦挣扎时，你已经蜕了皮、换了方向、开始了新的章节。这种「杀死昨天的自己」的勇气，是你身上最迷人也最令人敬畏的力量。", weakness: "你太习惯蜕变了，有时会忘了有些东西是值得保留的——不是所有旧皮都是束缚，有些是你辛苦建立的温暖。在不断重生的路上，记得带上几样不变的东西，它们是你的锚。", bio: "「你以为我消失了，其实我只是换了一种形式存在。」" },
+  horse: { name: "永远在路上的马", icon: "🐴", trait: "自由奔放", color: "#f97316", figure: "杰克·凯鲁亚克", quote: "「唯一真正的路，是那条你还没走过的路——而你的脚步声，就是最好的音乐。」", desc: "你的灵魂里装着一台永远不会关闭的引擎，目的地只是借口，真正让你着迷的是路上的风。你有马一般不可驯服的自由天性和凯鲁亚克式的浪漫流浪精神：你对「安定」这个词有一种本能的不安，仿佛一旦停下来，你的某个部分就会开始枯萎。你需要新鲜的空气、陌生的面孔、没有被脚印覆盖过的泥土。你不是在逃避什么，你是在追逐一种只有在移动中才能感受到的生命力。你的热情像野火一样蔓延，你的能量感染每一个靠近你的人——只是你从不为谁停留太久，不是因为不在乎，而是因为你知道，你留下来反而会变成一个不快乐的版本的自己。", way: "你做决定靠的是直觉和热情，而非计划和分析——你相信最好的旅程都是没有地图的。你讨厌被日程表绑架，讨厌重复的工作，讨厌任何让你感觉到「困住了」的东西。你的能量是爆发式的：当你热爱一件事，你可以三天三夜不眠不休；当你失去兴趣，你走得比谁都快。你习惯用体验而非成就来衡量人生的价值——你的履历表可能不够漂亮，但你的故事比任何人都精彩。", social: "你的社交是开放的、流动的、充满偶然之美的——你在每一站都交到朋友，在每一次告别中都留下一点真心。你不擅长维护长期关系（那需要你不喜欢的稳定），但你给每段相遇注入的热情都是真实的。和你在一起的人会被你的自由感染，觉得世界突然变大了。", talent: "你天生具备让生活充满可能性的能力——在别人看到死胡同的地方，你看到新的岔路口。你的乐观和冒险精神是一种稀缺的燃料，能点燃你自己，也能点燃身边的人。", weakness: "你对自由的渴望有时会变成一种逃避承诺的借口——不是所有的停留都是牢笼，有些停留是港湾。当你遇到值得的人或事，试试看把马鞍放下来，你也许会发现，扎根的自由比奔跑的自由更深沉。", bio: "「别问我去哪，我自己也不知道，这才是最好的部分。」" },
+  rabbit: { name: "在洞穴里造梦的兔", icon: "🐰", trait: "敏锐谨慎", color: "#84cc16", figure: "卡夫卡", quote: "「在自己的洞穴里，每一条通道都通向一个完整的世界——外面的人永远不会知道。」", desc: "你的外在是一双随时竖起的耳朵，你的内在却是一座结构精密、层层递进的地下宫殿。你有兔一般的敏锐警觉和卡夫卡式的丰富内心世界：你对危险的感知力远超常人，任何微小的异动都逃不过你的雷达。但在那副谨慎外壳之下，你拥有一个令人惊叹的内在宇宙——你的想象力是你最隐秘的财富，你的洞穴里藏着的不是恐惧，而是别人一辈子都看不见的风景。你不是胆小，你是明智地选择了自我保护，因为你太清楚这个世界可以有多粗暴。你的谨慎里藏着一种被低估的坚韧——你一次次从危险中全身而退，不是因为运气，是因为你从不低估任何威胁。", way: "你做任何决定之前都会在脑子里模拟至少三种可能的结局——包括最坏的那种。你不轻易冒险，但你的谨慎不是怯懦，是一种深思熟虑的生存智慧。你有极强的观察力，能注意到房间里最细微的变化——谁换了表情、谁在说谎、哪里有不对的气氛。你更喜欢在安全的环境里释放创造力，而不是在聚光灯下表演。你的内心戏比任何人都丰富，只是大部分人永远不会知道。", social: "你的社交圈极其精简，但你在那个小圈子里展现的自己，比大多数人在任何地方展现的都要真实和完整。你需要很长时间才能信任一个人，但一旦信任，你会把洞穴里最美丽的房间打开给他们看。你害怕突如其来的社交场合，但在你感到安全的人面前，你的幽默和想象力会让所有人大吃一惊。", talent: "你天生具备在混乱中保全自己的能力——你的危机感知力像一套精密的预警系统，让你总能在灾难到来之前找到安全的位置。同时，你丰富的内心世界赋予你一种独特的创造力，你能从日常中看到别人看不到的诗意。", weakness: "你的谨慎有时会变成一座看不见的围墙——它保护了你，也阻止了一些美好的偶然闯入你的生活。不是每一次敲门声都是威胁，有些是你一直在等的人。试着偶尔把洞穴的门开大一点，阳光不会伤害你。", bio: "「外面太吵了，我在里面建了一个更好的世界。」" }
 };
 
 const situations = {
@@ -606,7 +509,11 @@ function getEnergyDrain(situationAnimals) {
     "wolf": "无法掌控局面的情境对你消耗最大。你习惯于主导，当失去控制感时会感到焦虑。",
     "bear": "无法保护重要的人的情境对你消耗最大。你的保护欲很强，当感到无力保护时会产生自责。",
     "fox": "被看透或被限制的情境对你消耗最大。你喜欢保持神秘感和灵活性，被约束会让你不适。",
-    "owl": "被迫快速决策或情绪化场景对你消耗最大。你需要时间思考和观察，被催促会让你失去平衡。"
+    "owl": "被迫快速决策或情绪化场景对你消耗最大。你需要时间思考和观察，被催促会让你失去平衡。",
+    "eagle": "无法掌控大局或被迫处理琐碎事务的情境对你消耗最大。你需要战略视野和清晰目标，陷入细节的泥潭会让你感到窒息。",
+    "snake": "被迫保持不变或暴露真实意图的情境对你消耗最大。你习惯掌控自己的节奏和神秘感，被强行透明化会让你失去安全感。",
+    "horse": "被限制自由或困在重复性任务中的情境对你消耗最大。你需要空间和新鲜感，任何形式的束缚都会让你的能量急速流失。",
+    "rabbit": "突发的、不可预测的高压情境对你消耗最大。你需要时间准备和安全感，被推到毫无防备的境地会让你的内在系统过载。"
   };
 
   return drainMap[conflictAnimal] || "每个人都有自己的能量消耗模式，建议观察什么情境让你最疲惫，并主动调整。";
@@ -623,7 +530,11 @@ function getTalentPoints(mainAnimal, subAnimal, situationAnimals) {
     deer: { independence: 50, empathy: 95, leadership: 40, creativity: 70, resilience: 55, social: 65 },
     bear: { independence: 70, empathy: 75, leadership: 85, creativity: 50, resilience: 95, social: 60 },
     owl: { independence: 90, empathy: 55, leadership: 70, creativity: 85, resilience: 65, social: 40 },
-    dolphin: { independence: 45, empathy: 95, leadership: 55, creativity: 75, resilience: 60, social: 95 }
+    dolphin: { independence: 45, empathy: 95, leadership: 55, creativity: 75, resilience: 60, social: 95 },
+    eagle: { independence: 90, empathy: 40, leadership: 95, creativity: 70, resilience: 85, social: 45 },
+    snake: { independence: 80, empathy: 55, leadership: 60, creativity: 90, resilience: 85, social: 35 },
+    horse: { independence: 85, empathy: 50, leadership: 55, creativity: 75, resilience: 70, social: 80 },
+    rabbit: { independence: 55, empathy: 80, leadership: 35, creativity: 90, resilience: 50, social: 45 }
   };
 
   // 天赋维度定义

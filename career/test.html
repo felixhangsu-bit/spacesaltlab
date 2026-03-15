@@ -8,77 +8,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/test-common.css">
 <style>
-:root {
-  --primary: #8b5cf6;
-  --primary-dark: #7c3aed;
-  --primary-light: #a78bfa;
-  --bg: #0a0a0a;
-  --card: rgba(255,255,255,0.025);
-  --card-border: rgba(255,255,255,0.07);
-  --text: rgba(255,255,255,0.88);
-  --text-muted: rgba(255,255,255,0.38);
-  --border: rgba(255,255,255,0.07);
-  --accent: rgba(139,92,246,0.55);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-weight: 300; }
-.noise { position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
-.page { display: none; min-height: 100vh; position: relative; z-index: 1; }
-.page.active { display: block; }
-#testPage { background: var(--bg); padding: 20px; }
-.test-container { max-width: 700px; margin: 0 auto; }
-.test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 0; transition: all 0.2s; font-family: 'Noto Sans SC', sans-serif; letter-spacing: 1px; }
+/* --- Career Test Specific Styles --- */
+.back-btn { border: 1px solid var(--border); }
 .back-btn:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-.progress-wrap { text-align: right; }
-.progress-text { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
-.progress-bar { width: 180px; height: 3px; background: var(--border); border-radius: 0; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); border-radius: 0; transition: width 0.3s; }
-.question-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 40px; position: relative; overflow: hidden; }
-.question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #8b5cf6, #7c3aed, #a78bfa); }
 .dim-tag { display: inline-block; padding: 6px 14px; border-radius: 0; font-size: 12px; font-weight: 500; margin-bottom: 16px; font-family: 'EB Garamond', serif; letter-spacing: 2px; }
-.q-num { font-size: 13px; color: var(--accent); margin-bottom: 10px; font-family: 'EB Garamond', serif; letter-spacing: 3px; }
-.q-text { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 32px; font-family: 'Noto Serif SC', serif; color: var(--text); }
-.options { display: flex; flex-direction: column; gap: 12px; }
-.opt { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 0; cursor: pointer; transition: all 0.2s; }
-.opt:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.04); }
-.opt.selected { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.08); }
-.opt-radio { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-.opt.selected .opt-radio { border-color: var(--primary); background: var(--primary); }
-.opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
-.opt-text { font-size: 15px; font-weight: 300; color: rgba(255,255,255,0.45); }
-.opt.selected .opt-text { color: var(--text); }
-.nav-btns { display: flex; justify-content: space-between; margin-top: 28px; }
-.nav-btn { padding: 12px 28px; border-radius: 0; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.nav-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
-.nav-btn.secondary:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-.nav-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
-.nav-btn.primary:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
-.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-#resultPage { background: var(--bg); }
-.result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-.result-header { text-align: center; color: var(--text); padding: 40px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.result-header { color: var(--text); padding: 40px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
 .result-header h1 { font-size: 28px; margin-bottom: 8px; font-family: 'Noto Serif SC', serif; font-weight: 700; color: var(--text); }
 .result-header p { color: var(--text-muted); font-family: 'EB Garamond', serif; letter-spacing: 3px; font-size: 14px; }
-.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 0; padding: 32px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #8b5cf6, #7c3aed, #a78bfa); }
-.section-icon { width: 44px; height: 44px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
-.section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: 'Noto Serif SC', serif; color: var(--text); }
+.section-icon { width: 44px; height: 44px; font-size: 22px; margin-bottom: 16px; }
 .type-badge { display: inline-block; padding: 8px 20px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; font-size: 13px; font-weight: 500; margin-bottom: 14px; font-family: 'EB Garamond', serif; letter-spacing: 3px; }
-.type-name { font-size: 28px; font-weight: 700; margin-bottom: 12px; font-family: 'Noto Serif SC', serif; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.type-desc { color: rgba(255,255,255,0.45); font-size: 15px; line-height: 1.8; font-weight: 300; }
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
-.stat-card { padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; text-align: center; }
-.stat-value { font-size: 24px; font-weight: 700; color: var(--primary); font-family: 'EB Garamond', serif; }
-.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.type-name { font-size: 28px; }
+.type-desc { font-size: 15px; line-height: 1.8; }
+.stat-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+.stat-card { background: rgba(255,255,255,0.02); }
+.stat-value { font-size: 24px; font-weight: 700; }
 .dim-item { margin-bottom: 20px; }
-.dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.dim-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-.dim-icon { width: 28px; height: 28px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.dim-header { margin-bottom: 8px; }
+.dim-name { gap: 8px; font-weight: 500; }
+.dim-icon { width: 28px; height: 28px; font-size: 14px; }
 .dim-score { font-weight: 600; color: var(--primary); font-family: 'EB Garamond', serif; }
-.dim-bar { height: 3px; background: var(--border); border-radius: 0; overflow: hidden; margin-bottom: 12px; position: relative; }
-.dim-bar-fill { height: 100%; border-radius: 0; transition: width 0.5s; }
+.dim-bar { margin-bottom: 12px; position: relative; }
 .dim-bar-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.15); }
 .dim-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-family: 'EB Garamond', serif; letter-spacing: 1px; }
 .dim-analysis { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 0; }
@@ -92,33 +43,26 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 .celeb-avatar { width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
 .celeb-info h4 { font-size: 16px; margin-bottom: 4px; font-family: 'Noto Serif SC', serif; }
 .celeb-info p { font-size: 13px; color: var(--text-muted); line-height: 1.6; font-weight: 300; }
-.tip-item { display: flex; gap: 14px; padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; margin-bottom: 10px; border-left: 2px solid var(--primary); }
-.tip-num { width: 26px; height: 26px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; font-family: 'EB Garamond', serif; }
-.tip-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 300; }
+.tip-item { padding: 20px; margin-bottom: 12px; }
+.tip-num { border-radius: 0; font-family: 'EB Garamond', serif; }
 .download-section { text-align: center; padding: 32px; }
 .download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
 .download-btn:hover { background: rgba(139,92,246,0.25); border-color: rgba(139,92,246,0.6); }
-.restart-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 0; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.restart-btn:hover { border-color: rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.restart-btn { display: inline-flex; }
 .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
 .loading.show { opacity: 1; visibility: visible; }
 .loading-box { background: #111; border: 1px solid var(--border); padding: 36px; border-radius: 0; text-align: center; }
 .spinner { width: 44px; height: 44px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: #111; border: 1px solid var(--border); padding: 36px; border-radius: 0; max-width: 400px; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+.modal-content { width: 90%; transform: scale(0.9); transition: transform 0.3s; }
 .modal-overlay.show .modal-content { transform: scale(1); }
-.modal-icon { font-size: 48px; margin-bottom: 16px; }
-.modal-content h3 { font-size: 22px; font-weight: 700; margin-bottom: 12px; font-family: 'Noto Serif SC', serif; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.modal-content h3 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .modal-content > p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; font-weight: 300; }
 .modal-tests { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 0; padding: 16px; margin-bottom: 16px; }
 .modal-test-item { padding: 10px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border); }
 .modal-test-item:last-child { border-bottom: none; }
 .modal-tip { font-size: 13px; color: var(--primary); font-weight: 500; margin-bottom: 20px; }
 .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
-.modal-btn { padding: 14px 24px; border-radius: 0; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; letter-spacing: 2px; font-family: 'Noto Sans SC', sans-serif; }
-.modal-btn.primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: rgba(139,92,246,0.8); }
+.modal-btn { font-size: 15px; font-weight: 600; border: none; font-family: 'Noto Sans SC', sans-serif; }
 .modal-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
 .more-tests-btn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: rgba(251,191,36,0.8); }
 @media (max-width: 640px) {
@@ -179,72 +123,72 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: va
 // 60道MBTI测评题目
 const questions = [
   // E-I 能量来源 (15题)
-  { dim: 'EI', text: '一场理想的晚餐，桌上坐着几个人？', options: ['越多越好，热闹是一种能量', '两三个就够，话要说进心里才算数'] },
-  { dim: 'EI', text: '你被困在一座空旷的图书馆里整整一天，出来后你最想做什么？', options: ['立刻打电话给朋友，约出来聊聊', '回家泡杯茶，享受这份余韵'] },
-  { dim: 'EI', text: '一个困扰你的难题，你更可能怎么解决？', options: ['找个人边走边聊，说着说着就有思路了', '关上门，在纸上画画写写，等灵光乍现'] },
-  { dim: 'EI', text: '如果你的房间有一扇窗，你更希望窗外是什么？', options: ['一条热闹的步行街，人来人往', '一片安静的湖面，偶尔有鸟掠过'] },
-  { dim: 'EI', text: '做一道菜的过程中，你更享受哪个环节？', options: ['一群人在厨房里手忙脚乱的那种默契', '自己一个人安静地切菜、调味的专注'] },
-  { dim: 'EI', text: '你意外获得了一张演唱会门票，你会？', options: ['赶紧找人一起去，好东西要分享', '一个人去也挺好，反正是去听歌的'] },
-  { dim: 'EI', text: '连续参加三天的行业峰会后，你的状态更接近？', options: ['像被充了电，认识了好多有趣的人', '像被榨干了，需要独自待着恢复元气'] },
-  { dim: 'EI', text: '如果思考是一条河，你的河更像什么？', options: ['一条有很多支流汇入的大河，越聊越宽', '一口深井，越往下越安静，越接近答案'] },
-  { dim: 'EI', text: '你的理想咖啡馆是什么样的？', options: ['有公共长桌，随时可能跟陌生人聊起来', '有角落的单人卡座，戴上耳机就是自己的世界'] },
-  { dim: 'EI', text: '搬到一个新城市，第一周你更可能做什么？', options: ['去社区活动、酒吧或兴趣小组认识新朋友', '先独自走遍附近的街道，建立自己的地图'] },
-  { dim: 'EI', text: '你的手机通讯录里，哪种联系人更多？', options: ['认识但不算深交的朋友，各行各业都有', '数量不多，但每一个都可以凌晨打电话'] },
-  { dim: 'EI', text: '被邀请上台即兴讲几句话，你的第一反应是？', options: ['有点兴奋，这种场合让人来劲', '胃微微一紧，心想为什么不能让我写下来'] },
-  { dim: 'EI', text: '面前有一个岔路口，一条路通向集市，一条通向山顶，你走哪条？', options: ['集市——热闹的地方总能遇到有意思的事', '山顶——安静的地方才能看清全貌'] },
-  { dim: 'EI', text: '你的精力像什么？', options: ['火——需要人群来添柴，越烧越旺', '电池——需要独处来充电，满了才能输出'] },
-  { dim: 'EI', text: '手机突然响了，屏幕显示一个不太熟的号码，你？', options: ['直接接，说不定有什么新鲜事', '盯着屏幕等它停，心想发条微信不好吗'] },
+  { dim: 'EI', text: '一场理想的晚餐，桌上坐着几个人？', options: ['越多越好，热闹是一种能量', '七八个刚好，够热闹但还能聊得上话', '四五个就好，人少才能深聊', '两三个就够，话要说进心里才算数'] },
+  { dim: 'EI', text: '你被困在一座空旷的图书馆里整整一天，出来后你最想做什么？', options: ['立刻打电话给朋友，约出来聊聊', '找个热闹的地方坐坐，感受一下人气', '先散个步消化一下，晚点再联系朋友', '回家泡杯茶，享受这份余韵'] },
+  { dim: 'EI', text: '一个困扰你的难题，你更可能怎么解决？', options: ['找个人边走边聊，说着说着就有思路了', '先跟人讨论大方向，再自己回去细想', '自己先想个框架，实在卡住了再找人聊', '关上门，在纸上画画写写，等灵光乍现'] },
+  { dim: 'EI', text: '如果你的房间有一扇窗，你更希望窗外是什么？', options: ['一条热闹的步行街，人来人往', '一个有邻居来往的小院子，偶尔打个招呼', '一条安静的小路，偶尔有行人经过', '一片安静的湖面，偶尔有鸟掠过'] },
+  { dim: 'EI', text: '做一道菜的过程中，你更享受哪个环节？', options: ['一群人在厨房里手忙脚乱的那种默契', '和一两个好友分工合作，边聊边做', '自己主厨但旁边有人陪着说话', '自己一个人安静地切菜、调味的专注'] },
+  { dim: 'EI', text: '你意外获得了一张演唱会门票，你会？', options: ['赶紧找人一起去，好东西要分享', '约个朋友一起去，两个人更有意思', '自己去，但不介意到了现场跟旁边的人聊几句', '一个人去也挺好，反正是去听歌的'] },
+  { dim: 'EI', text: '连续参加三天的行业峰会后，你的状态更接近？', options: ['像被充了电，认识了好多有趣的人', '有点累但很充实，认识了几个聊得来的人', '收获不少但需要一个安静的晚上缓缓', '像被榨干了，需要独自待着恢复元气'] },
+  { dim: 'EI', text: '如果思考是一条河，你的河更像什么？', options: ['一条有很多支流汇入的大河，越聊越宽', '一条开阔的河，有时需要支流，有时独自流淌', '一条安静的溪流，偶尔接纳一两条支流', '一口深井，越往下越安静，越接近答案'] },
+  { dim: 'EI', text: '你的理想咖啡馆是什么样的？', options: ['有公共长桌，随时可能跟陌生人聊起来', '有几张拼桌，既能社交也能独处', '安静但不冷清，偶尔能和店员聊两句', '有角落的单人卡座，戴上耳机就是自己的世界'] },
+  { dim: 'EI', text: '搬到一个新城市，第一周你更可能做什么？', options: ['去社区活动、酒吧或兴趣小组认识新朋友', '通过朋友介绍认识一两个当地人', '自己探索为主，顺便跟邻居或店主聊几句', '先独自走遍附近的街道，建立自己的地图'] },
+  { dim: 'EI', text: '你的手机通讯录里，哪种联系人更多？', options: ['认识但不算深交的朋友，各行各业都有', '朋友不少，其中有几个特别亲近的', '圈子不大，但大多聊得来', '数量不多，但每一个都可以凌晨打电话'] },
+  { dim: 'EI', text: '被邀请上台即兴讲几句话，你的第一反应是？', options: ['有点兴奋，这种场合让人来劲', '可以试试，反正讲几句也不难', '有点紧张，但硬着头皮也能上', '胃微微一紧，心想为什么不能让我写下来'] },
+  { dim: 'EI', text: '面前有一个岔路口，一条路通向集市，一条通向山顶，你走哪条？', options: ['集市——热闹的地方总能遇到有意思的事', '先去集市逛逛，回头有空再去山顶', '先去山顶看看风景，下来再顺便逛逛集市', '山顶——安静的地方才能看清全貌'] },
+  { dim: 'EI', text: '你的精力像什么？', options: ['火——需要人群来添柴，越烧越旺', '篝火——有人围着更好，但也能自己烧一会儿', '蜡烛——人多了反而容易被风吹灭，需要适度的空间', '电池——需要独处来充电，满了才能输出'] },
+  { dim: 'EI', text: '手机突然响了，屏幕显示一个不太熟的号码，你？', options: ['直接接，说不定有什么新鲜事', '接了再说，大不了聊两句挂掉', '犹豫一下，看看心情再决定接不接', '盯着屏幕等它停，心想发条微信不好吗'] },
 
   // S-N 信息获取 (15题)
-  { dim: 'SN', text: '学做一道新菜，你更倾向于？', options: ['严格按照食谱的克数和步骤来', '大概看一遍就开始，凭感觉调整'] },
-  { dim: 'SN', text: '读一本小说，你更容易记住什么？', options: ['主角穿了什么颜色的衣服、在哪条街转了弯', '整个故事让你想到了自己的某段经历'] },
-  { dim: 'SN', text: '迷路时，你更相信什么？', options: ['手机地图上的实时导航', '一种说不清的方向感，觉得应该往那边走'] },
-  { dim: 'SN', text: '逛博物馆时，你的目光更容易停在？', options: ['展品旁边的年代标注和工艺说明', '某件展品引发的一连串联想和遐想'] },
-  { dim: 'SN', text: '别人跟你描述一个新项目，你最先想知道？', options: ['具体要做什么、截止日期是几号', '这件事的意义是什么、可能带来什么改变'] },
-  { dim: 'SN', text: '站在窗前看一棵树，你更容易注意到？', options: ['树叶的形状、树干的纹理、枝条的朝向', '这棵树经历了多少个冬天，像不像某种隐喻'] },
-  { dim: 'SN', text: '修理一件坏掉的东西，你会怎么做？', options: ['找到说明书或教程，按步骤排查', '凭直觉拆开看看，多半能猜到哪里出了问题'] },
-  { dim: 'SN', text: '如果人生是一张地图，你更关心？', options: ['自己现在站在哪个坐标上', '地图之外还有没有未标注的大陆'] },
-  { dim: 'SN', text: '有人给你看一组数据，你第一反应是？', options: ['盯着具体的数字，看看有没有异常', '想这些数字背后在讲一个什么故事'] },
-  { dim: 'SN', text: '计划一次旅行，你更兴奋的是？', options: ['研究每个景点的开放时间和最佳路线', '想象自己站在某个陌生地方时的感觉'] },
-  { dim: 'SN', text: '一场好的对话结束后，你脑子里留下的更多是？', options: ['对方说的具体观点和案例', '一种模糊但强烈的启发感'] },
-  { dim: 'SN', text: '回忆一段旅行，最先浮现的是？', options: ['那家旅馆的房间号、那条路拐角的面包店', '一种整体的色调和氛围，像一张褪色的照片'] },
-  { dim: 'SN', text: '刚买了一个新电器，你会？', options: ['先把说明书读完，搞清楚每个按钮的功能', '直接按开关试试，遇到问题再说'] },
-  { dim: 'SN', text: '你更佩服哪种人？', options: ['把一件事做到极致精确的匠人', '能看见别人看不见的趋势的预言家'] },
-  { dim: 'SN', text: '在一个项目里，你更常扮演的角色是？', options: ['把蓝图变成现实的人，一砖一瓦地搭建', '画蓝图的人，描绘它完成后的样子'] },
+  { dim: 'SN', text: '学做一道新菜，你更倾向于？', options: ['严格按照食谱的克数和步骤来', '先按食谱做，熟悉后再微调', '大致参考食谱，但用量和顺序全凭手感', '大概看一遍就开始，凭感觉调整'] },
+  { dim: 'SN', text: '读一本小说，你更容易记住什么？', options: ['主角穿了什么颜色的衣服、在哪条街转了弯', '几个关键的场景细节和对话', '故事的整体走向和人物关系', '整个故事让你想到了自己的某段经历'] },
+  { dim: 'SN', text: '迷路时，你更相信什么？', options: ['手机地图上的实时导航', '地图为主，但也留意路上的实际标识', '大致看一下方向，主要靠周围环境判断', '一种说不清的方向感，觉得应该往那边走'] },
+  { dim: 'SN', text: '逛博物馆时，你的目光更容易停在？', options: ['展品旁边的年代标注和工艺说明', '展品本身的材质和制作工艺细节', '展品给你的整体审美感受和情绪', '某件展品引发的一连串联想和遐想'] },
+  { dim: 'SN', text: '别人跟你描述一个新项目，你最先想知道？', options: ['具体要做什么、截止日期是几号', '预算多少、需要哪些资源和人手', '这个项目解决了什么问题、方向对不对', '这件事的意义是什么、可能带来什么改变'] },
+  { dim: 'SN', text: '站在窗前看一棵树，你更容易注意到？', options: ['树叶的形状、树干的纹理、枝条的朝向', '这棵树是什么品种、大概种了多少年', '这棵树给整个环境带来的氛围和感觉', '这棵树经历了多少个冬天，像不像某种隐喻'] },
+  { dim: 'SN', text: '修理一件坏掉的东西，你会怎么做？', options: ['找到说明书或教程，按步骤排查', '先看说明书了解结构，再自己动手试', '动手拆开看看，卡住了再查教程', '凭直觉拆开看看，多半能猜到哪里出了问题'] },
+  { dim: 'SN', text: '如果人生是一张地图，你更关心？', options: ['自己现在站在哪个坐标上', '从起点到现在走了多远、下一站在哪', '这张地图的边界在哪里、还有多大', '地图之外还有没有未标注的大陆'] },
+  { dim: 'SN', text: '有人给你看一组数据，你第一反应是？', options: ['盯着具体的数字，看看有没有异常', '关注数据的趋势和变化规律', '想想这组数据反映了什么现象', '想这些数字背后在讲一个什么故事'] },
+  { dim: 'SN', text: '计划一次旅行，你更兴奋的是？', options: ['研究每个景点的开放时间和最佳路线', '收集实用攻略，确保不错过重要体验', '想象当地的生活方式和文化氛围', '想象自己站在某个陌生地方时的感觉'] },
+  { dim: 'SN', text: '一场好的对话结束后，你脑子里留下的更多是？', options: ['对方说的具体观点和案例', '几个印象深刻的金句或论据', '对方传递出的态度和价值观', '一种模糊但强烈的启发感'] },
+  { dim: 'SN', text: '回忆一段旅行，最先浮现的是？', options: ['那家旅馆的房间号、那条路拐角的面包店', '某个具体的场景：天气、声音、味道', '旅途中某个让你感触很深的瞬间', '一种整体的色调和氛围，像一张褪色的照片'] },
+  { dim: 'SN', text: '刚买了一个新电器，你会？', options: ['先把说明书读完，搞清楚每个按钮的功能', '快速翻一遍说明书，了解主要功能再上手', '先试试常用功能，不懂的再查说明书', '直接按开关试试，遇到问题再说'] },
+  { dim: 'SN', text: '你更佩服哪种人？', options: ['把一件事做到极致精确的匠人', '在自己领域深耕多年的专家', '能跨领域整合资源、找到新角度的人', '能看见别人看不见的趋势的预言家'] },
+  { dim: 'SN', text: '在一个项目里，你更常扮演的角色是？', options: ['把蓝图变成现实的人，一砖一瓦地搭建', '负责执行细节，同时关注整体进度', '把握大方向，偶尔参与关键节点的执行', '画蓝图的人，描绘它完成后的样子'] },
 
   // T-F 决策方式 (15题)
-  { dim: 'TF', text: '一个朋友创业失败了，找你聊天，你更可能说？', options: ['我帮你分析一下问题出在哪里', '我知道这很难，你现在感觉怎么样？'] },
-  { dim: 'TF', text: '如果正义和仁慈只能选一个，你选？', options: ['正义——没有规则，善意也会变成混乱', '仁慈——没有温度的正义，只是冰冷的机器'] },
-  { dim: 'TF', text: '团队里两个人吵起来了，你的第一反应是？', options: ['搞清楚到底谁的方案更合理', '先让双方都冷静下来，别伤了和气'] },
-  { dim: 'TF', text: '给一个后辈写评语，你更接近哪种风格？', options: ['直接点出三个需要改进的地方', '先写他做得好的地方，再温和地提一点建议'] },
-  { dim: 'TF', text: '一艘船只能再载一个人，你会怎么决定？', options: ['评估每个人的情况，选择最合理的方案', '这种事没法理性分析，凭良心走'] },
-  { dim: 'TF', text: '别人形容你时，哪句话你听着更顺耳？', options: ['你这个人特别靠谱，有原则', '你这个人特别暖，跟你待着很舒服'] },
-  { dim: 'TF', text: '有人当众批评了你的工作，你内心的第一个声音是？', options: ['他说的到底对不对？让我想想', '他怎么能这样说？这让我很不舒服'] },
-  { dim: 'TF', text: '一份工作薪资高但团队氛围冷漠，另一份薪资一般但同事亲如家人，你选？', options: ['高薪那份——工作就是工作，效率和回报更重要', '氛围好的那份——每天相处的人比数字更影响生活质量'] },
-  { dim: 'TF', text: '两个朋友闹矛盾，都来找你评理，你会？', options: ['客观分析双方的对错，哪怕结论会让其中一个人不高兴', '想办法找到双方都能接受的说法，维持关系更重要'] },
-  { dim: 'TF', text: '一个善意的谎言和一句伤人的实话，你更能接受哪个？', options: ['实话——被骗的感觉比受伤更难忍', '善意的谎言——有时候温柔比真相更重要'] },
-  { dim: 'TF', text: '评价一部电影，你更关注？', options: ['剧情逻辑是否自洽、叙事结构是否精巧', '它让你哭了还是笑了、触动了你的哪根弦'] },
-  { dim: 'TF', text: '什么样的演讲最打动你？', options: ['论据充分、推理严密，让你心服口服', '讲述者声音颤抖时的那一刻真情流露'] },
-  { dim: 'TF', text: '一个员工能力很强但经常迟到，你怎么处理？', options: ['规则面前人人平等，该怎么处理就怎么处理', '了解一下原因，如果情有可原就灵活对待'] },
-  { dim: 'TF', text: '你认为一个人能走多远，主要取决于？', options: ['清醒的头脑和持续的自律', '生命中遇到的人和被给予的善意'] },
-  { dim: 'TF', text: '脑子里的声音和心里的感觉打架了，你更听谁的？', options: ['脑子——情绪会骗人，逻辑不会', '心——有些事只有心才能判断'] },
+  { dim: 'TF', text: '一个朋友创业失败了，找你聊天，你更可能说？', options: ['我帮你分析一下问题出在哪里', '我觉得可以从几个方面复盘一下，你觉得呢', '先别急着想原因，今天先好好吃顿饭吧', '我知道这很难，你现在感觉怎么样？'] },
+  { dim: 'TF', text: '如果正义和仁慈只能选一个，你选？', options: ['正义——没有规则，善意也会变成混乱', '正义为主，但执行时留一点弹性空间', '仁慈为主，但底线不能丢', '仁慈——没有温度的正义，只是冰冷的机器'] },
+  { dim: 'TF', text: '团队里两个人吵起来了，你的第一反应是？', options: ['搞清楚到底谁的方案更合理', '让双方各自陈述理由，理性比较优劣', '先安抚情绪，再引导大家回到问题本身', '先让双方都冷静下来，别伤了和气'] },
+  { dim: 'TF', text: '给一个后辈写评语，你更接近哪种风格？', options: ['直接点出三个需要改进的地方', '客观列出优缺点，重点放在改进建议上', '以鼓励为主，把不足包装成成长方向', '先写他做得好的地方，再温和地提一点建议'] },
+  { dim: 'TF', text: '一艘船只能再载一个人，你会怎么决定？', options: ['评估每个人的情况，选择最合理的方案', '理性分析为主，但会考虑特殊情况', '尽量照顾最需要帮助的人，但也看实际情况', '这种事没法理性分析，凭良心走'] },
+  { dim: 'TF', text: '别人形容你时，哪句话你听着更顺耳？', options: ['你这个人特别靠谱，有原则', '你做事很清楚，跟你合作很放心', '你很好相处，大家都愿意跟你说心里话', '你这个人特别暖，跟你待着很舒服'] },
+  { dim: 'TF', text: '有人当众批评了你的工作，你内心的第一个声音是？', options: ['他说的到底对不对？让我想想', '可能有道理，但这种说法也太直接了', '说得不太好听，但先消化一下情绪再判断', '他怎么能这样说？这让我很不舒服'] },
+  { dim: 'TF', text: '一份工作薪资高但团队氛围冷漠，另一份薪资一般但同事亲如家人，你选？', options: ['高薪那份——工作就是工作，效率和回报更重要', '倾向高薪，但会想办法在工作之外建立社交', '倾向氛围好的，但薪资差太多也会犹豫', '氛围好的那份——每天相处的人比数字更影响生活质量'] },
+  { dim: 'TF', text: '两个朋友闹矛盾，都来找你评理，你会？', options: ['客观分析双方的对错，哪怕结论会让其中一个人不高兴', '尽量公正地说出看法，但措辞上照顾双方感受', '各自安抚，帮他们找到彼此能接受的台阶', '想办法找到双方都能接受的说法，维持关系更重要'] },
+  { dim: 'TF', text: '一个善意的谎言和一句伤人的实话，你更能接受哪个？', options: ['实话——被骗的感觉比受伤更难忍', '实话为好，但说的方式可以温和一些', '善意的谎言也可以，关键看出发点', '善意的谎言——有时候温柔比真相更重要'] },
+  { dim: 'TF', text: '评价一部电影，你更关注？', options: ['剧情逻辑是否自洽、叙事结构是否精巧', '导演的表达手法和技术层面的完成度', '角色是否真实可信、情感表达是否动人', '它让你哭了还是笑了、触动了你的哪根弦'] },
+  { dim: 'TF', text: '什么样的演讲最打动你？', options: ['论据充分、推理严密，让你心服口服', '逻辑清晰的同时，还能引发你的思考', '有真实故事支撑，让你感同身受', '讲述者声音颤抖时的那一刻真情流露'] },
+  { dim: 'TF', text: '一个员工能力很强但经常迟到，你怎么处理？', options: ['规则面前人人平等，该怎么处理就怎么处理', '按规定处理，但私下提醒一下注意', '先了解原因，根据情况给一次调整的机会', '了解一下原因，如果情有可原就灵活对待'] },
+  { dim: 'TF', text: '你认为一个人能走多远，主要取决于？', options: ['清醒的头脑和持续的自律', '能力和判断力，加上一点运气', '遇到的人和环境，加上自身的努力', '生命中遇到的人和被给予的善意'] },
+  { dim: 'TF', text: '脑子里的声音和心里的感觉打架了，你更听谁的？', options: ['脑子——情绪会骗人，逻辑不会', '通常听脑子，但心里的声音太强就会犹豫', '通常听心，但会用逻辑检验一下', '心——有些事只有心才能判断'] },
 
   // J-P 生活态度 (15题)
-  { dim: 'JP', text: '明天是自由的一天，今晚你会？', options: ['列一个清单，把想做的事安排好', '什么都不想，明天醒来再说'] },
-  { dim: 'JP', text: '一篇论文的截止日期是两周后，你的节奏更接近？', options: ['第一周就完成初稿，第二周修改', '截止前三天突然文思泉涌，一气呵成'] },
-  { dim: 'JP', text: '如果你的书桌是一面镜子，它照出的你是什么样的？', options: ['每样东西都有固定的位置，整齐是一种安全感', '看起来像一场小型爆炸，但你知道论文在第三摞的中间'] },
-  { dim: 'JP', text: '旅行前你做了详细攻略，到了发现一条没在计划里的小巷，你会？', options: ['记下来，回头有空再去，今天按计划走', '计划是什么？先钻进去看看再说'] },
-  { dim: 'JP', text: '一个项目终于完成了，你的满足感更来自？', options: ['终于画上句号了，这种完成感真好', '过程中那几个意外发现，比结果更让人兴奋'] },
-  { dim: 'JP', text: '朋友问你周六干什么，你的回答更可能是？', options: ['上午健身，下午见一个朋友，晚上看电影', '还没想，到时候看吧'] },
-  { dim: 'JP', text: '如果世界上只有两种国家，一种秩序井然，一种自由散漫，你住哪种？', options: ['秩序井然的那个——规则让人安心', '自由散漫的那个——束缚比混乱更让人窒息'] },
-  { dim: 'JP', text: '逛超市时，你更接近哪种画风？', options: ['拿着清单，直奔目标货架，绝不多逛', '推着车随便走，看到什么有趣的就丢进去'] },
-  { dim: 'JP', text: '如果生活是一首曲子，你更希望它是？', options: ['一首结构完整的交响乐，每个乐章各就各位', '一段即兴爵士，走到哪算哪，精彩全在意料之外'] },
-  { dim: 'JP', text: '面前有两扇门，一扇写着"确定的好结果"，一扇写着"未知"，你推哪扇？', options: ['确定的好结果——到手的才是真的', '未知——万一后面有更好的呢'] },
-  { dim: 'JP', text: '团队在赶工期，你更关心？', options: ['能不能按时交付，deadline是底线', '能不能做得更好，哪怕再多花点时间'] },
-  { dim: 'JP', text: '你的手机日历是什么状态？', options: ['色块密密麻麻，每天被安排得明明白白', '基本是空的，重要的事我记在脑子里'] },
-  { dim: 'JP', text: '原定计划突然被打乱了，你的内心独白是？', options: ['有点烦躁，我明明都安排好了', '无所谓，说不定新计划比老计划更好玩'] },
-  { dim: 'JP', text: '哪种处境更让你难受？', options: ['精心制定的计划被别人随意推翻', '被密不透风的日程表压得喘不过气'] },
-  { dim: 'JP', text: '写完最后一页论文，你的第一个念头是？', options: ['终于完成了，打个勾，进入下一个任务', '等等，第三章那个论点好像还能再展开一下……'] }
+  { dim: 'JP', text: '明天是自由的一天，今晚你会？', options: ['列一个清单，把想做的事安排好', '心里有个大致想法，不需要写下来', '想到一两件想做的事，其余随缘', '什么都不想，明天醒来再说'] },
+  { dim: 'JP', text: '一篇论文的截止日期是两周后，你的节奏更接近？', options: ['第一周就完成初稿，第二周修改', '前半段搭好框架，后半段集中写作', '慢慢积累素材，最后几天密集输出', '截止前三天突然文思泉涌，一气呵成'] },
+  { dim: 'JP', text: '如果你的书桌是一面镜子，它照出的你是什么样的？', options: ['每样东西都有固定的位置，整齐是一种安全感', '大体有序，偶尔堆几本还没归位的书', '有自己的一套逻辑，别人看着乱但你找得到', '看起来像一场小型爆炸，但你知道论文在第三摞的中间'] },
+  { dim: 'JP', text: '旅行前你做了详细攻略，到了发现一条没在计划里的小巷，你会？', options: ['记下来，回头有空再去，今天按计划走', '看看时间，如果不影响下一站就快速逛一下', '计划可以调一调，有趣的事值得绕个路', '计划是什么？先钻进去看看再说'] },
+  { dim: 'JP', text: '一个项目终于完成了，你的满足感更来自？', options: ['终于画上句号了，这种完成感真好', '按计划交付了，结果和预期一致', '虽然过程曲折，但学到了不少新东西', '过程中那几个意外发现，比结果更让人兴奋'] },
+  { dim: 'JP', text: '朋友问你周六干什么，你的回答更可能是？', options: ['上午健身，下午见一个朋友，晚上看电影', '大概有个安排，但还没定具体时间', '有一两个想法，看到时候什么心情', '还没想，到时候看吧'] },
+  { dim: 'JP', text: '如果世界上只有两种国家，一种秩序井然，一种自由散漫，你住哪种？', options: ['秩序井然的那个——规则让人安心', '偏秩序的，但希望有一些弹性空间', '偏自由的，但希望有基本的底线', '自由散漫的那个——束缚比混乱更让人窒息'] },
+  { dim: 'JP', text: '逛超市时，你更接近哪种画风？', options: ['拿着清单，直奔目标货架，绝不多逛', '有清单但不死板，顺路看到好的也拿', '大致知道要买什么，但主要靠现场灵感', '推着车随便走，看到什么有趣的就丢进去'] },
+  { dim: 'JP', text: '如果生活是一首曲子，你更希望它是？', options: ['一首结构完整的交响乐，每个乐章各就各位', '一首有主旋律的协奏曲，既有章法也有变奏', '一首民谣，有基本的旋律但允许即兴哼唱', '一段即兴爵士，走到哪算哪，精彩全在意料之外'] },
+  { dim: 'JP', text: '面前有两扇门，一扇写着"确定的好结果"，一扇写着"未知"，你推哪扇？', options: ['确定的好结果——到手的才是真的', '倾向确定的，但会忍不住看一眼未知那扇', '倾向未知，但会先确认确定的结果有多好', '未知——万一后面有更好的呢'] },
+  { dim: 'JP', text: '团队在赶工期，你更关心？', options: ['能不能按时交付，deadline是底线', '尽量按时，但关键环节不能马虎', '质量更重要，必要时可以跟客户协商延期', '能不能做得更好，哪怕再多花点时间'] },
+  { dim: 'JP', text: '你的手机日历是什么状态？', options: ['色块密密麻麻，每天被安排得明明白白', '重要的事都标了，偶尔有空白的日子', '只标了几个关键节点，其余随机应变', '基本是空的，重要的事我记在脑子里'] },
+  { dim: 'JP', text: '原定计划突然被打乱了，你的内心独白是？', options: ['有点烦躁，我明明都安排好了', '有点不舒服，但调整一下也不是不行', '稍微意外，但很快就接受了新情况', '无所谓，说不定新计划比老计划更好玩'] },
+  { dim: 'JP', text: '哪种处境更让你难受？', options: ['精心制定的计划被别人随意推翻', '计划被打乱让人烦，但没有计划更让人焦虑', '被计划束缚让人烦，但完全没方向也不行', '被密不透风的日程表压得喘不过气'] },
+  { dim: 'JP', text: '写完最后一页论文，你的第一个念头是？', options: ['终于完成了，打个勾，进入下一个任务', '检查一遍格式和引用，确认没问题就提交', '大功告成，但有几个地方可能可以更好', '等等，第三章那个论点好像还能再展开一下……'] }
 ];
 
 // 16种MBTI类型结果
@@ -594,17 +538,17 @@ function closeModal() {
 function calcScores() {
   const scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
   answers.forEach((v, i) => {
-    if (v === 1) scores[dims[i]]++;
+    if (v !== null) scores[dims[i]] += v;
   });
   return scores;
 }
 
 function getType(scores) {
   let type = '';
-  type += scores.EI < 8 ? 'E' : 'I';
-  type += scores.SN < 8 ? 'S' : 'N';
-  type += scores.TF < 8 ? 'T' : 'F';
-  type += scores.JP < 8 ? 'J' : 'P';
+  type += scores.EI < 23 ? 'E' : 'I';
+  type += scores.SN < 23 ? 'S' : 'N';
+  type += scores.TF < 23 ? 'T' : 'F';
+  type += scores.JP < 23 ? 'J' : 'P';
   return type;
 }
 
@@ -649,7 +593,7 @@ function showResult() {
       ${Object.keys(dimInfo).map(d => {
         const info = dimInfo[d];
         const score = scores[d];
-        const pct = (score / 15) * 100;
+        const pct = (score / 45) * 100;
         const leftPct = 100 - pct;
         return `
           <div class="dim-item">
@@ -728,7 +672,18 @@ function showResult() {
     <div class="card">
       <div style="font-family:'EB Garamond',serif;font-size:11px;letter-spacing:3px;color:rgba(139,92,246,0.7);text-transform:uppercase;margin-bottom:12px;">GROWTH PATH</div>
       <div class="section-title"><div class="section-icon" style="background:rgba(88,28,135,0.4)">🌱</div>成长路径</div>
-      ${result.growthTips.map((tip, i) => '<div class="tip-item"><div class="tip-num">' + (i+1) + '</div><div class="tip-text">' + tip + '</div></div>').join('')}
+      ${result.growthTips.map((tip, i) => {
+        const parts = tip.split('——');
+        const title = parts[0];
+        const detail = parts.length > 1 ? parts.slice(1).join('——') : '';
+        return '<div class="tip-item" style="padding:20px;margin-bottom:12px;">' +
+          '<div class="tip-num">' + (i+1) + '</div>' +
+          '<div style="flex:1;">' +
+            '<div style="font-family:Noto Serif SC,serif;font-size:15px;color:rgba(255,255,255,0.75);font-weight:600;margin-bottom:6px;">' + title + '</div>' +
+            (detail ? '<div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.8;">' + detail + '</div>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('')}
     </div>
 
     <div class="card download-section">
@@ -784,7 +739,7 @@ async function downloadPDF() {
         ${Object.keys(dimInfo).map(d => {
           const info = dimInfo[d];
           const score = scores[d];
-          const pct = Math.round((score / 15) * 100);
+          const pct = Math.round((score / 45) * 100);
           const leftPct = 100 - pct;
           return `<div style="margin-bottom:16px;padding:12px;background:#1e293b;border-radius:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-weight:500;"><span>${info.name}</span><span style="color:#a78bfa;">${leftPct}% : ${pct}%</span></div><div style="height:8px;background:#334155;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${leftPct}%;background:${info.color};border-radius:4px;"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-top:4px;"><span>${info.leftLabel}</span><span>${info.rightLabel}</span></div></div>`;
         }).join('')}
